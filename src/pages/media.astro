@@ -1,0 +1,366 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NewsletterSection from "../components/NewsletterSection.astro";
+
+const episodes = [
+  {
+    title: "Toad in the Hole",
+    description:
+      "When Turbo Toad accidentally hops into one of Professor Pothole's deep traps, The Biker Babies must work together to rescue him before he's stuck forever!",
+  },
+  {
+    title: "Rusty Rex's Revenge",
+    description:
+      "Grumpy old robot Rusty Rex is spreading rust all over the bike paths, hoping to make every bike as creaky as he is. The Biker Babies need to outsmart him before their wheels stop spinning!",
+  },
+  {
+    title: "Grumble Gnome's Garden Grudge",
+    description:
+      "Grumble Gnome is furious that bikers keep riding near his perfect lawn! He sets up tricky traps to stop the Biker Babies, but they're determined to find a way through without ruining his garden.",
+  },
+  {
+    title: "Captain Cone's Roadblock Rumble",
+    description:
+      "Captain Cone is at it again, setting up fake detour signs and blocking the best bike paths. The Biker Babies must navigate his maze of cones and prove they don't need his \"safety\" rules!",
+  },
+];
+---
+
+<Layout
+  title="Media – The Biker Babies"
+  description="Watch The Biker Babies animated episodes, explore the book series, and discover all the action-packed content!"
+>
+  <section class="media-hero">
+    <div class="media-hero-content">
+      <h1 class="media-hero-title">Rev Up the Action!</h1>
+      <span class="h1-accent-bar" aria-hidden="true"></span>
+      <p class="media-hero-sub">Watch, Listen, and Explore</p>
+      <p class="media-hero-body">
+        Dive into <em>The Biker Babies'</em> world with exciting animated episodes, a book series,
+        character videos, and behind-the-scenes content. From high-speed adventures to fun-filled
+        challenges, explore all things Biker Babies right here!
+      </p>
+    </div>
+  </section>
+
+  <section class="episodes-section">
+    <div class="episodes-inner">
+      <h2 class="section-label">Animated Episodes</h2>
+
+      <div class="trailer-wrap">
+        <div class="trailer-embed">
+          <iframe
+            src="https://www.youtube.com/embed/apdKrN8E2Ko"
+            title="The Biker Babies Trailer"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+        <div class="trailer-text">
+          <h3 class="trailer-heading">Watch Our Trailer</h3>
+          <p class="trailer-body">
+            Get a first look at <em>The Biker Babies</em> in action! Follow the crew as they tackle
+            wild obstacles, face off against quirky rivals, and prove that no challenge is too big
+            when you ride together.
+          </p>
+          <a
+            href="https://www.youtube.com/@TheBikerBabies"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary"
+          >
+            Visit our YouTube
+          </a>
+        </div>
+      </div>
+
+      <h2 class="section-label coming-label">Coming Soon</h2>
+      <div class="episodes-grid">
+        {
+          episodes.map((ep) => (
+            <article class="episode-card">
+              <div class="episode-badge">Coming Soon</div>
+              <h3 class="episode-title">{ep.title}</h3>
+              <p class="episode-desc">{ep.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="books-section">
+    <div class="books-inner">
+      <div class="books-image">
+        <img
+          src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=913,fit=crop/m7V56PrMDJFy6Dyx/fc70cb42-b3d9-44bd-8a10-85bd36b62b46-YrDqKzxaO1FLrkN0.png"
+          alt="The Biker Babies book series"
+          class="books-img"
+        />
+      </div>
+      <div class="books-text">
+        <h2 class="section-label">The Book Series</h2>
+        <h3 class="books-heading">Ride Into Adventure – One Page at a Time!</h3>
+        <p class="books-body">
+          Explore <em>The Biker Babies</em> book series, packed with thrilling adventures, daring
+          challenges, and unforgettable characters. Whether you're a new rider or a seasoned fan,
+          there's a story waiting for you!
+        </p>
+        <a href="/merch" class="btn-secondary">Browse the Books</a>
+      </div>
+    </div>
+  </section>
+
+  <NewsletterSection quote="New episodes and books dropping soon – stay in the loop!" />
+</Layout>
+
+<style>
+  .media-hero {
+    background: var(--color-bg);
+    padding: 5rem 2rem 3rem;
+  }
+
+  .media-hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .media-hero-title {
+    font-size: clamp(2.5rem, 6.5vw, 5rem);
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+
+  .h1-accent-bar {
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
+  }
+
+  .media-hero-sub {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    color: #ff6b00;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+
+  .media-hero-body {
+    font-size: 0.95rem;
+    color: #d0d0d0;
+    line-height: 1.65;
+    max-width: 640px;
+  }
+
+  .episodes-section {
+    padding: 5rem 2rem;
+    background: var(--color-bg);
+  }
+
+  .episodes-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+    font-weight: 900;
+    color: #ff6b00;
+    letter-spacing: 0.08em;
+    margin-bottom: 2rem;
+  }
+
+  .trailer-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  .trailer-embed {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    background: #0d0d18;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 340px;
+  }
+
+  .trailer-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .trailer-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 1rem;
+  }
+
+  .trailer-body {
+    font-size: 0.95rem;
+    color: #ccc;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 0.85rem 2.25rem;
+    background: #ff6b00;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.35);
+  }
+
+  .btn-primary:hover {
+    background: #e05c00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(255, 107, 0, 0.5);
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.85rem 2.25rem;
+    background: transparent;
+    color: #ff6b00;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    border: 2px solid #ff6b00;
+    border-radius: 4px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #ff6b00;
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .coming-label {
+    margin-top: 1rem;
+  }
+
+  .episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  .episode-card {
+    background: var(--color-bg-card);
+    border: 1px solid rgba(255, 107, 0, 0.12);
+    border-radius: 10px;
+    padding: 1.75rem;
+    position: relative;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .episode-card:hover {
+    border-color: rgba(255, 107, 0, 0.35);
+    transform: translateY(-4px);
+  }
+
+  .episode-badge {
+    display: inline-block;
+    padding: 0.2rem 0.75rem;
+    background: rgba(255, 107, 0, 0.15);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    color: #ff6b00;
+    font-size: 0.75rem;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 0.1em;
+    border-radius: 3px;
+    margin-bottom: 0.75rem;
+  }
+
+  .episode-title {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.4rem;
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.75rem;
+  }
+
+  .episode-desc {
+    font-size: 0.88rem;
+    color: #aaa;
+    line-height: 1.6;
+  }
+
+  .books-section {
+    padding: 5rem 2rem;
+    background: var(--color-bg-section);
+  }
+
+  .books-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .books-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    max-height: 560px;
+    object-fit: contain;
+    object-position: center center;
+    background: transparent;
+  }
+
+  .books-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 1.25rem;
+  }
+
+  .books-body {
+    font-size: 0.95rem;
+    color: #ccc;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 900px) {
+    .trailer-wrap {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .trailer-embed {
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+
+    .books-inner {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  }
+</style>

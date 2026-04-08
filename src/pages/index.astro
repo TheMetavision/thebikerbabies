@@ -1,0 +1,625 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NewsletterSection from "../components/NewsletterSection.astro";
+import CharacterCarousel from "../components/CharacterCarousel.astro";
+---
+
+<Layout title="The Biker Babies – Adventure on Two Wheels!">
+  <section class="hero">
+    <div class="hero-image-wrap">
+      <div class="hero-parallax-wrap">
+        <img
+          src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1440,h=756,fit=crop,f=jpeg/m7V56PrMDJFy6Dyx/thebikerbabieslandscape-mainpage-YKbEZn5z0eUD3NeN.png"
+          alt="The Biker Babies landscape"
+          class="hero-landscape"
+        />
+      </div>
+      <img
+        src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=564,fit=crop/m7V56PrMDJFy6Dyx/149b6bfe-ed8b-431a-b260-b282b0bb25b9-dJo5MRW5xJsGMkjN.png"
+        alt="The Biker Babies"
+        class="hero-portrait"
+      />
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">Tiny bikers, epic tales!</h1>
+        <span class="h1-accent-bar" aria-hidden="true"></span>
+        <p class="hero-intro">
+          <strong>Welcome to <em>The Biker Babies</em> – Adventure on Two Wheels!</strong>
+        </p>
+        <p class="hero-body">
+          Join <em>The Biker Babies</em> on thrilling, fast-paced adventures in our <strong
+            >animated series</strong
+          >, where a fearless crew of young bikers takes on quirky rivals, tricky obstacles, and
+          exciting challenges! Watch their journey unfold on <strong>YouTube</strong>, where you'll
+          find <strong>character videos, behind-the-scenes fun, and action-packed episodes</strong>.
+        </p>
+        <p class="hero-body">
+          Love to read? Dive into <em>The Biker Babies</em>
+          <strong>book series</strong>, packed with epic stories, daring escapes, and unforgettable
+          friendships.
+        </p>
+        <p class="hero-body">
+          Bring the adventure home with our <strong>official merchandise</strong>—featuring <strong
+            >character-themed apparel, collectible stickers, unique artwork, accessories, and
+            more!</strong
+          >
+        </p>
+        <p class="hero-tagline">
+          Join the ride, gear up, and become part of <em>The Biker Babies</em> crew today!
+        </p>
+        <a
+          href="https://www.youtube.com/shorts/apdKrN8E2Ko"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-primary"
+        >
+          Watch our trailer
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="books-section">
+    <div class="section-inner">
+      <div class="books-text">
+        <h2 class="section-label">Check Out Their Latest Adventures</h2>
+        <h3 class="section-subhead">
+          Explore <em>The Biker Babies</em> Book Series!
+        </h3>
+        <p class="section-body">
+          Join <em>The Biker Babies</em> on action-packed adventures in this exciting book series!
+          Each story is filled with high-speed fun, daring challenges, and unforgettable
+          friendships. Whether you're a thrill-seeker or a problem-solver, there's a book for every
+          young rider. <strong>Start your journey today!</strong>
+        </p>
+        <a href="/media" class="btn-secondary">Check out our books</a>
+      </div>
+      <div class="books-image">
+        <img
+          src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=915,fit=crop/m7V56PrMDJFy6Dyx/dd96790d-9992-4ea0-982f-97d2672c7cf6-ALp7RD6wL2SqO212.png"
+          alt="The Biker Babies book series"
+          class="section-img"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="series-section">
+    <div class="series-inner">
+      <div class="series-copy">
+        <p class="series-label">COMING SOON</p>
+        <h2 class="series-heading">The Animated Series</h2>
+        <p class="series-subheading">Coming to YouTube — and beyond.</p>
+        <p class="series-body">
+          The Biker Babies are revving up for the screen. Follow Maddison, Kai, Amara and the full
+          crew as their adventures come to life in a brand new animated series. Subscribe now so
+          you're first to know when episodes drop.
+        </p>
+        <div class="series-ctas">
+          <a
+            href="https://www.youtube.com/shorts/apdKrN8E2Ko"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="series-btn-primary"
+          >
+            Subscribe on YouTube
+          </a>
+          <a href="#newsletter" class="series-btn-secondary">
+            Get notified about the launch <span class="series-arrow">→</span>
+          </a>
+        </div>
+      </div>
+      <div class="series-video">
+        <div class="series-video-wrap">
+          <iframe
+            src="https://www.youtube.com/embed/apdKrN8E2Ko"
+            title="The Biker Babies – Animated Series Trailer"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CharacterCarousel />
+
+  <div id="newsletter">
+    <NewsletterSection quote="Where pint-sized power meets the open road!" />
+  </div>
+</Layout>
+
+<style>
+  /* ── Layout ─────────────────────────────────────────────── */
+  .hero {
+    overflow: hidden;
+  }
+
+  .hero-image-wrap {
+    position: relative;
+    line-height: 0;
+  }
+
+  .hero-parallax-wrap {
+    line-height: 0;
+  }
+
+  .hero-landscape {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .hero-portrait {
+    display: none;
+    width: 100%;
+    height: auto;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(8, 8, 16, 0.9) 0%,
+      rgba(8, 8, 16, 0.65) 55%,
+      rgba(8, 8, 16, 0.15) 100%
+    );
+  }
+
+  .hero-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 2rem 2rem 4vw;
+    max-width: 660px;
+    z-index: 1;
+    line-height: 1.6;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    color: #fff;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.7);
+  }
+
+  .hero-intro {
+    font-size: 0.95rem;
+    color: #ff6b00;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  .hero-body {
+    font-size: 0.88rem;
+    color: #d0d0d0;
+    margin-bottom: 0.6rem;
+    line-height: 1.6;
+  }
+
+  .hero-tagline {
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 0.85rem 2.25rem;
+    background: #ff6b00;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.35);
+    align-self: flex-start;
+  }
+
+  .btn-primary:hover {
+    background: #e05c00;
+    box-shadow: 0 6px 28px rgba(255, 107, 0, 0.5);
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.85rem 2.25rem;
+    background: transparent;
+    color: #ff6b00;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    border: 2px solid #ff6b00;
+    border-radius: 4px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #ff6b00;
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .books-section {
+    padding: 6rem 2rem;
+    background: var(--color-bg-section);
+  }
+
+.section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .section-inner.reverse {
+    direction: rtl;
+  }
+
+  .section-inner.reverse > * {
+    direction: ltr;
+  }
+
+  .h1-accent-bar {
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
+  }
+
+  .section-label {
+    font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+    font-weight: 700;
+    color: #ff6b00;
+    letter-spacing: 0.06em;
+    margin-bottom: 1rem;
+  }
+
+  .section-subhead {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: #fff;
+    margin-bottom: 1.25rem;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 0.06em;
+  }
+
+  .section-body {
+    font-size: 0.95rem;
+    color: #ccc;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .section-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+    max-height: 580px;
+    object-fit: contain;
+    object-position: center center;
+    background: transparent;
+  }
+
+  .section-img:hover {
+    transform: scale(1.02);
+  }
+
+  /* ── Animations (only when motion is allowed) ────────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes heroImgIn {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes heroTitleIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes heroTextIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes heroBtnIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes btnPulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.04); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    /* 1. Background / character image entrance */
+    .hero-landscape,
+    .hero-portrait {
+      animation: heroImgIn 0.7s ease-out both;
+    }
+
+    /* 2. Title slide up */
+    .hero-title {
+      animation: heroTitleIn 0.6s ease-out 0.3s both;
+    }
+
+    /* 3. Description text fade in */
+    .hero-intro,
+    .hero-body,
+    .hero-tagline {
+      animation: heroTextIn 0.5s ease-out 0.6s both;
+    }
+
+    /* 4. CTA entrance + continuous pulse */
+    .hero-content .btn-primary {
+      animation:
+        heroBtnIn 0.4s ease-out 0.9s both,
+        btnPulse  2s ease-in-out 1.3s infinite;
+    }
+
+    /* Pause pulse on hover so it doesn't fight the hover state */
+    .hero-content .btn-primary:hover {
+      animation-play-state: running, paused;
+    }
+
+    /* 6. Floating character image (portrait / mobile) */
+    .hero-portrait {
+      animation:
+        heroImgIn 0.7s ease-out both,
+        float     3s ease-in-out 1s infinite;
+    }
+  }
+
+  /* ── Animated Series Section ────────────────────────────── */
+  .series-section {
+    background: #ff6b00;
+    padding: 6rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .series-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 50%, rgba(0, 0, 0, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(0, 0, 0, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .series-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .series-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 0.75rem;
+  }
+
+  .series-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    font-weight: 900;
+    color: #000;
+    letter-spacing: 0.03em;
+    margin: 0 0 0.5rem;
+    line-height: 1;
+    text-shadow: none;
+  }
+
+  .series-subheading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: rgba(0, 0, 0, 0.6);
+    letter-spacing: 0.08em;
+    margin: 0 0 1.75rem;
+  }
+
+  .series-body {
+    font-size: 0.97rem;
+    color: rgba(0, 0, 0, 0.75);
+    line-height: 1.75;
+    margin: 0 0 2.5rem;
+    max-width: 480px;
+  }
+
+  .series-ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .series-btn-primary {
+    display: inline-block;
+    padding: 0.9rem 2.25rem;
+    background: #000;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .series-btn-primary:hover {
+    background: #222;
+    box-shadow: 0 6px 32px rgba(0, 0, 0, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .series-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgba(0, 0, 0, 0.65);
+    text-decoration: none;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+    padding: 0.25rem 0;
+  }
+
+  .series-btn-secondary:hover {
+    color: #000;
+  }
+
+  .series-arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+  }
+
+  .series-btn-secondary:hover .series-arrow {
+    transform: translateX(5px);
+  }
+
+  .series-video {
+    position: relative;
+  }
+
+  .series-video-wrap {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(255, 255, 255, 0.07);
+  }
+
+  .series-video-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* ── Responsive ─────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hero-parallax-wrap {
+      display: none;
+    }
+
+    .hero-portrait {
+      display: block;
+    }
+
+    .hero-overlay {
+      background: linear-gradient(
+        180deg,
+        rgba(8, 8, 16, 0.4) 0%,
+        rgba(8, 8, 16, 0.75) 55%,
+        rgba(8, 8, 16, 0.97) 100%
+      );
+    }
+
+    .hero-content {
+      justify-content: flex-end;
+      padding: 2rem 1.5rem;
+      max-width: 100%;
+    }
+
+    .btn-primary {
+      align-self: center;
+    }
+
+    .books-section,
+    .gang-section {
+      padding: 3rem 1.5rem;
+    }
+
+    .series-section {
+      padding: 3rem 1.5rem;
+    }
+
+    .section-inner {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .section-inner.reverse {
+      direction: ltr;
+    }
+
+    .gang-image {
+      order: -1;
+    }
+
+    .series-inner {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .series-copy {
+      order: 1;
+    }
+
+    .series-video {
+      order: 2;
+    }
+
+    .series-body {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!reduceMotion) {
+    const parallaxWrap = document.querySelector<HTMLElement>(".hero-parallax-wrap");
+
+    if (parallaxWrap) {
+      let ticking = false;
+
+      function updateParallax() {
+        const scrollY = window.scrollY;
+        parallaxWrap!.style.transform = `translateY(${scrollY * 0.3}px)`;
+        ticking = false;
+      }
+
+      window.addEventListener("scroll", () => {
+        if (!ticking) {
+          requestAnimationFrame(updateParallax);
+          ticking = true;
+        }
+      }, { passive: true });
+    }
+  }
+</script>

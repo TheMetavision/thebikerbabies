@@ -1,0 +1,267 @@
+---
+import SocialIcons from "./SocialIcons.astro";
+
+const navLinks = [
+  { label: "Home", href: "/" },
+  { label: "Meet The Gang", href: "/meet-the-biker-babies" },
+  { label: "Media", href: "/media" },
+  { label: "Merch", href: "/merch" },
+  { label: "Baby Babble", href: "/baby-babble" },
+  { label: "Get In Touch", href: "/get-in-touch" },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<header class="site-header" id="site-header">
+  <nav class="nav-container">
+    <a href="/" class="nav-logo">
+      <img
+        src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop/m7V56PrMDJFy6Dyx/the-biker-babies-logo-AQEDOLz5DZf21RJ7.png"
+        alt="The Biker Babies logo"
+        class="logo-img"
+      />
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class:list={["nav-link", { active: currentPath === link.href }]}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+      <li class="nav-social-mobile">
+        <SocialIcons size={22} />
+      </li>
+    </ul>
+
+    <div class="nav-right">
+      <SocialIcons size={18} class="nav-social-desktop" />
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    padding: 0;
+  }
+
+  .site-header.scrolled {
+    background: rgba(10, 10, 20, 0.97);
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .logo-img {
+    height: 72px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(255, 107, 0, 0.3));
+    transition: transform 0.2s ease;
+  }
+
+  .logo-img:hover {
+    transform: scale(1.05);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    margin-left: 1rem;
+  }
+
+  .nav-social-mobile {
+    display: none;
+  }
+
+  .nav-link {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    position: relative;
+    transition: color 0.2s ease;
+    padding-bottom: 2px;
+    white-space: nowrap;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    transition: width 0.2s ease, opacity 0.2s ease;
+    opacity: 0.5;
+  }
+
+  .nav-link.active::after {
+    width: 100%;
+    opacity: 1;
+    animation: underline-in 0.3s ease forwards;
+  }
+
+  @keyframes underline-in {
+    from { width: 0; }
+    to   { width: 100%; }
+  }
+
+  .nav-link:not(.active):hover::after {
+    width: 100%;
+    opacity: 0.5;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: #ff6b00;
+  }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 4px;
+    margin-left: 0.25rem;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: #e0e0e0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 960px) {
+    .hamburger {
+      display: flex;
+    }
+
+    .nav-social-desktop {
+      display: none !important;
+    }
+
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 20, 0.98);
+      flex-direction: column;
+      gap: 0;
+      padding: 1rem 0 1.5rem;
+      border-top: 1px solid rgba(255, 107, 0, 0.2);
+      justify-content: flex-start;
+    }
+
+    .nav-links.open {
+      display: flex;
+    }
+
+    .nav-links li {
+      width: 100%;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.75rem 2rem;
+      padding-left: calc(2rem - 3px);
+      font-size: 1.3rem;
+      border-left: 3px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .nav-link::after {
+      display: none;
+    }
+
+    .nav-link.active {
+      border-left-color: #ff6b00;
+      background: rgba(255, 107, 0, 0.07);
+    }
+
+    .nav-link:not(.active):hover {
+      border-left-color: rgba(255, 107, 0, 0.35);
+      background: rgba(255, 107, 0, 0.03);
+    }
+
+    .nav-social-mobile {
+      display: flex;
+      justify-content: center;
+      padding: 1rem 2rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-header");
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("nav-links");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 40) {
+      header?.classList.add("scrolled");
+    } else {
+      header?.classList.remove("scrolled");
+    }
+  });
+
+  hamburger?.addEventListener("click", () => {
+    const isOpen = navLinks?.classList.toggle("open");
+    hamburger.setAttribute("aria-expanded", String(isOpen));
+  });
+</script>

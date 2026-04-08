@@ -1,0 +1,504 @@
+---
+import Layout from "../layouts/Layout.astro";
+import CharacterCard from "../components/CharacterCard.astro";
+import NewsletterSection from "../components/NewsletterSection.astro";
+import { heroes, villains } from "../data/characters";
+---
+
+<Layout
+  title="Meet the Gang – The Biker Babies"
+  description="Get to know The Biker Babies—a fearless crew of young riders with unique skills and personalities!"
+>
+  <section class="gang-hero">
+    <div class="gang-hero-content">
+      <h1 class="gang-hero-title">Meet the Gang</h1>
+      <span class="h1-accent-bar" aria-hidden="true"></span>
+      <p class="gang-hero-body">
+        Get to know <em>The Biker Babies</em>—a fearless crew of young riders who love adventure,
+        teamwork, and outsmarting troublemakers! From daring stunt riders to genius inventors,
+        each member brings something special to the team. <strong
+          >Meet the gang and join the ride!</strong
+        >
+      </p>
+    </div>
+  </section>
+
+  <div class="filter-bar-wrap">
+    <div class="filter-bar" role="tablist" aria-label="Filter characters">
+      <button class="filter-tab active" role="tab" aria-selected="true" data-filter="all">All</button>
+      <button class="filter-tab" role="tab" aria-selected="false" data-filter="heroes">Heroes</button>
+      <button class="filter-tab" role="tab" aria-selected="false" data-filter="rivals">Rivals</button>
+    </div>
+  </div>
+
+  <section class="characters-section" id="section-heroes">
+    <div class="characters-inner">
+      <h2 class="characters-heading">The Heroes</h2>
+      <div class="characters-grid">
+        {
+          heroes.map((char) => (
+            <CharacterCard
+              name={char.name}
+              title={char.title}
+              description={char.description}
+              image={char.image}
+              isVillain={false}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="characters-section villains" id="section-rivals">
+    <div class="characters-inner">
+      <h2 class="characters-heading villains-heading">The Rivals</h2>
+      <div class="characters-grid">
+        {
+          villains.map((char) => (
+            <CharacterCard
+              name={char.name}
+              title={char.title}
+              description={char.description}
+              image={char.image}
+              isVillain={true}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <NewsletterSection quote="Join the ride! Sign up for exclusive updates and adventures!" />
+
+  <div id="character-modal" class="modal-backdrop" aria-modal="true" role="dialog" aria-label="Character details" hidden>
+    <div class="modal-panel">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <div class="modal-body">
+        <div class="modal-image-wrap">
+          <img id="modal-img" src="" alt="" class="modal-img" />
+        </div>
+        <div class="modal-info">
+          <p id="modal-subtitle" class="modal-subtitle"></p>
+          <h2 id="modal-name" class="modal-name"></h2>
+          <p id="modal-desc" class="modal-desc"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .gang-hero {
+    background: var(--color-bg);
+    padding: 5rem 2rem 3rem;
+  }
+
+  .gang-hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .gang-hero-title {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    color: #fff;
+    margin-bottom: 0.4rem;
+  }
+
+  .h1-accent-bar {
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
+  }
+
+  .gang-hero-body {
+    font-size: 1rem;
+    color: #d0d0d0;
+    line-height: 1.65;
+    max-width: 680px;
+  }
+
+  /* ── Filter bar ──────────────────────────────────────────── */
+  .filter-bar-wrap {
+    background: var(--color-bg);
+    padding: 2.25rem 2rem 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 999px;
+    padding: 0.35rem;
+  }
+
+  .filter-tab {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    padding: 0.5rem 1.75rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 107, 0, 0.45);
+    background: transparent;
+    color: #ff6b00;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    outline: none;
+    white-space: nowrap;
+  }
+
+  .filter-tab:focus-visible {
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.4);
+  }
+
+  .filter-tab.active {
+    background: #ff6b00;
+    color: #fff;
+    border-color: #ff6b00;
+  }
+
+  .filter-tab:not(.active):hover {
+    background: rgba(255, 107, 0, 0.1);
+  }
+
+  /* ── Section visibility animation ───────────────────────── */
+  .characters-section {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: top center;
+  }
+
+  .characters-section.section-hidden {
+    opacity: 0;
+    transform: scaleY(0.97);
+    pointer-events: none;
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .filter-bar-wrap {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .filter-bar {
+      width: 100%;
+      justify-content: stretch;
+    }
+
+    .filter-tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.5rem 0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .characters-section {
+      transition: none;
+    }
+    .filter-tab {
+      transition: none;
+    }
+  }
+
+  /* ── Character sections ──────────────────────────────────── */
+  .characters-section {
+    padding: 5rem 2rem;
+    background: var(--color-bg);
+  }
+
+  .characters-section.villains {
+    background: var(--color-bg-section);
+  }
+
+  .characters-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .characters-heading {
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight: 700;
+    color: #ff6b00;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid rgba(255, 107, 0, 0.2);
+    padding-bottom: 0.75rem;
+  }
+
+  .villains-heading {
+    color: #e03030;
+    border-bottom-color: rgba(224, 48, 48, 0.2);
+  }
+
+  .characters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.75rem;
+  }
+
+  /* ── Modal ─────────────────────────────────────────────── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 4, 10, 0.85);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-backdrop[hidden] {
+    display: none;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-panel {
+    background: #13131e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    max-width: 860px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalIn 0.25s ease-out both;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #fff;
+    font-size: 1.4rem;
+    line-height: 1;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.15s ease;
+  }
+
+  .modal-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .modal-body {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) 1fr;
+    min-height: 380px;
+  }
+
+  .modal-image-wrap {
+    border-radius: 14px 0 0 14px;
+    overflow: hidden;
+    background: #13131e;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    min-height: 300px;
+  }
+
+  .modal-img {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    object-fit: contain;
+    object-position: center bottom;
+    display: block;
+  }
+
+  .modal-info {
+    padding: 2.5rem 2.25rem 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .modal-subtitle {
+    font-size: 0.82rem;
+    color: #ff6b00;
+    font-style: italic;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .modal-subtitle.villain {
+    color: #e03030;
+  }
+
+  .modal-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 1.25rem;
+    line-height: 1.1;
+  }
+
+  .modal-desc {
+    font-size: 0.97rem;
+    color: #bbb;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    .characters-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .modal-backdrop {
+      padding: 0;
+      align-items: flex-end;
+    }
+
+    .modal-panel {
+      border-radius: 16px 16px 0 0;
+      max-height: 92vh;
+      animation: none;
+    }
+
+    .modal-body {
+      grid-template-columns: 1fr;
+      min-height: unset;
+    }
+
+    .modal-image-wrap {
+      border-radius: 16px 16px 0 0;
+      min-height: 200px;
+      max-height: 280px;
+      width: 100%;
+    }
+
+    .modal-img {
+      min-height: 200px;
+      max-height: 280px;
+      object-fit: contain;
+      object-position: center bottom;
+    }
+
+    .modal-info {
+      padding: 1.5rem 1.25rem 2rem;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .characters-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modal-panel {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const modal = document.getElementById("character-modal") as HTMLElement;
+  const modalImg = document.getElementById("modal-img") as HTMLImageElement;
+  const modalName = document.getElementById("modal-name") as HTMLElement;
+  const modalSubtitle = document.getElementById("modal-subtitle") as HTMLElement;
+  const modalDesc = document.getElementById("modal-desc") as HTMLElement;
+  const closeBtn = modal.querySelector(".modal-close") as HTMLButtonElement;
+
+  let previouslyFocused: HTMLElement | null = null;
+
+  function openModal(card: HTMLElement) {
+    const name = card.dataset.name ?? "";
+    const title = card.dataset.title ?? "";
+    const description = card.dataset.description ?? "";
+    const image = card.dataset.image ?? "";
+    const isVillain = card.dataset.villain === "true";
+
+    modalImg.src = image;
+    modalImg.alt = name;
+    modalName.textContent = name;
+    modalSubtitle.textContent = title;
+    modalSubtitle.className = isVillain ? "modal-subtitle villain" : "modal-subtitle";
+    modalDesc.textContent = description;
+
+    previouslyFocused = document.activeElement as HTMLElement;
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    if (previouslyFocused) previouslyFocused.focus();
+  }
+
+  document.querySelectorAll<HTMLElement>(".character-card").forEach((card) => {
+    card.addEventListener("click", () => openModal(card));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openModal(card);
+      }
+    });
+  });
+
+  closeBtn.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.hidden) closeModal();
+  });
+
+  const tabs = document.querySelectorAll<HTMLButtonElement>(".filter-tab");
+  const sectionHeroes = document.getElementById("section-heroes") as HTMLElement;
+  const sectionRivals = document.getElementById("section-rivals") as HTMLElement;
+
+  function setFilter(filter: string) {
+    tabs.forEach((t) => {
+      const isActive = t.dataset.filter === filter;
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    if (filter === "all") {
+      sectionHeroes.classList.remove("section-hidden");
+      sectionRivals.classList.remove("section-hidden");
+    } else if (filter === "heroes") {
+      sectionHeroes.classList.remove("section-hidden");
+      sectionRivals.classList.add("section-hidden");
+    } else {
+      sectionHeroes.classList.add("section-hidden");
+      sectionRivals.classList.remove("section-hidden");
+    }
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => setFilter(tab.dataset.filter ?? "all"));
+  });
+</script>

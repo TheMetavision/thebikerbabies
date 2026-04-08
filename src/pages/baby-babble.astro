@@ -1,0 +1,300 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NewsletterSection from "../components/NewsletterSection.astro";
+
+const posts = [
+  {
+    date: "Feb 25, 2025",
+    readTime: "1 min read",
+    title: "From Page to Screen: The Biker Babies Story",
+    excerpt:
+      "Discover how the Biker Babies' adventures come to life in both the book series and the animated show! We take you behind the scenes of how each story is brought to life.",
+    tag: "Behind the Scenes",
+    cardBg: "linear-gradient(135deg, #1a1008 0%, #3d1f00 100%)",
+    cardAccent: "#ff6b00",
+  },
+  {
+    date: "Feb 18, 2025",
+    readTime: "2 min read",
+    title: "Meet the Villains: Who's Causing Trouble This Season?",
+    excerpt:
+      "From Grumble Gnome's garden traps to Turbo Toad's pogo-stick antics, get the lowdown on the troublemakers giving The Biker Babies a run for their money!",
+    tag: "Characters",
+    cardBg: "linear-gradient(135deg, #0a1520 0%, #0d2e40 100%)",
+    cardAccent: "#00aaff",
+  },
+  {
+    date: "Feb 10, 2025",
+    readTime: "2 min read",
+    title: "Top 5 Tips for Young Riders",
+    excerpt:
+      "Inspired by the crew, here are five real-world bike safety and riding tips that every young cyclist should know before hitting the open road.",
+    tag: "Tips & Tricks",
+    cardBg: "linear-gradient(135deg, #0d1a0d 0%, #1a3d1a 100%)",
+    cardAccent: "#4caf50",
+  },
+  {
+    date: "Jan 28, 2025",
+    readTime: "1 min read",
+    title: "The Biker Babies Book Series – What to Read First",
+    excerpt:
+      "New to the series? Not sure where to start? We've put together the perfect reading order so you can dive straight into the action without missing a beat.",
+    tag: "Books",
+    cardBg: "linear-gradient(135deg, #1a1208 0%, #3d2e00 100%)",
+    cardAccent: "#ffd700",
+  },
+  {
+    date: "Jan 15, 2025",
+    readTime: "3 min read",
+    title: "Building a Crew: The Teamwork Behind Every Adventure",
+    excerpt:
+      "Every great crew has its strengths. We explore how each Biker Baby's unique skill makes the team unstoppable — and what you can learn from them about working together.",
+    tag: "Adventure",
+    cardBg: "linear-gradient(135deg, #150a1a 0%, #2e0d3d 100%)",
+    cardAccent: "#c06aff",
+  },
+  {
+    date: "Jan 5, 2025",
+    readTime: "2 min read",
+    title: "What Makes a Biker Baby?",
+    excerpt:
+      "Courage, creativity, and a love of two wheels. We break down the qualities that make The Biker Babies crew so special — and how you can embody them in your own adventures.",
+    tag: "Inspiration",
+    cardBg: "linear-gradient(135deg, #0a1518 0%, #0d3040 100%)",
+    cardAccent: "#00d4c8",
+  },
+];
+---
+
+<Layout
+  title="Baby Babble – The Biker Babies Blog"
+  description="Stories, speed and squad goals – the official Biker Babies blog with behind-the-scenes stories, character spotlights, and tips for young riders."
+>
+  <section class="blog-hero">
+    <div class="blog-hero-content">
+      <h1 class="blog-hero-title">Baby Babble</h1>
+      <span class="h1-accent-bar" aria-hidden="true"></span>
+      <p class="blog-hero-sub">Stories, Speed & Squad Goals</p>
+      <p class="blog-hero-body">
+        Your go-to source for <em>Biker Babies</em> news, character spotlights, behind-the-scenes
+        stories, and tips for young riders everywhere.
+      </p>
+    </div>
+  </section>
+
+  <section class="blog-section">
+    <div class="blog-inner">
+      <div class="blog-grid">
+        {
+          posts.map((post) => (
+            <article class="blog-card">
+              <div
+                class="blog-card-image"
+                style={`background: ${post.cardBg};`}
+                aria-hidden="true"
+              >
+                <div
+                  class="blog-card-image-bar"
+                  style={`background: ${post.cardAccent};`}
+                />
+              </div>
+              <div class="blog-card-body">
+                <div class="blog-card-top">
+                  <span class="blog-tag" style={`color: ${post.cardAccent}; border-color: ${post.cardAccent}33; background: ${post.cardAccent}1a;`}>{post.tag}</span>
+                </div>
+                <h2 class="blog-title">{post.title}</h2>
+                <p class="blog-excerpt">{post.excerpt}</p>
+                <div class="blog-meta">
+                  <span class="blog-date">{post.date}</span>
+                  <span class="blog-dot" aria-hidden="true" />
+                  <span class="blog-read">{post.readTime}</span>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <NewsletterSection quote="Never miss a story – subscribe for the latest Biker Babies updates!" />
+</Layout>
+
+<style>
+  .blog-hero {
+    background: var(--color-bg);
+    padding: 5rem 2rem 3rem;
+  }
+
+  .blog-hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .blog-hero-title {
+    font-size: clamp(2.5rem, 6.5vw, 5rem);
+    color: #fff;
+    margin-bottom: 0.2rem;
+  }
+
+  .h1-accent-bar {
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
+  }
+
+  .blog-hero-sub {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    color: #ff6b00;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+
+  .blog-hero-body {
+    font-size: 0.95rem;
+    color: #d0d0d0;
+    line-height: 1.65;
+    max-width: 580px;
+  }
+
+  .blog-section {
+    padding: 5rem 2rem;
+    background: var(--color-bg);
+  }
+
+  .blog-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.75rem;
+  }
+
+  .blog-card {
+    background: var(--color-bg-card);
+    border: 1px solid rgba(255, 107, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .blog-card:hover {
+    border-color: rgba(255, 107, 0, 0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .blog-card-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .blog-card-image-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 0.1em;
+    opacity: 0.18;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0 1rem;
+    line-height: 1;
+    user-select: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .blog-card:hover .blog-card-image-label {
+    transform: scale(1.05);
+    opacity: 0.24;
+  }
+
+  .blog-card-image-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0.7;
+  }
+
+  .blog-card-body {
+    padding: 1.5rem 1.75rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .blog-card-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .blog-tag {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid;
+    font-size: 0.75rem;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 0.08em;
+    border-radius: 3px;
+  }
+
+  .blog-title {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.35rem;
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+
+  .blog-excerpt {
+    font-size: 0.88rem;
+    color: #aaa;
+    line-height: 1.65;
+    flex: 1;
+  }
+
+  .blog-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .blog-date,
+  .blog-read {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .blog-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #555;
+    display: inline-block;
+  }
+
+  @media (max-width: 640px) {
+    .blog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

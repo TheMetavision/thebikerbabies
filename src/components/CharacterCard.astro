@@ -1,0 +1,173 @@
+---
+interface Props {
+  name: string;
+  title: string;
+  description: string;
+  image?: string;
+  isVillain?: boolean;
+}
+
+const { name, title, description, image, isVillain = false } = Astro.props;
+---
+
+<article
+  class={`character-card${isVillain ? " villain" : ""}`}
+  role="button"
+  tabindex="0"
+  aria-label={`View details for ${name}`}
+  data-name={name}
+  data-title={title}
+  data-description={description}
+  data-image={image ?? ""}
+  data-villain={isVillain ? "true" : "false"}
+>
+  <div class="card-image-wrap">
+    {
+      image ? (
+        <div class="card-image">
+          <img src={image} alt={name} loading="lazy" />
+        </div>
+      ) : (
+        <div class="card-image placeholder">
+          <span class="placeholder-icon">&#x1F6B4;</span>
+        </div>
+      )
+    }
+    <div class="card-badge">{title}</div>
+  </div>
+  <div class="card-body">
+    <h3 class="card-name">{name}</h3>
+    <p class="card-title">"{title}"</p>
+    <p class="card-desc">{description}</p>
+  </div>
+</article>
+
+<style>
+  .character-card {
+    background: var(--color-bg-card, #13131e);
+    border: 1px solid rgba(255, 107, 0, 0.12);
+    border-top: 3px solid rgba(255, 107, 0, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, border-top-color 0.2s ease;
+    outline: none;
+  }
+
+  .character-card:focus-visible {
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.5);
+  }
+
+  .character-card:hover,
+  .character-card:focus-visible {
+    transform: translateY(-6px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18), 0 12px 40px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 107, 0, 0.35);
+    border-top-color: #ff6b00;
+  }
+
+  .character-card.villain:hover,
+  .character-card.villain:focus-visible {
+    border-color: rgba(224, 48, 48, 0.35);
+    border-top-color: #e03030;
+  }
+
+  .card-image-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-image {
+    min-height: 260px;
+    overflow: hidden;
+    background: #0d0d18;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 260px;
+    object-fit: contain;
+    object-position: center bottom;
+    transition: none;
+  }
+
+  .card-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(8, 8, 16, 0.82);
+    color: #fff;
+    font-size: 0.78rem;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 0.55rem 0.75rem;
+    transform: translateY(100%);
+    transition: transform 0.2s ease;
+    backdrop-filter: blur(4px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .character-card.villain .card-badge {
+    color: #ffaaaa;
+  }
+
+  .character-card:hover .card-badge,
+  .character-card:focus-visible .card-badge {
+    transform: translateY(0);
+  }
+
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .card-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .card-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.4rem;
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.2rem;
+  }
+
+  .card-title {
+    font-size: 0.82rem;
+    color: #ff6b00;
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  .character-card.villain .card-title {
+    color: #e03030;
+  }
+
+  .card-desc {
+    font-size: 0.88rem;
+    color: #aaa;
+    line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .character-card {
+      transition: none;
+    }
+    .card-badge {
+      transition: none;
+    }
+  }
+</style>

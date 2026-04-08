@@ -1,0 +1,540 @@
+---
+const characters = [
+  {
+    name: "Maddison",
+    role: "The Leader",
+    intro: "Natural-born leader who brings out the best in everyone. Every great adventure starts with her.",
+    image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=619,fit=crop/m7V56PrMDJFy6Dyx/maddison-AMqlekPLNVtaeV6D.jpeg",
+    bg: "#0f0a02",
+    accent: "#ff6b00",
+  },
+  {
+    name: "Kai",
+    role: "The Daredevil",
+    intro: "Never backs down from a challenge. If it's fast, dangerous, or both — Kai's already doing it.",
+    image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=619,fit=crop/m7V56PrMDJFy6Dyx/kai-AGBn8kNekBcQ2vqk.jpeg",
+    bg: "#0d1a10",
+    accent: "#22c55e",
+  },
+  {
+    name: "Amara",
+    role: "The Innovator",
+    intro: "Her smart helmet designs and gadgets give the crew the edge they need to tackle anything.",
+    image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=619,fit=crop/m7V56PrMDJFy6Dyx/amara-YyvZjbGNeXuM5GQP.jpeg",
+    bg: "#0a1520",
+    accent: "#00aaff",
+  },
+  {
+    name: "Cinnamon",
+    role: "The Peacemaker",
+    intro: "The heart of the group. When things get tough, Cinnamon keeps everyone united and moving forward.",
+    image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=619,fit=crop/m7V56PrMDJFy6Dyx/cinnamon-m2Wa7w6vglcVrWnw.jpeg",
+    bg: "#1a0a0a",
+    accent: "#f43f5e",
+  },
+  {
+    name: "Santiago",
+    role: "The Mechanic",
+    intro: "Santiago can fix any bike on the fly. If it's broken, he'll have it running before you finish asking.",
+    image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=619,fit=crop/m7V56PrMDJFy6Dyx/santiago-YBge0kBWnrhWO5zb.jpeg",
+    bg: "#0a0f1a",
+    accent: "#3b82f6",
+  },
+  {
+    name: "Zeya",
+    role: "The Tech Whiz",
+    intro: "A coding prodigy who builds apps to track routes, solve puzzles, and outsmart any obstacle.",
+    image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=619,fit=crop/m7V56PrMDJFy6Dyx/zeya-AE0alkzr1GuoR97v.jpeg",
+    bg: "#0a1510",
+    accent: "#10b981",
+  },
+];
+---
+
+<section class="carousel-section">
+  <div class="carousel-wrap">
+    <h2 class="carousel-section-title">Meet the Coolest Kids on Two Wheels</h2>
+    <span class="carousel-accent-bar" aria-hidden="true"></span>
+
+    <div
+      class="carousel"
+      id="char-carousel"
+      role="region"
+      aria-label="Character carousel"
+      aria-roledescription="carousel"
+    >
+      <button class="carousel-arrow carousel-arrow--prev" id="carousel-prev" aria-label="Previous character">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M12.5 4L7 10l5.5 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="carousel-stage" id="carousel-stage">
+        {characters.map((char, i) => (
+          <div
+            class={`carousel-slide${i === 0 ? " is-active" : ""}`}
+            data-index={i}
+            aria-hidden={i !== 0 ? "true" : "false"}
+            style={`--slide-bg: ${char.bg}; --slide-accent: ${char.accent};`}
+          >
+            <div class="slide-inner">
+              <div class="slide-text">
+                <p class="slide-role-badge">{char.role}</p>
+                <h3 class="slide-name">{char.name}</h3>
+                <p class="slide-intro">{char.intro}</p>
+              </div>
+              <div class="slide-image-col">
+                <img
+                  src={char.image}
+                  alt={`${char.name} — ${char.role}`}
+                  class="slide-portrait"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  draggable="false"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button class="carousel-arrow carousel-arrow--next" id="carousel-next" aria-label="Next character">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M7.5 4L13 10l-5.5 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="carousel-dots" id="carousel-dots" role="tablist" aria-label="Select character">
+      {characters.map((char, i) => (
+        <button
+          class={`carousel-dot${i === 0 ? " is-active" : ""}`}
+          data-dot={i}
+          role="tab"
+          aria-selected={i === 0 ? "true" : "false"}
+          aria-label={`${char.name} — ${char.role}`}
+        />
+      ))}
+    </div>
+
+    <div class="carousel-cta-wrap">
+      <p class="carousel-cta-line">That's just the start — there are 18 riders in the crew.</p>
+      <a href="/meet-the-biker-babies" class="carousel-cta-btn">Meet the Gang</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .carousel-section {
+    padding: 6rem 2rem;
+    background: var(--color-bg);
+  }
+
+  .carousel-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .carousel-section-title {
+    font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+    font-weight: 700;
+    color: #ff6b00;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .carousel-accent-bar {
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
+  }
+
+  .carousel {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .carousel-stage {
+    flex: 1;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 480px;
+  }
+
+  .carousel-slide {
+    position: absolute;
+    inset: 0;
+    background: var(--slide-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .carousel-slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .slide-inner {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 0;
+  }
+
+  .slide-text {
+    padding: 3rem 2.5rem 3rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    animation: slideTextIn 0.4s ease 0.1s both;
+  }
+
+  .slide-role-badge {
+    display: inline-block;
+    align-self: flex-start;
+    background: #ff6b00;
+    color: #fff;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    padding: 0.3rem 1rem;
+    border-radius: 9999px;
+    margin: 0;
+  }
+
+  .slide-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+  }
+
+  .slide-intro {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.65;
+    margin: 0;
+    max-width: 360px;
+  }
+
+  .slide-image-col {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
+    padding: 1.5rem 1.5rem 0;
+    animation: slideImgIn 0.4s ease both;
+  }
+
+  .slide-portrait {
+    width: auto;
+    height: auto;
+    max-height: 420px;
+    min-height: 300px;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.5));
+    user-select: none;
+  }
+
+  .carousel-arrow {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 107, 0, 0.4);
+    background: rgba(255, 107, 0, 0.08);
+    color: #ff6b00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    z-index: 2;
+  }
+
+  .carousel-arrow--prev {
+    margin-right: 1rem;
+  }
+
+  .carousel-arrow--next {
+    margin-left: 1rem;
+  }
+
+  .carousel-arrow:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: #ff6b00;
+    transform: scale(1.08);
+  }
+
+  .carousel-arrow:active {
+    transform: scale(0.96);
+  }
+
+  .carousel-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+  }
+
+  .carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 107, 0, 0.4);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, width 0.2s ease, border-radius 0.2s ease;
+  }
+
+  .carousel-dot.is-active {
+    background: #ff6b00;
+    border-color: #ff6b00;
+    width: 28px;
+    border-radius: 9999px;
+  }
+
+  .carousel-cta-wrap {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .carousel-cta-line {
+    font-size: 0.95rem;
+    color: #888;
+    margin: 0;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .carousel-cta-btn {
+    display: inline-block;
+    padding: 0.9rem 3rem;
+    background: transparent;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.12em;
+    border: 2px solid #ff6b00;
+    border-radius: 4px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .carousel-cta-btn:hover {
+    background: #ff6b00;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(255, 107, 0, 0.4);
+  }
+
+  @keyframes slideImgIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes slideTextIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 760px) {
+    .carousel-section {
+      padding: 3.5rem 1rem;
+    }
+
+    .carousel {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .carousel-arrow--prev,
+    .carousel-arrow--next {
+      display: none;
+    }
+
+    .carousel-stage {
+      min-height: unset;
+      width: 100%;
+    }
+
+    .carousel-slide.is-active {
+      position: relative;
+    }
+
+    .slide-inner {
+      grid-template-columns: 1fr;
+    }
+
+    .slide-image-col {
+      order: -1;
+      padding: 1.5rem 1.5rem 0;
+      justify-content: center;
+    }
+
+    .slide-portrait {
+      min-height: 220px;
+      max-height: 280px;
+    }
+
+    .slide-text {
+      padding: 1.5rem 1.5rem 2rem;
+      align-items: flex-start;
+    }
+
+    .slide-name {
+      font-size: clamp(2.5rem, 10vw, 3.5rem);
+    }
+
+    .slide-intro {
+      max-width: 100%;
+    }
+
+    .mobile-arrows {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .carousel-dots {
+      margin-top: 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-slide {
+      transition: none;
+    }
+    .slide-image-col,
+    .slide-text {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const TOTAL = 6;
+    const AUTO_DELAY = 5000;
+    let current = 0;
+    let autoTimer: ReturnType<typeof setTimeout> | null = null;
+    let isPaused = false;
+
+    const stage = document.getElementById("carousel-stage")!;
+    const slides = Array.from(stage.querySelectorAll<HTMLElement>(".carousel-slide"));
+    const dots = Array.from(document.querySelectorAll<HTMLButtonElement>(".carousel-dot"));
+    const prevBtn = document.getElementById("carousel-prev")!;
+    const nextBtn = document.getElementById("carousel-next")!;
+    const carousel = document.getElementById("char-carousel")!;
+
+    function goTo(index: number) {
+      slides[current].classList.remove("is-active");
+      slides[current].setAttribute("aria-hidden", "true");
+      dots[current].classList.remove("is-active");
+      dots[current].setAttribute("aria-selected", "false");
+
+      current = (index + TOTAL) % TOTAL;
+
+      slides[current].classList.add("is-active");
+      slides[current].setAttribute("aria-hidden", "false");
+      dots[current].classList.add("is-active");
+      dots[current].setAttribute("aria-selected", "true");
+
+      const imgCol = slides[current].querySelector<HTMLElement>(".slide-image-col");
+      const textCol = slides[current].querySelector<HTMLElement>(".slide-text");
+
+      if (imgCol) {
+        imgCol.style.animation = "none";
+        void imgCol.offsetWidth;
+        imgCol.style.animation = "";
+      }
+      if (textCol) {
+        textCol.style.animation = "none";
+        void textCol.offsetWidth;
+        textCol.style.animation = "";
+      }
+    }
+
+    function startAuto() {
+      if (autoTimer) clearTimeout(autoTimer);
+      autoTimer = setTimeout(() => {
+        if (!isPaused) {
+          goTo(current + 1);
+          startAuto();
+        }
+      }, AUTO_DELAY);
+    }
+
+    function resetAuto() {
+      if (autoTimer) clearTimeout(autoTimer);
+      startAuto();
+    }
+
+    prevBtn.addEventListener("click", () => {
+      goTo(current - 1);
+      isPaused = true;
+      resetAuto();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      goTo(current + 1);
+      isPaused = true;
+      resetAuto();
+    });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => {
+        goTo(i);
+        isPaused = true;
+        resetAuto();
+      });
+    });
+
+    carousel.addEventListener("mouseenter", () => { isPaused = true; });
+    carousel.addEventListener("mouseleave", () => {
+      isPaused = false;
+      resetAuto();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (!document.activeElement || !carousel.contains(document.activeElement)) return;
+      if (e.key === "ArrowLeft") { goTo(current - 1); isPaused = true; resetAuto(); }
+      if (e.key === "ArrowRight") { goTo(current + 1); isPaused = true; resetAuto(); }
+    });
+
+    carousel.addEventListener("focusin", () => { isPaused = true; });
+    carousel.addEventListener("focusout", () => {
+      isPaused = false;
+      resetAuto();
+    });
+
+    startAuto();
+  })();
+</script>

@@ -1,0 +1,80 @@
+---
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { organizationSchema, websiteSchema } from '../lib/schema';
+
+interface Props {
+  title?: string;
+  description?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];
+  noIndex?: boolean;
+}
+
+const {
+  title = "The Biker Babies – Adventure on Two Wheels!",
+  description = "Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!",
+  jsonLd,
+  noIndex = false,
+} = Astro.props;
+
+const allSchemas: object[] = [organizationSchema(), websiteSchema()];
+if (jsonLd) {
+  if (Array.isArray(jsonLd)) allSchemas.push(...jsonLd);
+  else allSchemas.push(jsonLd);
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={Astro.url.href} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:title" content={`${title} | The Biker Babies`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:site_name" content="The Biker Babies" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@TheBikerBabies" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    {allSchemas.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <Nav />
+    <main><slot /></main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-bg: #0a0a14; --color-bg-card: #13131e; --color-bg-section: #0e0e18;
+    --color-orange: #ff6b00; --color-orange-dark: #e05c00; --color-gold: #ffd700;
+    --color-text: #f0f0f0; --color-text-muted: #999; --color-border: rgba(255, 107, 0, 0.15);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--color-bg); color: var(--color-text); font-family: "Inter", sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: inherit; }
+  main { padding-top: 80px; }
+  h1, h2, h3, h4 { font-family: "Bebas Neue", sans-serif; letter-spacing: 0.06em; line-height: 1.1; }
+</style>

@@ -1,0 +1,512 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const categories = [
+  {
+    title: "Apparel",
+    description: "Character-themed t-shirts, hoodies, and outfits for every young rider.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>`,
+  },
+  {
+    title: "Stickers & Collectibles",
+    description: "Collectible character stickers, badges, and limited-edition items.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  },
+  {
+    title: "Artwork & Prints",
+    description: "Unique hand-designed artwork and prints featuring your favourite characters.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`,
+  },
+  {
+    title: "Accessories",
+    description: "Bags, bottles, keyrings, and more – gear up in true Biker Babies style.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="2" y="9" width="20" height="11" rx="2"/></svg>`,
+  },
+];
+---
+
+<Layout
+  title="Merch – The Biker Babies"
+  description="Bring the adventure home with official Biker Babies merchandise – apparel, stickers, artwork and more!"
+>
+  <section class="merch-hero">
+    <div class="merch-hero-wrap">
+      <div class="merch-hero-bg" aria-hidden="true"></div>
+      <div class="merch-hero-overlay"></div>
+      <div class="merch-hero-content">
+        <h1 class="merch-hero-title">Official Merch</h1>
+        <span class="h1-accent-bar" aria-hidden="true"></span>
+        <p class="merch-hero-sub">Gear Up & Ride in Style</p>
+        <p class="merch-hero-body">
+          Bring the adventure home with <em>The Biker Babies</em> official merchandise! From
+          character-themed apparel to collectible stickers, unique artwork, and accessories — there's
+          something for every fan of the crew.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories-section">
+    <div class="categories-inner">
+      <h2 class="section-heading">Shop by Category</h2>
+      <div class="categories-grid">
+        {
+          categories.map((cat) => (
+            <div class="category-card">
+              <span class="category-icon" aria-hidden="true">
+                <Fragment set:html={cat.svg} />
+              </span>
+              <h3 class="category-title">{cat.title}</h3>
+              <p class="category-desc">{cat.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="waitlist-section">
+    <div class="waitlist-inner">
+
+      <div class="waitlist-content">
+        <span class="launching-badge" aria-label="Launching soon">
+          <span class="badge-dot"></span>
+          LAUNCHING SOON
+        </span>
+        <h2 class="waitlist-heading">The Merch Drop Is Coming</h2>
+        <p class="waitlist-sub">
+          Be first in line. Join the waitlist and we'll hit you up the moment the shop goes live.
+        </p>
+
+        <form class="waitlist-form" id="waitlist-form" novalidate>
+          <div class="form-row">
+            <input
+              type="email"
+              id="waitlist-email"
+              name="email"
+              placeholder="your@email.com"
+              class="waitlist-input"
+              required
+              autocomplete="email"
+            />
+            <button type="submit" class="waitlist-btn">Get Me First Dibs</button>
+          </div>
+          <p class="form-status" id="form-status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="waitlist-image-wrap">
+        <img
+          src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=493,fit=crop/m7V56PrMDJFy6Dyx/default_the_uploaded_character_is_holding_a_handwritten_piece__0-YKblBL3LB8U6rjMM.jpg"
+          alt="The Biker Babies merchandise preview"
+          class="waitlist-img"
+        />
+        <div class="waitlist-img-glow"></div>
+      </div>
+
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  const form = document.getElementById("waitlist-form") as HTMLFormElement | null;
+  const statusEl = document.getElementById("form-status") as HTMLParagraphElement | null;
+  const btn = form?.querySelector(".waitlist-btn") as HTMLButtonElement | null;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form || !statusEl || !btn) return;
+
+    const emailInput = form.querySelector<HTMLInputElement>("#waitlist-email");
+    const email = emailInput?.value.trim() ?? "";
+
+    if (!email) {
+      statusEl.textContent = "Please enter your email address.";
+      statusEl.className = "form-status form-status--error";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Signing you up…";
+    statusEl.textContent = "";
+    statusEl.className = "form-status";
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/merch_waitlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Prefer": "return=minimal",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.status === 201 || res.status === 200) {
+        statusEl.textContent = "You're on the list! We'll be in touch when the shop drops.";
+        statusEl.className = "form-status form-status--success";
+        form.reset();
+      } else if (res.status === 409) {
+        statusEl.textContent = "You're already on the list — we've got you!";
+        statusEl.className = "form-status form-status--info";
+      } else {
+        throw new Error("unexpected");
+      }
+    } catch {
+      statusEl.textContent = "Something went wrong. Please try again.";
+      statusEl.className = "form-status form-status--error";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Get Me First Dibs";
+    }
+  });
+</script>
+
+<style>
+  /* ── Hero ─────────────────────────────────────────────── */
+  .merch-hero {
+    overflow: hidden;
+  }
+
+  .merch-hero-wrap {
+    position: relative;
+    line-height: 0;
+    min-height: 420px;
+  }
+
+  .merch-hero-bg {
+    width: 100%;
+    min-height: 420px;
+    display: block;
+    background:
+      radial-gradient(ellipse 80% 60% at 75% 40%, rgba(255, 107, 0, 0.22) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 50% at 20% 70%, rgba(180, 60, 0, 0.18) 0%, transparent 60%),
+      linear-gradient(135deg, #0a0a12 0%, #1a0d00 40%, #120800 70%, #0a0a12 100%);
+  }
+
+  .merch-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(8, 8, 16, 0.1) 0%,
+      rgba(8, 8, 16, 0.45) 55%,
+      rgba(8, 8, 16, 0.92) 100%
+    );
+  }
+
+  .merch-hero-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem 2rem 3rem 4vw;
+    max-width: 1200px;
+    margin: 0 auto;
+    z-index: 1;
+    line-height: 1.6;
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .merch-hero-title {
+    font-size: clamp(2.5rem, 6.5vw, 5rem);
+    color: #fff;
+    margin-bottom: 0.2rem;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+  }
+
+  .h1-accent-bar {
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff6b00;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
+  }
+
+  .merch-hero-sub {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    color: #ff6b00;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+
+  .merch-hero-body {
+    font-size: 0.95rem;
+    color: #d0d0d0;
+    line-height: 1.65;
+    max-width: 600px;
+  }
+
+  /* ── Category cards ───────────────────────────────────── */
+  .categories-section {
+    padding: 5rem 2rem;
+    background: var(--color-bg);
+  }
+
+  .categories-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-heading {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight: 700;
+    color: #ff6b00;
+    letter-spacing: 0.06em;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid rgba(255, 107, 0, 0.2);
+    padding-bottom: 0.75rem;
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .category-card {
+    background: var(--color-bg-card);
+    border: 1px solid rgba(255, 107, 0, 0.12);
+    border-radius: 12px;
+    padding: 2rem 1.75rem;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .category-card:hover {
+    border-color: rgba(255, 107, 0, 0.45);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(255, 107, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.12);
+    color: #ff6b00;
+    margin-bottom: 1.25rem;
+  }
+
+  .category-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .category-title {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.4rem;
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+  }
+
+  .category-desc {
+    font-size: 0.88rem;
+    color: #aaa;
+    line-height: 1.6;
+  }
+
+  /* ── Waitlist section ─────────────────────────────────── */
+  .waitlist-section {
+    padding: 6rem 2rem 7rem;
+    background: var(--color-bg-section);
+    overflow: hidden;
+  }
+
+  .waitlist-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+
+  /* Badge */
+  .launching-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 107, 0, 0.12);
+    border: 1px solid rgba(255, 107, 0, 0.35);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    color: #ff6b00;
+    margin-bottom: 1.75rem;
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes badge-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.82; transform: scale(1.03); }
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff6b00;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(255, 107, 0, 0.8);
+  }
+
+  .waitlist-heading {
+    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    color: #fff;
+    line-height: 1.05;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.04em;
+  }
+
+  .waitlist-sub {
+    font-size: 1.05rem;
+    color: #aaa;
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Form */
+  .waitlist-form {
+    width: 100%;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .waitlist-input {
+    flex: 1 1 220px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .waitlist-input::placeholder {
+    color: #555;
+  }
+
+  .waitlist-input:focus {
+    border-color: rgba(255, 107, 0, 0.55);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.14);
+  }
+
+  .waitlist-btn {
+    flex-shrink: 0;
+    background: #ff6b00;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.35);
+  }
+
+  .waitlist-btn:hover:not(:disabled) {
+    background: #e05c00;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255, 107, 0, 0.5);
+  }
+
+  .waitlist-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .waitlist-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-status {
+    margin-top: 0.75rem;
+    font-size: 0.88rem;
+    min-height: 1.2em;
+    line-height: 1.5;
+    color: transparent;
+  }
+
+  .form-status--success { color: #4caf50; }
+  .form-status--error   { color: #ef5350; }
+  .form-status--info    { color: #aaa; }
+
+  /* Image */
+  .waitlist-image-wrap {
+    position: relative;
+  }
+
+  .waitlist-img {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 1;
+    object-fit: contain;
+    object-position: center center;
+    display: block;
+    background: transparent;
+  }
+
+  .waitlist-img-glow {
+    position: absolute;
+    inset: 10%;
+    background: radial-gradient(ellipse at center, rgba(255, 107, 0, 0.22) 0%, transparent 70%);
+    filter: blur(30px);
+    z-index: 0;
+    border-radius: 50%;
+  }
+
+  /* ── Responsive ───────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .waitlist-inner {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .waitlist-image-wrap {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .form-row {
+      flex-direction: column;
+    }
+
+    .waitlist-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
