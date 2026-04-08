@@ -73,6 +73,31 @@ const categories = [
           <span class="badge-dot"></span>
           LAUNCHING SOON
         </span>
+
+        <p class="countdown-label">Store opens in</p>
+        <div class="countdown" id="countdown" aria-label="Countdown to merch launch">
+          <div class="countdown-block">
+            <span class="countdown-value" id="cd-days">--</span>
+            <span class="countdown-unit">Days</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-block">
+            <span class="countdown-value" id="cd-hours">--</span>
+            <span class="countdown-unit">Hours</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-block">
+            <span class="countdown-value" id="cd-mins">--</span>
+            <span class="countdown-unit">Mins</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-block">
+            <span class="countdown-value" id="cd-secs">--</span>
+            <span class="countdown-unit">Secs</span>
+          </div>
+        </div>
+        <p class="countdown-note">Early access for subscribers only</p>
+
         <h2 class="waitlist-heading">The Merch Drop Is Coming</h2>
         <p class="waitlist-sub">
           Be first in line. Join the waitlist and we'll hit you up the moment the shop goes live.
@@ -109,6 +134,44 @@ const categories = [
 </Layout>
 
 <script>
+  // ── Countdown Timer ──────────────────────────────────
+  // Set your launch date here (ISO format)
+  const LAUNCH_DATE = new Date("2026-06-01T00:00:00Z");
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = LAUNCH_DATE.getTime() - now.getTime();
+
+    const daysEl = document.getElementById("cd-days");
+    const hoursEl = document.getElementById("cd-hours");
+    const minsEl = document.getElementById("cd-mins");
+    const secsEl = document.getElementById("cd-secs");
+
+    if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+
+    if (diff <= 0) {
+      daysEl.textContent = "00";
+      hoursEl.textContent = "00";
+      minsEl.textContent = "00";
+      secsEl.textContent = "00";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    daysEl.textContent = String(days).padStart(2, "0");
+    hoursEl.textContent = String(hours).padStart(2, "0");
+    minsEl.textContent = String(mins).padStart(2, "0");
+    secsEl.textContent = String(secs).padStart(2, "0");
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ── Waitlist Form ────────────────────────────────────
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -367,6 +430,66 @@ const categories = [
     box-shadow: 0 0 6px rgba(255, 107, 0, 0.8);
   }
 
+  /* ── Countdown Timer ──────────────────────────────────── */
+  .countdown-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .countdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .countdown-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 56px;
+    background: rgba(255, 107, 0, 0.08);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem 0.4rem;
+  }
+
+  .countdown-value {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: #ff6b00;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .countdown-unit {
+    font-size: 0.65rem;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 0.2rem;
+  }
+
+  .countdown-sep {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.6rem;
+    color: rgba(255, 107, 0, 0.4);
+    line-height: 1;
+    padding-bottom: 0.8rem;
+  }
+
+  .countdown-note {
+    font-size: 0.78rem;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 2rem;
+  }
+
   .waitlist-heading {
     font-size: clamp(2.8rem, 5.5vw, 4.5rem);
     color: #fff;
@@ -507,6 +630,11 @@ const categories = [
     .waitlist-btn {
       width: 100%;
       text-align: center;
+    }
+
+    .countdown-block {
+      min-width: 48px;
+      padding: 0.5rem 0.5rem 0.3rem;
     }
   }
 </style>
