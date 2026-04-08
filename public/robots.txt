@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bikerbabies.com/sitemap-index.xml
+Sitemap: https://thebikerbabies.com/sitemap-index.xml
 
 User-agent: GPTBot
 Allow: /

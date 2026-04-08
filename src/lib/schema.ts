@@ -1,11 +1,11 @@
 export function organizationSchema() {
-  return { '@context': 'https://schema.org', '@type': 'Organization', name: 'The Biker Babies', url: 'https://bikerbabies.com', logo: 'https://bikerbabies.com/favicon.svg',
+  return { '@context': 'https://schema.org', '@type': 'Organization', name: 'The Biker Babies', url: 'https://thebikerbabies.com', logo: 'https://thebikerbabies.com/favicon.svg',
     description: 'Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!',
     sameAs: ['https://www.youtube.com/@TheBikerBabies', 'https://www.instagram.com/thebikerbabies', 'https://www.facebook.com/thebikerbabies', 'https://www.tiktok.com/@thebikerbabies', 'https://x.com/TheBikerBabies'],
     parentOrganization: { '@type': 'Organization', name: 'The Metavision Multimedia Limited', url: 'https://themetavision.co.uk' } };
 }
 export function websiteSchema() {
-  return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: 'https://bikerbabies.com',
+  return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: 'https://thebikerbabies.com',
     description: 'Adventure on two wheels! The Biker Babies animated series, book universe, and official merch.',
     publisher: { '@type': 'Organization', name: 'The Biker Babies' } };
 }
@@ -15,7 +15,7 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
 export function tvSeriesSchema() {
   return { '@context': 'https://schema.org', '@type': 'TVSeries', name: 'The Biker Babies',
     description: 'An animated series following a diverse crew of young riders on thrilling bike adventures, learning teamwork and friendship along the way.',
-    genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: 'https://bikerbabies.com',
+    genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: 'https://thebikerbabies.com',
     productionCompany: { '@type': 'Organization', name: 'The Metavision Multimedia Limited' } };
 }
 export function characterSchema(character: { name: string; bio: string; image?: string; url: string }) {
@@ -42,5 +42,5 @@ export function faqSchema(faqs: { question: string; answer: string }[]) {
 }
 export function collectionSchema(collection: { name: string; description: string; url: string; itemCount: number }) {
   return { '@context': 'https://schema.org', '@type': 'CollectionPage', name: collection.name, description: collection.description, url: collection.url, numberOfItems: collection.itemCount,
-    isPartOf: { '@type': 'WebSite', name: 'The Biker Babies', url: 'https://bikerbabies.com' } };
+    isPartOf: { '@type': 'WebSite', name: 'The Biker Babies', url: 'https://thebikerbabies.com' } };
 }
