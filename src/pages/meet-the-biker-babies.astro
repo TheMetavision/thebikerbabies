@@ -2,11 +2,32 @@
 import Layout from "../layouts/Layout.astro";
 import CharacterCard from "../components/CharacterCard.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
-import { heroes, villains } from "../data/characters";
+import { createClient } from "@sanity/client";
+
+const client = createClient({
+  projectId: import.meta.env.SANITY_PROJECT_ID,
+  dataset: import.meta.env.SANITY_DATASET || "production",
+  apiVersion: "2026-04-01",
+  useCdn: true,
+});
+
+const allCharacters = await client.fetch(`
+  *[_type == "character"] | order(sortOrder asc) {
+    name,
+    role,
+    bio,
+    tag,
+    externalImageUrl,
+    "imageUrl": image.asset->url
+  }
+`);
+
+const heroes = allCharacters.filter((c: any) => c.tag === "hero");
+const villains = allCharacters.filter((c: any) => c.tag === "villain");
 ---
 
 <Layout
-  title="Meet the Gang – The Biker Babies"
+  title="Meet the Gang — The Biker Babies"
   description="Get to know The Biker Babies—a fearless crew of young riders with unique skills and personalities!"
 >
   <section class="gang-hero">
@@ -36,12 +57,12 @@ import { heroes, villains } from "../data/characters";
       <h2 class="characters-heading">The Heroes</h2>
       <div class="characters-grid">
         {
-          heroes.map((char) => (
+          heroes.map((char: any) => (
             <CharacterCard
               name={char.name}
-              title={char.title}
-              description={char.description}
-              image={char.image}
+              title={char.role}
+              description={char.bio}
+              image={char.imageUrl || char.externalImageUrl}
               isVillain={false}
             />
           ))
@@ -55,12 +76,12 @@ import { heroes, villains } from "../data/characters";
       <h2 class="characters-heading villains-heading">The Rivals</h2>
       <div class="characters-grid">
         {
-          villains.map((char) => (
+          villains.map((char: any) => (
             <CharacterCard
               name={char.name}
-              title={char.title}
-              description={char.description}
-              image={char.image}
+              title={char.role}
+              description={char.bio}
+              image={char.imageUrl || char.externalImageUrl}
               isVillain={true}
             />
           ))
@@ -122,7 +143,6 @@ import { heroes, villains } from "../data/characters";
     max-width: 680px;
   }
 
-  /* ── Filter bar ──────────────────────────────────────────── */
   .filter-bar-wrap {
     background: var(--color-bg);
     padding: 2.25rem 2rem 0;
@@ -168,7 +188,6 @@ import { heroes, villains } from "../data/characters";
     background: rgba(255, 107, 0, 0.1);
   }
 
-  /* ── Section visibility animation ───────────────────────── */
   .characters-section {
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform-origin: top center;
@@ -211,7 +230,6 @@ import { heroes, villains } from "../data/characters";
     }
   }
 
-  /* ── Character sections ──────────────────────────────────── */
   .characters-section {
     padding: 5rem 2rem;
     background: var(--color-bg);
@@ -247,7 +265,6 @@ import { heroes, villains } from "../data/characters";
     gap: 1.75rem;
   }
 
-  /* ── Modal ─────────────────────────────────────────────── */
   .modal-backdrop {
     position: fixed;
     inset: 0;
