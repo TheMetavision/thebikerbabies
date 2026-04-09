@@ -72,13 +72,19 @@ const posts = [
 >
   <section class="blog-hero">
     <div class="blog-hero-content">
-      <h1 class="blog-hero-title">Baby Babble</h1>
-      <span class="h1-accent-bar" aria-hidden="true"></span>
-      <p class="blog-hero-sub">Stories, Speed & Squad Goals</p>
-      <p class="blog-hero-body">
-        Your go-to source for <em>Biker Babies</em> news, character spotlights, behind-the-scenes
-        stories, and tips for young riders everywhere.
-      </p>
+      <div class="hero-text">
+        <h1 class="blog-hero-title">Baby Babble</h1>
+        <span class="h1-accent-bar" aria-hidden="true"></span>
+        <p class="blog-hero-sub">Stories, Speed & Squad Goals</p>
+        <p class="blog-hero-body">
+          Your go-to source for <em>Biker Babies</em> news, character spotlights, behind-the-scenes
+          stories, and tips for young riders everywhere.
+        </p>
+      </div>
+      <div class="hero-image-placeholder">
+        <span class="placeholder-icon" aria-hidden="true">&#x1F4F0;</span>
+        <span class="placeholder-label">Drop hero image here</span>
+      </div>
     </div>
   </section>
 
@@ -129,6 +135,10 @@ const posts = [
   .blog-hero-content {
     max-width: 1200px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
   }
 
   .blog-hero-title {
@@ -159,7 +169,41 @@ const posts = [
     font-size: 0.95rem;
     color: #d0d0d0;
     line-height: 1.65;
-    max-width: 580px;
+  }
+
+  .hero-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 2px dashed rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.04);
+    gap: 0.75rem;
+  }
+
+  .hero-image-placeholder .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .hero-image-placeholder .placeholder-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 107, 0, 0.4);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .blog-hero-content {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-image-placeholder {
+      min-height: 200px;
+    }
   }
 
   .blog-section {

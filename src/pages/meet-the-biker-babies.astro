@@ -32,15 +32,21 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
 >
   <section class="gang-hero">
     <div class="gang-hero-content">
-      <h1 class="gang-hero-title">Meet the Gang</h1>
-      <span class="h1-accent-bar" aria-hidden="true"></span>
-      <p class="gang-hero-body">
-        Get to know <em>The Biker Babies</em>—a fearless crew of young riders who love adventure,
-        teamwork, and outsmarting troublemakers! From daring stunt riders to genius inventors,
-        each member brings something special to the team. <strong
-          >Meet the gang and join the ride!</strong
-        >
-      </p>
+      <div class="hero-text">
+        <h1 class="gang-hero-title">Meet the Gang</h1>
+        <span class="h1-accent-bar" aria-hidden="true"></span>
+        <p class="gang-hero-body">
+          Get to know <em>The Biker Babies</em>—a fearless crew of young riders who love adventure,
+          teamwork, and outsmarting troublemakers! From daring stunt riders to genius inventors,
+          each member brings something special to the team. <strong
+            >Meet the gang and join the ride!</strong
+          >
+        </p>
+      </div>
+      <div class="hero-image-placeholder">
+        <span class="placeholder-icon" aria-hidden="true">&#x1F6B4;</span>
+        <span class="placeholder-label">Drop hero image here</span>
+      </div>
     </div>
   </section>
 
@@ -118,6 +124,10 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
   .gang-hero-content {
     max-width: 1200px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
   }
 
   .gang-hero-title {
@@ -140,7 +150,41 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
     font-size: 1rem;
     color: #d0d0d0;
     line-height: 1.65;
-    max-width: 680px;
+  }
+
+  .hero-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 2px dashed rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.04);
+    gap: 0.75rem;
+  }
+
+  .hero-image-placeholder .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .hero-image-placeholder .placeholder-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 107, 0, 0.4);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .gang-hero-content {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-image-placeholder {
+      min-height: 200px;
+    }
   }
 
   .filter-bar-wrap {

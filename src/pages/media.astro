@@ -32,14 +32,20 @@ const episodes = [
 >
   <section class="media-hero">
     <div class="media-hero-content">
-      <h1 class="media-hero-title">Rev Up the Action!</h1>
-      <span class="h1-accent-bar" aria-hidden="true"></span>
-      <p class="media-hero-sub">Watch, Listen, and Explore</p>
-      <p class="media-hero-body">
-        Dive into <em>The Biker Babies'</em> world with exciting animated episodes, a book series,
-        character videos, and behind-the-scenes content. From high-speed adventures to fun-filled
-        challenges, explore all things Biker Babies right here!
-      </p>
+      <div class="hero-text">
+        <h1 class="media-hero-title">Rev Up the Action!</h1>
+        <span class="h1-accent-bar" aria-hidden="true"></span>
+        <p class="media-hero-sub">Watch, Listen, and Explore</p>
+        <p class="media-hero-body">
+          Dive into <em>The Biker Babies'</em> world with exciting animated episodes, a book series,
+          character videos, and behind-the-scenes content. From high-speed adventures to fun-filled
+          challenges, explore all things Biker Babies right here!
+        </p>
+      </div>
+      <div class="hero-image-placeholder">
+        <span class="placeholder-icon" aria-hidden="true">&#x1F3AC;</span>
+        <span class="placeholder-label">Drop hero image here</span>
+      </div>
     </div>
   </section>
 
@@ -123,6 +129,10 @@ const episodes = [
   .media-hero-content {
     max-width: 1200px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
   }
 
   .media-hero-title {
@@ -153,7 +163,41 @@ const episodes = [
     font-size: 0.95rem;
     color: #d0d0d0;
     line-height: 1.65;
-    max-width: 640px;
+  }
+
+  .hero-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 2px dashed rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.04);
+    gap: 0.75rem;
+  }
+
+  .hero-image-placeholder .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .hero-image-placeholder .placeholder-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 107, 0, 0.4);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .media-hero-content {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-image-placeholder {
+      min-height: 200px;
+    }
   }
 
   .episodes-section {

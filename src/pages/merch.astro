@@ -30,10 +30,8 @@ const categories = [
   description="Bring the adventure home with official Biker Babies merchandise – apparel, stickers, artwork and more!"
 >
   <section class="merch-hero">
-    <div class="merch-hero-wrap">
-      <div class="merch-hero-bg" aria-hidden="true"></div>
-      <div class="merch-hero-overlay"></div>
-      <div class="merch-hero-content">
+    <div class="merch-hero-content">
+      <div class="hero-text">
         <h1 class="merch-hero-title">Official Merch</h1>
         <span class="h1-accent-bar" aria-hidden="true"></span>
         <p class="merch-hero-sub">Gear Up & Ride in Style</p>
@@ -42,6 +40,10 @@ const categories = [
           character-themed apparel to collectible stickers, unique artwork, and accessories — there's
           something for every fan of the crew.
         </p>
+      </div>
+      <div class="hero-image-placeholder">
+        <span class="placeholder-icon" aria-hidden="true">&#x1F6CD;</span>
+        <span class="placeholder-label">Drop hero image here</span>
       </div>
     </div>
   </section>
@@ -232,54 +234,23 @@ const categories = [
 <style>
   /* ── Hero ─────────────────────────────────────────────── */
   .merch-hero {
-    overflow: hidden;
-  }
-
-  .merch-hero-wrap {
-    position: relative;
-    line-height: 0;
-    min-height: 420px;
-  }
-
-  .merch-hero-bg {
-    width: 100%;
-    min-height: 420px;
-    display: block;
-    background: var(--color-bg, #0a0a14);
-  }
-
-  .merch-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(8, 8, 16, 0.1) 0%,
-      rgba(8, 8, 16, 0.45) 55%,
-      rgba(8, 8, 16, 0.92) 100%
-    );
+    background: var(--color-bg);
+    padding: 5rem 2rem 3rem;
   }
 
   .merch-hero-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 2rem 2rem 3rem 4vw;
     max-width: 1200px;
     margin: 0 auto;
-    z-index: 1;
-    line-height: 1.6;
-    width: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
   }
 
   .merch-hero-title {
     font-size: clamp(2.5rem, 6.5vw, 5rem);
     color: #fff;
     margin-bottom: 0.2rem;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
   }
 
   .h1-accent-bar {
@@ -304,7 +275,41 @@ const categories = [
     font-size: 0.95rem;
     color: #d0d0d0;
     line-height: 1.65;
-    max-width: 600px;
+  }
+
+  .hero-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 2px dashed rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.04);
+    gap: 0.75rem;
+  }
+
+  .hero-image-placeholder .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .hero-image-placeholder .placeholder-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 107, 0, 0.4);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .merch-hero-content {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-image-placeholder {
+      min-height: 200px;
+    }
   }
 
   /* ── Category cards ───────────────────────────────────── */

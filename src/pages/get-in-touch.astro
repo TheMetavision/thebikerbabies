@@ -8,10 +8,8 @@ import NewsletterSection from "../components/NewsletterSection.astro";
   description="Have a question, partnership enquiry, or just want to say hello? Get in touch with The Biker Babies team!"
 >
   <section class="contact-hero">
-    <div class="contact-hero-wrap">
-      <div class="contact-hero-bg" aria-hidden="true"></div>
-      <div class="contact-hero-overlay"></div>
-      <div class="contact-hero-content">
+    <div class="contact-hero-content">
+      <div class="hero-text">
         <h1 class="contact-hero-title">Get In Touch</h1>
         <span class="h1-accent-bar" aria-hidden="true"></span>
         <p class="contact-hero-sub">We'd Love to Hear From You!</p>
@@ -19,6 +17,10 @@ import NewsletterSection from "../components/NewsletterSection.astro";
           Have a question, a partnership idea, or just want to say hello? Drop us a message and a
           member of <em>The Biker Babies</em> team will get back to you as soon as possible.
         </p>
+      </div>
+      <div class="hero-image-placeholder">
+        <span class="placeholder-icon" aria-hidden="true">&#x2709;</span>
+        <span class="placeholder-label">Drop hero image here</span>
       </div>
     </div>
   </section>
@@ -129,57 +131,23 @@ import NewsletterSection from "../components/NewsletterSection.astro";
 
 <style>
   .contact-hero {
-    overflow: hidden;
-  }
-
-  .contact-hero-wrap {
-    position: relative;
-    line-height: 0;
-    min-height: 420px;
-  }
-
-  .contact-hero-bg {
-    width: 100%;
-    min-height: 420px;
-    display: block;
-    background:
-      radial-gradient(ellipse 70% 55% at 30% 35%, rgba(255, 107, 0, 0.16) 0%, transparent 65%),
-      radial-gradient(ellipse 55% 45% at 80% 65%, rgba(0, 160, 180, 0.12) 0%, transparent 55%),
-      linear-gradient(160deg, #08100f 0%, #0a1210 35%, #100a08 70%, #0a0a12 100%);
-  }
-
-  .contact-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(8, 8, 16, 0.1) 0%,
-      rgba(8, 8, 16, 0.45) 55%,
-      rgba(8, 8, 16, 0.92) 100%
-    );
+    background: var(--color-bg);
+    padding: 5rem 2rem 3rem;
   }
 
   .contact-hero-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 2rem 2rem 3rem 4vw;
     max-width: 1200px;
     margin: 0 auto;
-    z-index: 1;
-    line-height: 1.6;
-    width: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
   }
 
   .contact-hero-title {
     font-size: clamp(2.5rem, 6.5vw, 5rem);
     color: #fff;
     margin-bottom: 0.2rem;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
   }
 
   .h1-accent-bar {
@@ -204,7 +172,41 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     font-size: 0.95rem;
     color: #d0d0d0;
     line-height: 1.65;
-    max-width: 580px;
+  }
+
+  .hero-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 2px dashed rgba(255, 107, 0, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.04);
+    gap: 0.75rem;
+  }
+
+  .hero-image-placeholder .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .hero-image-placeholder .placeholder-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 107, 0, 0.4);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .contact-hero-content {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-image-placeholder {
+      min-height: 200px;
+    }
   }
 
   .contact-section {
