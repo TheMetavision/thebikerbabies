@@ -48,7 +48,7 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
     <div class="filter-bar" role="tablist" aria-label="Filter characters">
       <button class="filter-tab active" role="tab" aria-selected="true" data-filter="all">All</button>
       <button class="filter-tab" role="tab" aria-selected="false" data-filter="heroes">Heroes</button>
-      <button class="filter-tab" role="tab" aria-selected="false" data-filter="rivals">Rivals</button>
+      <button class="filter-tab" role="tab" aria-selected="false" data-filter="villains">Villains</button>
     </div>
   </div>
 
@@ -71,9 +71,9 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
     </div>
   </section>
 
-  <section class="characters-section villains" id="section-rivals">
+  <section class="characters-section villains" id="section-villains">
     <div class="characters-inner">
-      <h2 class="characters-heading villains-heading">The Rivals</h2>
+      <h2 class="characters-heading villains-heading">The Villains</h2>
       <div class="characters-grid">
         {
           villains.map((char: any) => (
@@ -255,8 +255,8 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
   }
 
   .villains-heading {
-    color: #e03030;
-    border-bottom-color: rgba(224, 48, 48, 0.2);
+    color: #FFD700;
+    border-bottom-color: rgba(255, 215, 0, 0.2);
   }
 
   .characters-grid {
@@ -364,7 +364,7 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
   }
 
   .modal-subtitle.villain {
-    color: #e03030;
+    color: #FFD700;
   }
 
   .modal-name {
@@ -494,7 +494,7 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
 
   const tabs = document.querySelectorAll<HTMLButtonElement>(".filter-tab");
   const sectionHeroes = document.getElementById("section-heroes") as HTMLElement;
-  const sectionRivals = document.getElementById("section-rivals") as HTMLElement;
+  const sectionVillains = document.getElementById("section-villains") as HTMLElement;
 
   function setFilter(filter: string) {
     tabs.forEach((t) => {
@@ -505,13 +505,13 @@ const villains = allCharacters.filter((c: any) => c.tag === "villain");
 
     if (filter === "all") {
       sectionHeroes.classList.remove("section-hidden");
-      sectionRivals.classList.remove("section-hidden");
+      sectionVillains.classList.remove("section-hidden");
     } else if (filter === "heroes") {
       sectionHeroes.classList.remove("section-hidden");
-      sectionRivals.classList.add("section-hidden");
+      sectionVillains.classList.add("section-hidden");
     } else {
       sectionHeroes.classList.add("section-hidden");
-      sectionRivals.classList.remove("section-hidden");
+      sectionVillains.classList.remove("section-hidden");
     }
   }
 
