@@ -12,18 +12,18 @@ const client = createClient({
 });
 
 const allCharacters = await client.fetch(`
-  *[_type == "character"] | order(sortOrder asc) {
+  *[_type == "character"] | order(coalesce(displayOrder, sortOrder) asc) {
     name,
     role,
     bio,
-    tag,
+    characterType,
     externalImageUrl,
     "imageUrl": image.asset->url
   }
 `);
 
-const heroes = allCharacters.filter((c: any) => c.tag === "hero");
-const villains = allCharacters.filter((c: any) => c.tag === "villain");
+const heroes = allCharacters.filter((c: any) => c.characterType === "hero");
+const villains = allCharacters.filter((c: any) => c.characterType === "villain");
 ---
 
 <Layout
