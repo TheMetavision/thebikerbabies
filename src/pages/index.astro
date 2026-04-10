@@ -531,12 +531,19 @@ import CharacterCarousel from "../components/CharacterCarousel.astro";
 
   /* ── Responsive ─────────────────────────────────────────── */
   @media (max-width: 900px) {
+    .hero {
+      padding-top: 90px;
+      overflow: visible;
+    }
+
     .hero-parallax-wrap {
       display: none;
     }
 
     .hero-portrait {
       display: block;
+      width: 100%;
+      height: auto;
     }
 
     .hero-image-wrap {
