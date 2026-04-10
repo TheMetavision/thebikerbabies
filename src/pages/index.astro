@@ -539,19 +539,27 @@ import CharacterCarousel from "../components/CharacterCarousel.astro";
       display: block;
     }
 
+    .hero-image-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
     .hero-overlay {
-      background: linear-gradient(
-        180deg,
-        rgba(8, 8, 16, 0.4) 0%,
-        rgba(8, 8, 16, 0.75) 55%,
-        rgba(8, 8, 16, 0.97) 100%
-      );
+      display: none;
     }
 
     .hero-content {
-      justify-content: flex-end;
+      position: relative;
+      inset: auto;
       padding: 2rem 1.5rem;
       max-width: 100%;
+      background: linear-gradient(
+        180deg,
+        rgba(8, 8, 16, 0.97) 0%,
+        rgba(8, 8, 16, 1) 100%
+      );
+      margin-top: -60px;
+      z-index: 2;
     }
 
     .btn-primary {
