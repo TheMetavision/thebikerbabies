@@ -549,6 +549,7 @@ import CharacterCarousel from "../components/CharacterCarousel.astro";
     .hero-image-wrap {
       display: flex;
       flex-direction: column;
+      line-height: normal;
     }
 
     .hero-overlay {
@@ -560,12 +561,7 @@ import CharacterCarousel from "../components/CharacterCarousel.astro";
       inset: auto;
       padding: 2rem 1.5rem;
       max-width: 100%;
-      background: linear-gradient(
-        180deg,
-        rgba(8, 8, 16, 0.97) 0%,
-        rgba(8, 8, 16, 1) 100%
-      );
-      margin-top: -60px;
+      background: var(--color-bg, #080810);
       z-index: 2;
     }
 
