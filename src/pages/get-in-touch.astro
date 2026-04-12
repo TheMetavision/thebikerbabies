@@ -18,9 +18,13 @@ import NewsletterSection from "../components/NewsletterSection.astro";
           member of <em>The Biker Babies</em> team will get back to you as soon as possible.
         </p>
       </div>
-      <div class="hero-image-placeholder">
-        <span class="placeholder-icon" aria-hidden="true">&#x2709;</span>
-        <span class="placeholder-label">Drop hero image here</span>
+      <div class="hero-image-wrap">
+        <img
+          src="/images/get-in-touch.webp"
+          alt="The Biker Babies mission control – the crew handling incoming messages in their over-the-top command centre"
+          class="hero-img"
+          loading="eager"
+        />
       </div>
     </div>
   </section>
@@ -174,29 +178,20 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     line-height: 1.65;
   }
 
-  .hero-image-placeholder {
+  .hero-image-wrap {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 300px;
-    border: 2px dashed rgba(255, 107, 0, 0.3);
+  }
+
+  .hero-img {
+    width: 100%;
+    height: auto;
     border-radius: 12px;
-    background: rgba(255, 107, 0, 0.04);
-    gap: 0.75rem;
-  }
-
-  .hero-image-placeholder .placeholder-icon {
-    font-size: 3rem;
-    opacity: 0.3;
-  }
-
-  .hero-image-placeholder .placeholder-label {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.12em;
-    color: rgba(255, 107, 0, 0.4);
-    text-transform: uppercase;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 0, 0.15);
+    object-fit: cover;
+    max-height: 420px;
   }
 
   @media (max-width: 768px) {
@@ -204,8 +199,12 @@ import NewsletterSection from "../components/NewsletterSection.astro";
       grid-template-columns: 1fr;
     }
 
-    .hero-image-placeholder {
-      min-height: 200px;
+    .hero-image-wrap {
+      min-height: auto;
+    }
+
+    .hero-img {
+      max-height: 300px;
     }
   }
 
