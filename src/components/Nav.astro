@@ -1,5 +1,6 @@
 ---
 import SocialIcons from "./SocialIcons.astro";
+import CartButton from "./CartButton";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -41,6 +42,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 
     <div class="nav-right">
       <SocialIcons size={18} class="nav-social-desktop" />
+      <CartButton client:load />
       <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
         <span></span>
         <span></span>
