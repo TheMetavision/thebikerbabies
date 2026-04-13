@@ -43,9 +43,13 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
           >
         </p>
       </div>
-      <div class="hero-image-placeholder">
-        <span class="placeholder-icon" aria-hidden="true">&#x1F6B4;</span>
-        <span class="placeholder-label">Drop hero image here</span>
+      <div class="hero-image-wrap">
+        <img
+          src="/images/meet-the-gang.webp"
+          alt="Wanted posters of The Biker Babies villains pinned to a garage wall – Grumpy Gearhead, Professor Pothole, Captain Cone and The Flat Tyre Gang"
+          class="hero-img"
+          loading="eager"
+        />
       </div>
     </div>
   </section>
@@ -152,29 +156,20 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
     line-height: 1.65;
   }
 
-  .hero-image-placeholder {
+  .hero-image-wrap {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 300px;
-    border: 2px dashed rgba(255, 107, 0, 0.3);
+  }
+
+  .hero-img {
+    width: 100%;
+    height: auto;
     border-radius: 12px;
-    background: rgba(255, 107, 0, 0.04);
-    gap: 0.75rem;
-  }
-
-  .hero-image-placeholder .placeholder-icon {
-    font-size: 3rem;
-    opacity: 0.3;
-  }
-
-  .hero-image-placeholder .placeholder-label {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.12em;
-    color: rgba(255, 107, 0, 0.4);
-    text-transform: uppercase;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 0, 0.15);
+    object-fit: cover;
+    max-height: 420px;
   }
 
   @media (max-width: 768px) {
@@ -182,8 +177,12 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
       grid-template-columns: 1fr;
     }
 
-    .hero-image-placeholder {
-      min-height: 200px;
+    .hero-image-wrap {
+      min-height: auto;
+    }
+
+    .hero-img {
+      max-height: 300px;
     }
   }
 
