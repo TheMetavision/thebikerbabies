@@ -403,12 +403,45 @@ import NewsletterSection from "../components/NewsletterSection.astro";
 <script>
   const form = document.getElementById("contact-form") as HTMLFormElement;
   const feedback = document.getElementById("form-feedback");
+  const submitBtn = form?.querySelector(".form-submit") as HTMLButtonElement;
 
-  form?.addEventListener("submit", (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (feedback) {
-      feedback.textContent = "Thanks for reaching out! We'll get back to you soon.";
+    if (!form) return;
+
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Sending...";
+    submitBtn.disabled = true;
+
+    const formData = new FormData(form);
+    formData.append("access_key", "ae5f8d86-af04-457f-bca3-73d9041cc56c");
+    formData.append("subject", "New Contact Form Submission - The Biker Babies");
+    formData.append("from_name", "The Biker Babies Website");
+    formData.append("botcheck", "");
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        if (feedback) {
+          feedback.textContent = "Message sent! We'll get back to you faster than a Biker Baby doing a wheelie.";
+          feedback.style.color = "#ff6b00";
+        }
+        form.reset();
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch (err) {
+      if (feedback) {
+        feedback.textContent = "Something went wrong — please try again or email us directly.";
+        feedback.style.color = "#ff6b6b";
+      }
     }
-    form.reset();
+
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
   });
 </script>

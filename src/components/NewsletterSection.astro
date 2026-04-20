@@ -163,11 +163,45 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const input = form.querySelector("input") as HTMLInputElement;
+    const btn = form.querySelector(".nl-btn") as HTMLButtonElement;
+    const btnText = form.querySelector(".nl-btn-text") as HTMLSpanElement;
     const msg = document.getElementById("nl-message");
-    if (msg) {
-      msg.textContent = "Thanks for subscribing! Stay tuned for adventures.";
-    }
-    input.value = "";
+    if (!input?.value) return;
+
+    const originalText = btnText.textContent;
+    btnText.textContent = "Subscribing...";
+    btn.disabled = true;
+
+    fetch('https://connect.mailerlite.com/api/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiMTY2ZGZiYWEzYmFhMzQ2NGE2ZTY4YzgyZTYwNDFjNGZlMjM2MTZkN2YwMmVlNGVlNmQzYmJlY2YxNmMxOWE0N2ZlN2VjZTAwYTEwYzA0OTUiLCJpYXQiOjE3NzU4MjAyNzUuNzQxMTQ1LCJuYmYiOjE3NzU4MjAyNzUuNzQxMTQ3LCJleHAiOjQ5MzE0OTM4NzUuNzM0NDc1LCJzdWIiOiIyMjc4Mzk3Iiwic2NvcGVzIjpbXX0.D_zKiP5yLqx0XKrNeOt146s6arBj9oorzQFkOsmNHAjcpACKTlkEcckUDnaAlPbTZMJKJ2zJKacOmrjKUJURql5F6xako4CYgbLo5EqaMoDH5fznm_GtVDaWDcbm9QCBxgeeqYcamOfPnsvwPHUJThgKz2IZ4Y4Hc8H7IudylESYoktYoz91nBk4osPApnI5G0-PiTXaNvH0EdHdWl_0aNfnq7aLcg0bNjmL4a-xxxON6-t-ApS6EA6Wb87bVU568XlMk7AATxW800qHCEfU47YmoQ2jBLuLXWaFUYmzKgP4hhgzd8ku2GCERPUiJj90ZBevup-WSSgKCpIeRW0AZFmTW7bWRQlxuYzbw03Xw_l9MD__aK47JGLtSf7jZWTKBwrAv-gfe6brflahxjDmfNot0NfK8gYDnZkLOCHyDp8Ky7kNLZK8YCEl-jhQQOVBY_zVz3tu-omxMqHSE7PLX5_mDNt-Lslc6lkdk---Jg6hnLMTSfKnQRrC-awJ4ZYCgjtWUG2g1kQXpEQ8VXg6sdGwYKsf-64nMFQ05laakp-QOWr9vC52ZC1fr9Ctlykl2jUKJui2HY_akqSxjXgCY14apcGzmmMWEtNljC_A6qARuu6U5qcRDEmhCTew3yGrML8JMos4cbxbTTO5fndMbcYktjZ006PZasHlv4zyKX4'
+      },
+      body: JSON.stringify({
+        email: input.value,
+        groups: ['184360851525862497'],
+        fields: { source: 'bikerbabies-newsletter' }
+      })
+    })
+    .then(res => {
+      if (res.ok || res.status === 200 || res.status === 201) {
+        if (msg) msg.textContent = "You're in the crew! Expect adventures in your inbox.";
+        input.value = "";
+      } else if (res.status === 422) {
+        if (msg) msg.textContent = "You're already part of the crew!";
+        input.value = "";
+      } else {
+        throw new Error("Subscription failed");
+      }
+      btnText.textContent = originalText;
+      btn.disabled = false;
+    })
+    .catch(() => {
+      if (msg) msg.textContent = "Something went wrong — try again.";
+      btnText.textContent = originalText;
+      btn.disabled = false;
+    });
   }
 
   (window as any).handleNlSubscribe = handleNlSubscribe;
