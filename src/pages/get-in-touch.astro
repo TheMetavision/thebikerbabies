@@ -414,8 +414,10 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     submitBtn.disabled = true;
 
     const formData = new FormData(form);
+    const topic = formData.get("subject") || "General";
+    formData.delete("subject");
     formData.append("access_key", "ae5f8d86-af04-457f-bca3-73d9041cc56c");
-    formData.append("subject", "New Contact Form Submission - The Biker Babies");
+    formData.append("subject", `The Biker Babies - ${topic}`);
     formData.append("from_name", "The Biker Babies Website");
     formData.append("botcheck", "");
 
