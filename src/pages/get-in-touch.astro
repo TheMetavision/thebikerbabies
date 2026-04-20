@@ -82,7 +82,29 @@ import NewsletterSection from "../components/NewsletterSection.astro";
               required></textarea>
           </div>
           <button type="submit" class="form-submit">Send Message →</button>
-          <p class="form-feedback" id="form-feedback" aria-live="polite"></p>
+        </form>
+
+        <div class="dispatch-confirm" id="dispatch-confirm" style="display:none;" role="status" aria-live="polite">
+          <div class="dispatch">
+            <div class="dispatch__body">
+              <div class="dispatch__badge" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <div>
+                <div class="dispatch__label">Dispatch confirmed</div>
+                <h3 class="dispatch__headline">Message received, rider.</h3>
+                <p class="dispatch__sub">The crew's on it. Expect a reply faster than Kai doing a wheelie.</p>
+              </div>
+            </div>
+            <div class="dispatch__footer">
+              <div class="dispatch__quote">"Maddison says if it's urgent, rev twice. If not, we'll circle back."</div>
+              <div class="dispatch__actions">
+                <a class="dispatch__btn dispatch__btn--ghost" href="/meet-the-biker-babies">Meet the Gang</a>
+                <a class="dispatch__btn dispatch__btn--solid" href="https://www.youtube.com/@TheBikerBabies" target="_blank" rel="noopener">Watch the Action</a>
+              </div>
+            </div>
+          </div>
+        </div>
         </form>
       </div>
 
@@ -332,11 +354,147 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     box-shadow: 0 8px 32px rgba(255, 107, 0, 0.5);
   }
 
-  .form-feedback {
-    font-size: 0.9rem;
+  /* Dispatch confirmation card */
+  .dispatch {
+    position: relative;
+    overflow: hidden;
+    background: #0e0e18;
+    border: 1.5px solid #2e2e42;
+    border-left: 4px solid #ff6b00;
+    border-radius: 8px;
+    padding: 2.5rem 2rem;
+    text-align: left;
+    animation: dispatchSlideIn 0.4s ease-out;
+  }
+
+  @keyframes dispatchSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dispatch__body {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .dispatch__badge {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #ff6b00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(255, 107, 0, 0.35);
+  }
+
+  .dispatch__label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.688rem;
     color: #ff6b00;
-    min-height: 1.2em;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .dispatch__headline {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    color: #fff;
+    margin: 0 0 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .dispatch__sub {
+    font-family: "Inter", sans-serif;
+    color: #999;
+    font-size: 0.938rem;
     margin: 0;
+    line-height: 1.5;
+  }
+
+  .dispatch__footer {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #2e2e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .dispatch__quote {
+    font-family: "Inter", sans-serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    max-width: 55%;
+  }
+
+  .dispatch__actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .dispatch__btn {
+    padding: 10px 16px;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .dispatch__btn--ghost {
+    background: transparent;
+    color: #fff;
+    border: 1.5px solid #ff6b00;
+  }
+
+  .dispatch__btn--ghost:hover {
+    background: #ff6b00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.35);
+  }
+
+  .dispatch__btn--solid {
+    background: #ff6b00;
+    color: #fff;
+    border: 1.5px solid #ff6b00;
+    box-shadow: 0 4px 20px rgba(255, 107, 0, 0.35);
+  }
+
+  .dispatch__btn--solid:hover {
+    background: #e05c00;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255, 107, 0, 0.5);
+  }
+
+  @media (max-width: 520px) {
+    .dispatch {
+      padding: 2rem 1.25rem;
+    }
+    .dispatch__footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .dispatch__quote {
+      max-width: 100%;
+      text-align: center;
+    }
+    .dispatch__actions {
+      justify-content: center;
+    }
   }
 
   .info-card {
@@ -402,7 +560,7 @@ import NewsletterSection from "../components/NewsletterSection.astro";
 
 <script>
   const form = document.getElementById("contact-form") as HTMLFormElement;
-  const feedback = document.getElementById("form-feedback");
+  const dispatchConfirm = document.getElementById("dispatch-confirm");
   const submitBtn = form?.querySelector(".form-submit") as HTMLButtonElement;
 
   form?.addEventListener("submit", async (e) => {
@@ -428,22 +586,15 @@ import NewsletterSection from "../components/NewsletterSection.astro";
       });
 
       if (res.ok) {
-        if (feedback) {
-          feedback.textContent = "Message sent! We'll get back to you faster than a Biker Baby doing a wheelie.";
-          feedback.style.color = "#ff6b00";
-        }
-        form.reset();
+        form.style.display = "none";
+        if (dispatchConfirm) dispatchConfirm.style.display = "block";
       } else {
         throw new Error("Submission failed");
       }
     } catch (err) {
-      if (feedback) {
-        feedback.textContent = "Something went wrong — please try again or email us directly.";
-        feedback.style.color = "#ff6b6b";
-      }
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+      alert("Something went wrong — please try again or email pitcrew@thebikerbabies.com directly.");
     }
-
-    submitBtn.textContent = originalText;
-    submitBtn.disabled = false;
   });
 </script>

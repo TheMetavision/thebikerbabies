@@ -24,7 +24,19 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
           <span class="nl-arrow" aria-hidden="true">→</span>
         </button>
       </form>
-      <p class="nl-message" id="nl-message" aria-live="polite"></p>
+      <p class="nl-message" id="nl-message" aria-live="polite" style="display:none;"></p>
+      <div class="nl-confirm" id="nl-confirm" style="display:none;" role="status" aria-live="polite">
+        <div class="nl-dispatch">
+          <div class="nl-dispatch__badge" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div>
+            <div class="nl-dispatch__label">You're in the crew</div>
+            <div class="nl-dispatch__headline">Welcome aboard, rider.</div>
+            <div class="nl-dispatch__sub">Expect adventures, merch drops, and chaos in your inbox.</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -147,6 +159,61 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
     font-weight: 600;
   }
 
+  /* Newsletter dispatch confirmation (on orange bg) */
+  .nl-dispatch {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #1a0a00;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-left: 4px solid #fff;
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    animation: nlSlideIn 0.4s ease-out;
+  }
+
+  @keyframes nlSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .nl-dispatch__badge {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nl-dispatch__label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.625rem;
+    color: #ff6b00;
+    letter-spacing: 2.5px;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+  }
+
+  .nl-dispatch__headline {
+    font-family: "Bebas Neue", sans-serif;
+    color: #fff;
+    font-size: 1.2rem;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .nl-dispatch__sub {
+    font-family: "Inter", sans-serif;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    margin-top: 3px;
+  }
+
   @media (max-width: 480px) {
     .nl-form {
       flex-direction: column;
@@ -165,7 +232,7 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
     const input = form.querySelector("input") as HTMLInputElement;
     const btn = form.querySelector(".nl-btn") as HTMLButtonElement;
     const btnText = form.querySelector(".nl-btn-text") as HTMLSpanElement;
-    const msg = document.getElementById("nl-message");
+    const nlConfirm = document.getElementById("nl-confirm");
     if (!input?.value) return;
 
     const originalText = btnText.textContent;
@@ -186,21 +253,27 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
     })
     .then(res => {
       if (res.ok || res.status === 200 || res.status === 201) {
-        if (msg) msg.textContent = "You're in the crew! Expect adventures in your inbox.";
-        input.value = "";
+        form.style.display = "none";
+        if (nlConfirm) nlConfirm.style.display = "block";
       } else if (res.status === 422) {
-        if (msg) msg.textContent = "You're already part of the crew!";
-        input.value = "";
+        form.style.display = "none";
+        if (nlConfirm) {
+          const dispatch = nlConfirm.querySelector(".nl-dispatch");
+          if (dispatch) {
+            dispatch.querySelector(".nl-dispatch__label")!.textContent = "Already in the crew";
+            dispatch.querySelector(".nl-dispatch__headline")!.textContent = "We know you, rider.";
+            dispatch.querySelector(".nl-dispatch__sub")!.textContent = "You signed up before. Adventures are already heading your way.";
+          }
+          nlConfirm.style.display = "block";
+        }
       } else {
         throw new Error("Subscription failed");
       }
-      btnText.textContent = originalText;
-      btn.disabled = false;
     })
     .catch(() => {
-      if (msg) msg.textContent = "Something went wrong — try again.";
       btnText.textContent = originalText;
       btn.disabled = false;
+      alert("Something went wrong — try again.");
     });
   }
 
