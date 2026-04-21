@@ -1,0 +1,269 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import NewsletterSection from "../../components/NewsletterSection.astro";
+import { getAllBlogPosts, getBlogPostBySlug } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const posts = await getAllBlogPosts();
+  return (posts || []).map((p: any) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = await getBlogPostBySlug(slug!);
+if (!post) return Astro.redirect("/baby-babble");
+
+function renderBlock(block: any): string {
+  if (block._type !== "block") return "";
+  const children = block.children || [];
+  const inner = children
+    .map((child: any) => {
+      let text = (child.text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      if (child.marks?.includes("strong")) text = `<strong>${text}</strong>`;
+      if (child.marks?.includes("em")) text = `<em>${text}</em>`;
+      return text;
+    })
+    .join("");
+  if (!inner.trim()) return "";
+  switch (block.style) {
+    case "h2": return `<h2>${inner}</h2>`;
+    case "h3": return `<h3>${inner}</h3>`;
+    case "h4": return `<h4>${inner}</h4>`;
+    case "blockquote": return `<blockquote>${inner}</blockquote>`;
+    default: return `<p>${inner}</p>`;
+  }
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+const bodyBlocks: string[] = (post.body || [])
+  .map((block: any) => renderBlock(block))
+  .filter(Boolean);
+
+const categoryAccents: Record<string, string> = {
+  "Behind the Scenes": "#ff6b00",
+  "Characters": "#00aaff",
+  "Tips & Tricks": "#4caf50",
+  "Books": "#ffd700",
+  "Adventure": "#c06aff",
+  "Inspiration": "#00d4c8",
+};
+const accent = categoryAccents[post.category] || "#ff6b00";
+---
+
+<Layout
+  title={post.seoTitle || `${post.title} — Baby Babble`}
+  description={post.seoDescription || post.excerpt || ""}
+>
+  <article class="article-wrap">
+    <header class="article-header" style={`--accent: ${accent};`}>
+      <div class="article-header-inner">
+        <a href="/baby-babble" class="back-link">← Baby Babble</a>
+        {post.category && (
+          <span class="article-tag" style={`color: ${accent}; border-color: ${accent}33; background: ${accent}1a;`}>
+            {post.category}
+          </span>
+        )}
+        <h1 class="article-title">{post.title}</h1>
+        <div class="article-accent-bar" style={`background: ${accent};`}></div>
+        {post.excerpt && <p class="article-excerpt">{post.excerpt}</p>}
+        <div class="article-meta">
+          {post.publishedAt && (
+            <span class="article-date">{formatDate(post.publishedAt)}</span>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <div class="article-body-wrap">
+      <div class="article-body">
+        {bodyBlocks.map((html) => <Fragment set:html={html} />)}
+      </div>
+    </div>
+
+    <div class="article-footer">
+      <a href="/baby-babble" class="back-btn" style={`border-color: ${accent}; color: ${accent};`}>
+        ← Back to Baby Babble
+      </a>
+    </div>
+  </article>
+
+  <NewsletterSection
+    quote="Never miss a story – subscribe for the latest Biker Babies updates!"
+  />
+</Layout>
+
+<style>
+  .article-wrap {
+    background: var(--color-bg);
+    min-height: 100vh;
+  }
+
+  .article-header {
+    padding: 5rem 2rem 3rem;
+    background: linear-gradient(180deg, #1a0e00 0%, var(--color-bg) 100%);
+    border-bottom: 1px solid rgba(255, 107, 0, 0.12);
+  }
+
+  .article-header-inner {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: #888;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 0.06em;
+  }
+
+  .back-link:hover {
+    color: #ff6b00;
+  }
+
+  .article-tag {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid;
+    font-size: 0.75rem;
+    font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 0.08em;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+  }
+
+  .article-title {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(2rem, 6vw, 3.8rem);
+    color: #fff;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+  }
+
+  .article-accent-bar {
+    width: 60px;
+    height: 4px;
+    border-radius: 9999px;
+    margin: 0.75rem 0 1.25rem;
+    box-shadow: 0 0 12px rgba(255, 107, 0, 0.45);
+  }
+
+  .article-excerpt {
+    font-size: 1.05rem;
+    color: #c0c0c0;
+    line-height: 1.65;
+    margin-bottom: 1.25rem;
+    font-style: italic;
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .article-date {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .article-body-wrap {
+    padding: 3rem 2rem 4rem;
+  }
+
+  .article-body {
+    max-width: 780px;
+    margin: 0 auto;
+    font-size: 1rem;
+    color: #d0d0d0;
+    line-height: 1.8;
+  }
+
+  .article-body :global(p) {
+    margin-bottom: 1.5rem;
+  }
+
+  .article-body :global(h2) {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.8rem;
+    color: #fff;
+    letter-spacing: 0.05em;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255, 107, 0, 0.2);
+  }
+
+  .article-body :global(h3) {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.35rem;
+    color: #fff;
+    letter-spacing: 0.04em;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .article-body :global(h4) {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .article-body :global(strong) {
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .article-body :global(em) {
+    color: #d8d8d8;
+    font-style: italic;
+  }
+
+  .article-body :global(blockquote) {
+    border-left: 3px solid #ff6b00;
+    padding: 0.75rem 1.25rem;
+    margin: 1.75rem 0;
+    background: rgba(255, 107, 0, 0.05);
+    border-radius: 0 6px 6px 0;
+    color: #bbb;
+    font-style: italic;
+  }
+
+  .article-footer {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .back-btn {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    border: 1px solid;
+    border-radius: 6px;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+
+  .back-btn:hover {
+    background: rgba(255, 107, 0, 0.12);
+  }
+</style>
