@@ -1,69 +1,60 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
+import { getAllBlogPosts } from "../lib/sanity";
 
-const posts = [
-  {
-    date: "Feb 25, 2025",
-    readTime: "1 min read",
-    title: "From Page to Screen: The Biker Babies Story",
-    excerpt:
-      "Discover how the Biker Babies' adventures come to life in both the book series and the animated show! We take you behind the scenes of how each story is brought to life.",
-    tag: "Behind the Scenes",
+const categoryStyles: Record<string, { cardBg: string; cardAccent: string }> = {
+  "Behind the Scenes": {
     cardBg: "linear-gradient(135deg, #1a1008 0%, #3d1f00 100%)",
     cardAccent: "#ff6b00",
   },
-  {
-    date: "Feb 18, 2025",
-    readTime: "2 min read",
-    title: "Meet the Villains: Who's Causing Trouble This Season?",
-    excerpt:
-      "From Grumble Gnome's garden traps to Turbo Toad's pogo-stick antics, get the lowdown on the troublemakers giving The Biker Babies a run for their money!",
-    tag: "Characters",
+  "Characters": {
     cardBg: "linear-gradient(135deg, #0a1520 0%, #0d2e40 100%)",
     cardAccent: "#00aaff",
   },
-  {
-    date: "Feb 10, 2025",
-    readTime: "2 min read",
-    title: "Top 5 Tips for Young Riders",
-    excerpt:
-      "Inspired by the crew, here are five real-world bike safety and riding tips that every young cyclist should know before hitting the open road.",
-    tag: "Tips & Tricks",
+  "Tips & Tricks": {
     cardBg: "linear-gradient(135deg, #0d1a0d 0%, #1a3d1a 100%)",
     cardAccent: "#4caf50",
   },
-  {
-    date: "Jan 28, 2025",
-    readTime: "1 min read",
-    title: "The Biker Babies Book Series – What to Read First",
-    excerpt:
-      "New to the series? Not sure where to start? We've put together the perfect reading order so you can dive straight into the action without missing a beat.",
-    tag: "Books",
+  "Books": {
     cardBg: "linear-gradient(135deg, #1a1208 0%, #3d2e00 100%)",
     cardAccent: "#ffd700",
   },
-  {
-    date: "Jan 15, 2025",
-    readTime: "3 min read",
-    title: "Building a Crew: The Teamwork Behind Every Adventure",
-    excerpt:
-      "Every great crew has its strengths. We explore how each Biker Baby's unique skill makes the team unstoppable — and what you can learn from them about working together.",
-    tag: "Adventure",
+  "Adventure": {
     cardBg: "linear-gradient(135deg, #150a1a 0%, #2e0d3d 100%)",
     cardAccent: "#c06aff",
   },
-  {
-    date: "Jan 5, 2025",
-    readTime: "2 min read",
-    title: "What Makes a Biker Baby?",
-    excerpt:
-      "Courage, creativity, and a love of two wheels. We break down the qualities that make The Biker Babies crew so special — and how you can embody them in your own adventures.",
-    tag: "Inspiration",
+  "Inspiration": {
     cardBg: "linear-gradient(135deg, #0a1518 0%, #0d3040 100%)",
     cardAccent: "#00d4c8",
   },
-];
+};
+
+const defaultStyle = {
+  cardBg: "linear-gradient(135deg, #1a1008 0%, #3d1f00 100%)",
+  cardAccent: "#ff6b00",
+};
+
+const sanityPosts = await getAllBlogPosts();
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+const posts = (sanityPosts || []).map((p: any) => {
+  const style = categoryStyles[p.category] || defaultStyle;
+  return {
+    slug: p.slug,
+    date: formatDate(p.publishedAt),
+    title: p.title,
+    excerpt: p.excerpt || "",
+    tag: p.category || "Blog",
+    cardBg: style.cardBg,
+    cardAccent: style.cardAccent,
+  };
+});
 ---
 
 <Layout
@@ -77,8 +68,8 @@ const posts = [
         <span class="h1-accent-bar" aria-hidden="true"></span>
         <p class="blog-hero-sub">Stories, Speed & Squad Goals</p>
         <p class="blog-hero-body">
-          Your go-to source for <em>Biker Babies</em> news, character spotlights, behind-the-scenes
-          stories, and tips for young riders everywhere.
+          Your go-to source for <em>Biker Babies</em> news, character spotlights,
+          behind-the-scenes stories, and tips for young riders everywhere.
         </p>
       </div>
       <div class="hero-image-wrap">
@@ -97,40 +88,51 @@ const posts = [
       <div class="blog-grid">
         {
           posts.map((post) => (
-            <article class="blog-card">
-              <div
-                class="blog-card-image"
-                style={`background: ${post.cardBg};`}
-                aria-hidden="true"
-              >
+            <a href={`/baby-babble/${post.slug}`} class="blog-card-link">
+              <article class="blog-card">
                 <div
-                  class="blog-card-image-bar"
-                  style={`background: ${post.cardAccent};`}
-                />
-              </div>
-              <div class="blog-card-body">
-                <div class="blog-card-top">
-                  <span class="blog-tag" style={`color: ${post.cardAccent}; border-color: ${post.cardAccent}33; background: ${post.cardAccent}1a;`}>{post.tag}</span>
+                  class="blog-card-image"
+                  style={`background: ${post.cardBg};`}
+                  aria-hidden="true"
+                >
+                  <div
+                    class="blog-card-image-bar"
+                    style={`background: ${post.cardAccent};`}
+                  />
                 </div>
-                <h2 class="blog-title">{post.title}</h2>
-                <p class="blog-excerpt">{post.excerpt}</p>
-                <div class="blog-meta">
-                  <span class="blog-date">{post.date}</span>
-                  <span class="blog-dot" aria-hidden="true" />
-                  <span class="blog-read">{post.readTime}</span>
+                <div class="blog-card-body">
+                  <div class="blog-card-top">
+                    <span
+                      class="blog-tag"
+                      style={`color: ${post.cardAccent}; border-color: ${post.cardAccent}33; background: ${post.cardAccent}1a;`}
+                    >{post.tag}</span>
+                  </div>
+                  <h2 class="blog-title">{post.title}</h2>
+                  <p class="blog-excerpt">{post.excerpt}</p>
+                  <div class="blog-meta">
+                    <span class="blog-date">{post.date}</span>
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
+            </a>
           ))
         }
       </div>
     </div>
   </section>
 
-  <NewsletterSection quote="Never miss a story – subscribe for the latest Biker Babies updates!" />
+  <NewsletterSection
+    quote="Never miss a story – subscribe for the latest Biker Babies updates!"
+  />
 </Layout>
 
 <style>
+  .blog-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
   .blog-hero {
     background: var(--color-bg);
     padding: 5rem 2rem 3rem;
@@ -186,7 +188,9 @@ const posts = [
     width: 100%;
     height: auto;
     border-radius: 12px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 0, 0.15);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(255, 107, 0, 0.15);
     object-fit: cover;
     max-height: 420px;
   }
@@ -195,11 +199,9 @@ const posts = [
     .blog-hero-content {
       grid-template-columns: 1fr;
     }
-
     .hero-image-wrap {
       min-height: auto;
     }
-
     .hero-img {
       max-height: 300px;
     }
@@ -228,11 +230,14 @@ const posts = [
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    height: 100%;
   }
 
-  .blog-card:hover {
+  .blog-card-link:hover .blog-card {
     border-color: rgba(255, 107, 0, 0.35);
     transform: translateY(-4px);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
@@ -246,24 +251,6 @@ const posts = [
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .blog-card-image-label {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 3.5rem;
-    letter-spacing: 0.1em;
-    opacity: 0.18;
-    text-transform: uppercase;
-    text-align: center;
-    padding: 0 1rem;
-    line-height: 1;
-    user-select: none;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-
-  .blog-card:hover .blog-card-image-label {
-    transform: scale(1.05);
-    opacity: 0.24;
   }
 
   .blog-card-image-bar {
@@ -321,18 +308,9 @@ const posts = [
     margin-top: 0.25rem;
   }
 
-  .blog-date,
-  .blog-read {
+  .blog-date {
     font-size: 0.8rem;
     color: #666;
-  }
-
-  .blog-dot {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: #555;
-    display: inline-block;
   }
 
   @media (max-width: 640px) {
