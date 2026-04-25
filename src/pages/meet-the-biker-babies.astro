@@ -17,7 +17,6 @@ const allCharacters = await client.fetch(`
     role,
     bio,
     characterType,
-    externalImageUrl,
     "imageUrl": image.asset->url
   }
 `);
@@ -72,7 +71,7 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
               name={char.name}
               title={char.role}
               description={char.bio}
-              image={char.imageUrl || char.externalImageUrl}
+              image={char.imageUrl}
               isVillain={false}
             />
           ))
@@ -91,7 +90,7 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
               name={char.name}
               title={char.role}
               description={char.bio}
-              image={char.imageUrl || char.externalImageUrl}
+              image={char.imageUrl}
               isVillain={true}
             />
           ))
