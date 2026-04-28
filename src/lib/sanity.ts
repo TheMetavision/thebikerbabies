@@ -29,10 +29,10 @@ export async function getFeaturedEpisodes() {
   return client.fetch(`*[_type == "episode" && featured == true] | order(publishedAt desc)[0...4] { _id, title, "slug": slug.current, videoType, youtubeUrl, youtubeId, thumbnail, description, publishedAt, duration }`);
 }
 export async function getAllBlogPosts() {
-  return client.fetch(`*[_type == "blogPost"] | order(publishedAt desc) { _id, title, "slug": slug.current, category, excerpt, body, featuredImage, publishedAt, seoTitle, seoDescription }`);
+  return client.fetch(`*[_type == "blogPost"] | order(publishedAt desc) { _id, title, "slug": slug.current, tag, category, excerpt, body, featuredImage, publishedAt, seoTitle, seoDescription }`);
 }
 export async function getBlogPostBySlug(slug: string) {
-  return client.fetch(`*[_type == "blogPost" && slug.current == $slug][0] { _id, title, "slug": slug.current, category, excerpt, body, featuredImage, publishedAt, seoTitle, seoDescription }`, { slug });
+  return client.fetch(`*[_type == "blogPost" && slug.current == $slug][0] { _id, title, "slug": slug.current, tag, category, excerpt, body, featuredImage, publishedAt, seoTitle, seoDescription }`, { slug });
 }
 export async function getAllProducts() {
   return client.fetch(`*[_type == "product"] | order(name asc) { _id, name, "slug": slug.current, "category": category->{ title, "slug": slug.current }, description, price, compareAtPrice, images, printfulVariants, material, featured, seoTitle, seoDescription }`);

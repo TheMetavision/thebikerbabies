@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import NewsletterSection from "../../components/NewsletterSection.astro";
-import { getAllBlogPosts, getBlogPostBySlug } from "../../lib/sanity";
+import { getAllBlogPosts, getBlogPostBySlug, urlFor } from "../../lib/sanity";
 
 export async function getStaticPaths() {
   const posts = await getAllBlogPosts();
@@ -12,15 +12,19 @@ const { slug } = Astro.params;
 const post = await getBlogPostBySlug(slug!);
 if (!post) return Astro.redirect("/baby-babble");
 
-function renderBlock(block: any): string {
-  if (block._type !== "block") return "";
+function escape(s: string) {
+  return (s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderTextBlock(block: any): string {
   const children = block.children || [];
   const inner = children
     .map((child: any) => {
-      let text = (child.text || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      let text = escape(child.text || "");
       if (child.marks?.includes("strong")) text = `<strong>${text}</strong>`;
       if (child.marks?.includes("em")) text = `<em>${text}</em>`;
       return text;
@@ -34,6 +38,20 @@ function renderBlock(block: any): string {
     case "blockquote": return `<blockquote>${inner}</blockquote>`;
     default: return `<p>${inner}</p>`;
   }
+}
+
+function renderImageBlock(block: any): string {
+  if (!block?.asset) return "";
+  const src = urlFor(block).width(1200).fit("max").auto("format").url();
+  const alt = escape(block.alt || "");
+  return `<figure class="article-figure"><img src="${src}" alt="${alt}" loading="lazy" /></figure>`;
+}
+
+function renderBlock(block: any): string {
+  if (!block) return "";
+  if (block._type === "block") return renderTextBlock(block);
+  if (block._type === "image") return renderImageBlock(block);
+  return "";
 }
 
 function formatDate(dateStr: string) {
@@ -52,13 +70,22 @@ const bodyBlocks: string[] = (post.body || [])
 
 const categoryAccents: Record<string, string> = {
   "Behind the Scenes": "#ff6b00",
+  "bts": "#ff6b00",
   "Characters": "#00aaff",
   "Tips & Tricks": "#4caf50",
+  "dispatches": "#4caf50",
   "Books": "#ffd700",
   "Adventure": "#c06aff",
   "Inspiration": "#00d4c8",
 };
-const accent = categoryAccents[post.category] || "#ff6b00";
+
+const tagLabel = post.tag || post.category || "";
+const accent = categoryAccents[tagLabel] || "#ff6b00";
+
+// Featured image — hero above the article body
+const heroImageUrl = post.featuredImage
+  ? urlFor(post.featuredImage).width(1600).fit("max").auto("format").url()
+  : null;
 ---
 
 <Layout
@@ -69,9 +96,9 @@ const accent = categoryAccents[post.category] || "#ff6b00";
     <header class="article-header" style={`--accent: ${accent};`}>
       <div class="article-header-inner">
         <a href="/baby-babble" class="back-link">← Baby Babble</a>
-        {post.category && (
+        {tagLabel && (
           <span class="article-tag" style={`color: ${accent}; border-color: ${accent}33; background: ${accent}1a;`}>
-            {post.category}
+            {tagLabel}
           </span>
         )}
         <h1 class="article-title">{post.title}</h1>
@@ -84,6 +111,17 @@ const accent = categoryAccents[post.category] || "#ff6b00";
         </div>
       </div>
     </header>
+
+    {heroImageUrl && (
+      <div class="article-hero-wrap">
+        <img
+          src={heroImageUrl}
+          alt={post.title}
+          class="article-hero-img"
+          loading="eager"
+        />
+      </div>
+    )}
 
     <div class="article-body-wrap">
       <div class="article-body">
@@ -182,6 +220,22 @@ const accent = categoryAccents[post.category] || "#ff6b00";
     color: #666;
   }
 
+  .article-hero-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2rem 0;
+  }
+
+  .article-hero-img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(255, 107, 0, 0.15);
+  }
+
   .article-body-wrap {
     padding: 3rem 2rem 4rem;
   }
@@ -241,6 +295,18 @@ const accent = categoryAccents[post.category] || "#ff6b00";
     border-radius: 0 6px 6px 0;
     color: #bbb;
     font-style: italic;
+  }
+
+  .article-body :global(.article-figure) {
+    margin: 2rem 0;
+  }
+
+  .article-body :global(.article-figure img) {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
   .article-footer {

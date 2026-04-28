@@ -1,10 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
-import { getAllBlogPosts } from "../lib/sanity";
+import { getAllBlogPosts, urlFor } from "../lib/sanity";
 
 const categoryStyles: Record<string, { cardBg: string; cardAccent: string }> = {
   "Behind the Scenes": {
+    cardBg: "linear-gradient(135deg, #1a1008 0%, #3d1f00 100%)",
+    cardAccent: "#ff6b00",
+  },
+  "bts": {
     cardBg: "linear-gradient(135deg, #1a1008 0%, #3d1f00 100%)",
     cardAccent: "#ff6b00",
   },
@@ -13,6 +17,10 @@ const categoryStyles: Record<string, { cardBg: string; cardAccent: string }> = {
     cardAccent: "#00aaff",
   },
   "Tips & Tricks": {
+    cardBg: "linear-gradient(135deg, #0d1a0d 0%, #1a3d1a 100%)",
+    cardAccent: "#4caf50",
+  },
+  "dispatches": {
     cardBg: "linear-gradient(135deg, #0d1a0d 0%, #1a3d1a 100%)",
     cardAccent: "#4caf50",
   },
@@ -44,15 +52,24 @@ function formatDate(dateStr: string) {
 }
 
 const posts = (sanityPosts || []).map((p: any) => {
-  const style = categoryStyles[p.category] || defaultStyle;
+  // Some posts use `tag`, some use `category` — prefer `tag`, fall back to `category`.
+  const styleKey = p.tag || p.category;
+  const style = categoryStyles[styleKey] || defaultStyle;
+
+  // Build a Sanity CDN URL for the card thumbnail (640x360, format-optimised).
+  const featuredImageUrl = p.featuredImage
+    ? urlFor(p.featuredImage).width(640).height(360).fit("crop").auto("format").url()
+    : null;
+
   return {
     slug: p.slug,
     date: formatDate(p.publishedAt),
     title: p.title,
     excerpt: p.excerpt || "",
-    tag: p.category || "Blog",
+    tag: p.tag || p.category || "Blog",
     cardBg: style.cardBg,
     cardAccent: style.cardAccent,
+    featuredImageUrl,
   };
 });
 ---
@@ -92,9 +109,18 @@ const posts = (sanityPosts || []).map((p: any) => {
               <article class="blog-card">
                 <div
                   class="blog-card-image"
-                  style={`background: ${post.cardBg};`}
-                  aria-hidden="true"
+                  style={post.featuredImageUrl ? "" : `background: ${post.cardBg};`}
                 >
+                  {post.featuredImageUrl && (
+                    <img
+                      src={post.featuredImageUrl}
+                      alt={post.title}
+                      class="blog-card-img"
+                      loading="lazy"
+                      width="640"
+                      height="360"
+                    />
+                  )}
                   <div
                     class="blog-card-image-bar"
                     style={`background: ${post.cardAccent};`}
@@ -251,6 +277,19 @@ const posts = (sanityPosts || []).map((p: any) => {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #1a1008;
+  }
+
+  .blog-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .blog-card-link:hover .blog-card-img {
+    transform: scale(1.04);
   }
 
   .blog-card-image-bar {
@@ -260,6 +299,7 @@ const posts = (sanityPosts || []).map((p: any) => {
     right: 0;
     height: 3px;
     opacity: 0.7;
+    z-index: 1;
   }
 
   .blog-card-body {
