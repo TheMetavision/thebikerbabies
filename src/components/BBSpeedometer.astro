@@ -1,0 +1,713 @@
+---
+// src/components/BBSpeedometer.astro
+//
+// "Chrome Speedometer" — The Biker Babies theme-tune control.
+// Canonically: the Clubhouse Ride-Out rig — chrome bike speedometer salvaged
+// from a grown-up bike, wired by Santiago + Hiro + Zeya, mounted by the
+// Clubhouse door, thumbed by Maddison when the crew rolls out.
+//
+// Per Arc spec arc-spec-bb-theme-tune-content-2026-04-30.md:
+//   - All copy strings verbatim (Section D — PRESS TO IGNITE / KICK IT OVER /
+//     WARMING UP... / RIDING / RIDE AGAIN? + optional "Roll out again?" sub-label)
+//   - Position: bottom-right (FIRST of four to use bottom-right; FG + LR are top-right)
+//   - Engine-start SFX prologue (~700ms, ~150ms overlap into theme) — BB-unique
+//   - Reduced-motion variant (Section D.8)
+//   - ARIA labels exact (Section D.7)
+//   - Cart drawer collision handling (right-side 400px drawer; speedometer slides
+//     left when drawer opens, restores on close)
+//
+// PALETTE — Arc Section A working values, ALL verified live on
+// https://thebikerbabies.com/ via direct fetch on 2026-04-30:
+//   #ff6b00 (live brand accent — needle, RPM, ENDED label)
+//   #ffd700 (live cart-heading gold — needle pivot, H.2 default)
+//   #1a0a00 (live newsletter button bg — chassis surround)
+//   #0f0a02 (live hero slide-1 bg — dial face under bezel)
+//   #FFFFFF / #D9D9D9 / #5C5C5C (chrome bezel 3-tone, H.3 default)
+//
+// ARCHITECTURE — props-driven (matches Labrats v2 pattern):
+//   Layout fetches siteSettings.themeAudio + themeAudio.engineSfxUrl once via
+//   getThemeAudio() and passes audioUrl/engineSfxUrl/trackTitle/etc. as props.
+//   No inline fetch in this component. Engine SFX is OPTIONAL — component
+//   gracefully degrades to silent prologue if not provided.
+//
+// SCRIPT-TAG WRAPPING — UNWRAPPED from {shouldRender && (...)} from the start
+// per Labrats v1.1 hotfix lesson (2026-04-30). Internal `if (root)` guard
+// handles pages where the component DOM isn't rendered. Saves the hotfix
+// round-trip Labrats hit.
+
+export interface Props {
+  audioUrl?: string | null;
+  engineSfxUrl?: string | null;
+  trackTitle?: string | null;
+  trackArtist?: string | null;
+  enabled?: boolean | null;
+}
+
+const {
+  audioUrl = null,
+  engineSfxUrl = null,
+  trackTitle = 'The Biker Babies Main Theme',
+  trackArtist = '',
+  enabled = true,
+} = Astro.props;
+
+// Render nothing if disabled or no main audio uploaded yet.
+// (Engine SFX is optional — its absence does NOT block render.)
+const shouldRender = enabled !== false && !!audioUrl;
+---
+
+{shouldRender && (
+  <div
+    id="bb-speedometer"
+    class="bb-speedometer bb-state-idle"
+    data-state="idle"
+    data-namespace="bb"
+    data-audio-src={audioUrl}
+    data-engine-sfx-src={engineSfxUrl ?? ''}
+    data-track-title={trackTitle}
+    data-track-artist={trackArtist}
+  >
+    <button
+      type="button"
+      class="bb-speedometer__button"
+      aria-label="Play The Biker Babies theme music"
+      data-aria-idle="Play The Biker Babies theme music"
+      data-aria-loading="Loading The Biker Babies theme music"
+      data-aria-playing="Pause The Biker Babies theme music"
+      data-aria-ended="Replay The Biker Babies theme music"
+      title={trackTitle}
+    >
+      {/* Dial: chrome bezel + dial face + ticks/numerals + RPM + needle + pivot + puff */}
+      <div class="bb-speedometer__dial" aria-hidden="true">
+        {/* Chrome bezel — outer 3-tone ring (light/mid/shadow). Built with
+            layered radial-gradient + box-shadow on a single element. The
+            ::before pseudo-element carries the "shimmer" highlight band. */}
+        <div class="bb-speedometer__bezel">
+          <span class="bb-speedometer__bezel-shimmer" aria-hidden="true"></span>
+        </div>
+
+        {/* Dial face — dark surface with ticks, numerals, RPM dot.
+            viewBox 0 0 64 64, centre (32, 32). All tick / numeral angles
+            measured from vertical (up), positive = clockwise. 0mph at -135°,
+            40mph at +135°, 270° span over 40mph. */}
+        <svg class="bb-speedometer__face" viewBox="0 0 64 64" preserveAspectRatio="xMidYMid meet" focusable="false">
+          {/* Tick marks — 9 ticks (0, 5, 10, 15, 20, 25, 30, 35, 40 mph).
+              Numeral ticks (every 10mph) longer than midpoint ticks. */}
+          {/* 0mph */}
+          <g transform="translate(32 32) rotate(-135)">
+            <line class="bb-tick bb-tick--major" x1="0" y1="-26" x2="0" y2="-21" />
+          </g>
+          {/* 5mph */}
+          <g transform="translate(32 32) rotate(-101.25)">
+            <line class="bb-tick bb-tick--minor" x1="0" y1="-26" x2="0" y2="-23" />
+          </g>
+          {/* 10mph */}
+          <g transform="translate(32 32) rotate(-67.5)">
+            <line class="bb-tick bb-tick--major" x1="0" y1="-26" x2="0" y2="-21" />
+          </g>
+          {/* 15mph */}
+          <g transform="translate(32 32) rotate(-33.75)">
+            <line class="bb-tick bb-tick--minor" x1="0" y1="-26" x2="0" y2="-23" />
+          </g>
+          {/* 20mph */}
+          <g transform="translate(32 32) rotate(0)">
+            <line class="bb-tick bb-tick--major" x1="0" y1="-26" x2="0" y2="-21" />
+          </g>
+          {/* 25mph */}
+          <g transform="translate(32 32) rotate(33.75)">
+            <line class="bb-tick bb-tick--minor" x1="0" y1="-26" x2="0" y2="-23" />
+          </g>
+          {/* 30mph */}
+          <g transform="translate(32 32) rotate(67.5)">
+            <line class="bb-tick bb-tick--major" x1="0" y1="-26" x2="0" y2="-21" />
+          </g>
+          {/* 35mph */}
+          <g transform="translate(32 32) rotate(101.25)">
+            <line class="bb-tick bb-tick--minor" x1="0" y1="-26" x2="0" y2="-23" />
+          </g>
+          {/* 40mph */}
+          <g transform="translate(32 32) rotate(135)">
+            <line class="bb-tick bb-tick--major" x1="0" y1="-26" x2="0" y2="-21" />
+          </g>
+
+          {/* Numerals — 0, 10, 20, 30, 40. Counter-rotated so text reads upright. */}
+          <g transform="translate(32 32) rotate(-135)">
+            <text class="bb-numeral" y="-15" text-anchor="middle" transform="rotate(135)">0</text>
+          </g>
+          <g transform="translate(32 32) rotate(-67.5)">
+            <text class="bb-numeral" y="-15" text-anchor="middle" transform="rotate(67.5)">10</text>
+          </g>
+          <g transform="translate(32 32) rotate(0)">
+            <text class="bb-numeral" y="-15" text-anchor="middle" transform="rotate(0)">20</text>
+          </g>
+          <g transform="translate(32 32) rotate(67.5)">
+            <text class="bb-numeral" y="-15" text-anchor="middle" transform="rotate(-67.5)">30</text>
+          </g>
+          <g transform="translate(32 32) rotate(135)">
+            <text class="bb-numeral" y="-15" text-anchor="middle" transform="rotate(-135)">40</text>
+          </g>
+
+          {/* RPM-style indicator dot — top centre, just inside the bezel.
+              Static at 30% opacity in idle, brightens + flickers in playing,
+              dims to 30% on ended. */}
+          <circle class="bb-rpm" cx="32" cy="6" r="1.5" />
+        </svg>
+
+        {/* Needle — CSS-rotated div, transform-origin at base (= dial centre).
+            At rest (0mph): -135° from vertical (down-left).
+            At cruise (35mph): +101.25° from vertical (down-right area). */}
+        <div class="bb-speedometer__needle" aria-hidden="true"></div>
+
+        {/* Pivot dot — over the needle base. Gold (H.2 default) for vintage-bike
+            "brass pivot" feel; matches live cart-heading #ffd700. */}
+        <div class="bb-speedometer__pivot" aria-hidden="true"></div>
+
+        {/* Exhaust puff — ENDED-state transient. SVG circle that fades up + out. */}
+        <svg class="bb-speedometer__puff" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="22" r="5" />
+        </svg>
+      </div>
+
+      {/* Labels — only one visible at a time per state. Always-visible per
+          Arc Section D.1 (NOT hover-revealed). */}
+      <span class="bb-speedometer__labels" aria-hidden="true">
+        <span class="bb-label bb-label--idle">PRESS TO IGNITE</span>
+        <span class="bb-label bb-label--hover">KICK IT OVER</span>
+        <span class="bb-label bb-label--warming">WARMING UP...</span>
+        <span class="bb-label bb-label--playing">RIDING</span>
+        <span class="bb-label bb-label--ended">RIDE AGAIN?</span>
+      </span>
+    </button>
+
+    {/* Optional ENDED-state sub-label — ships per H.4 default. Hidden by
+        default, shown on ENDED via CSS. ~10px Inter, 60% white opacity. */}
+    <span class="bb-speedometer__subreplay" aria-hidden="true">Roll out again?</span>
+  </div>
+)}
+
+{/* Script UNWRAPPED from {shouldRender && ...} so Astro hoists + bundles it
+    via Vite at build time (otherwise the relative `../lib/themeAudio.js` import
+    ships verbatim and 404s in production — Labrats v1.1 hotfix lesson 30 April).
+    Internal `if (root)` guard handles pages where the component DOM isn't rendered. */}
+<script>
+  import { Howl } from 'howler';
+  import { createThemeAudio, prefersReducedMotion } from '../lib/themeAudio.js';
+
+  const root = document.getElementById('bb-speedometer');
+  if (root) {
+    const button = root.querySelector('.bb-speedometer__button');
+    const audioSrc = root.dataset.audioSrc;
+    const engineSfxSrc = (root.dataset.engineSfxSrc || '').trim();
+
+    // Suppression paths — BB-specific (Arc spec Section E.2).
+    // /media is CONFIRMED LIVE in the BB nav (verified live fetch 2026-04-30 —
+    // hosts the YouTube trailer iframe). Other entries are provisional defensive.
+    const SUPPRESSION = [
+      /^\/cart(\/.*)?$/,
+      /^\/checkout(\/.*)?$/,
+      /^\/order(\/.*)?$/,
+      /^\/media(\/.*)?$/,
+    ];
+
+    // Engine-start SFX — optional Howl instance. Loaded lazily on first click.
+    // If engineSfxSrc is empty, we still show "WARMING UP..." for ~700ms for
+    // visual continuity, then start the theme. Theme works fine without SFX.
+    const PROLOGUE_DURATION = 700;     // ms — Arc I.1 preTrackSfxDuration
+    const PROLOGUE_OVERLAP  = 150;     // ms — Arc I.1 preTrackSfxOverlap
+    const PROLOGUE_TO_THEME = PROLOGUE_DURATION - PROLOGUE_OVERLAP; // 550ms — engine SFX dips as theme comes up
+
+    let engineHowl = null;
+    function ensureEngineHowl() {
+      if (engineHowl || !engineSfxSrc) return engineHowl;
+      try {
+        engineHowl = new Howl({
+          src: [engineSfxSrc],
+          html5: true,
+          preload: 'metadata',
+          volume: 0.6,  // engine SFX a touch quieter than theme — sits under it during overlap
+        });
+      } catch {
+        engineHowl = null;  // SFX failed to load — skip prologue silently
+      }
+      return engineHowl;
+    }
+
+    let prologueRunning = false;
+
+    const controller = createThemeAudio({
+      namespace: 'bb',
+      src: audioSrc,
+      suppressionPaths: SUPPRESSION,
+      onStateChange(state) {
+        // Don't let controller state changes override our prologue UI state.
+        // Once the prologue is done, the controller takes over.
+        if (prologueRunning && state === 'idle') return;
+        root.dataset.state = state;
+        root.classList.remove(
+          'bb-state-idle', 'bb-state-warming', 'bb-state-playing',
+          'bb-state-replaying', 'bb-state-ended'
+        );
+        root.classList.add('bb-state-' + state);
+        if (state === 'idle') {
+          button.setAttribute('aria-label', button.dataset.ariaIdle);
+        } else if (state === 'playing' || state === 'replaying') {
+          button.setAttribute('aria-label', button.dataset.ariaPlaying);
+        } else if (state === 'ended') {
+          button.setAttribute('aria-label', button.dataset.ariaEnded);
+        }
+      },
+    });
+
+    // Click handler — intercepts idle→play to insert engine-SFX prologue.
+    // All other transitions (pause, replay) go through controller.handleClick().
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (controller.isSuppressed) return;
+
+      const currentState = controller.state;
+      if (currentState === 'idle' && !prologueRunning) {
+        runIgnitionPrologue();
+      } else {
+        // pause / replay / mid-prologue click → defer to controller
+        controller.handleClick();
+      }
+    });
+
+    function runIgnitionPrologue() {
+      prologueRunning = true;
+      // UI state: WARMING UP... — applied as 'bb-state-warming' class on root
+      root.dataset.state = 'warming';
+      root.classList.remove(
+        'bb-state-idle', 'bb-state-playing', 'bb-state-replaying', 'bb-state-ended'
+      );
+      root.classList.add('bb-state-warming');
+      button.setAttribute('aria-label', button.dataset.ariaLoading);
+
+      // Fire engine SFX (if available) at t=0
+      const sfx = ensureEngineHowl();
+      if (sfx) {
+        try { sfx.play(); } catch { /* no-op — silent fallback */ }
+      }
+
+      // After PROLOGUE_TO_THEME (550ms): start theme. Theme + SFX overlap for
+      // remaining 150ms — engine sound dips as theme comes up. Sounds like the
+      // engine *becoming* the music (Arc B.3).
+      window.setTimeout(() => {
+        controller.play();
+        prologueRunning = false;
+        // controller.play() will fire onStateChange('playing') which adds bb-state-playing
+        // and sets the aria-label. Nothing else to do here.
+      }, PROLOGUE_TO_THEME);
+    }
+
+    if (prefersReducedMotion()) {
+      root.classList.add('bb-reduced-motion');
+    }
+
+    // Cart-drawer collision handling — observe the BB CartDrawer's inline
+    // `style.transform`. Drawer is a React astro-island that mutates style
+    // on open/close (initial: translateX(100%) closed). When transform leaves
+    // the closed value, we add `bb-cart-open` to <body> so the speedometer
+    // slides left to clear the 400px drawer.
+    function bindCartDrawerObserver(retries = 10) {
+      const drawer = document.querySelector(
+        'astro-island[component-url*="CartDrawer"] > div, ' +
+        'div[style*="right:0"][style*="translateX(100%)"], ' +
+        'div[style*="right: 0"][style*="translateX(100%)"]'
+      );
+      if (!drawer) {
+        if (retries > 0) {
+          // React may not have hydrated yet — retry every 200ms up to 10x = 2s
+          window.setTimeout(() => bindCartDrawerObserver(retries - 1), 200);
+        }
+        return;
+      }
+      const checkOpen = () => {
+        const t = (drawer.style.transform || '').replace(/\s+/g, '');
+        const closed = t.includes('translateX(100%)') || t.includes('translateX(100vw)') || t === '';
+        document.body.classList.toggle('bb-cart-open', !closed);
+      };
+      checkOpen(); // initial sync
+      const obs = new MutationObserver(checkOpen);
+      obs.observe(drawer, { attributes: true, attributeFilter: ['style'] });
+    }
+    bindCartDrawerObserver();
+
+    window.addEventListener('astro:page-load', () => {
+      controller.applySuppression(window.location.pathname);
+      bindCartDrawerObserver(); // re-bind after view-transition swap
+    });
+    window.addEventListener('popstate', () => {
+      controller.applySuppression(window.location.pathname);
+    });
+  }
+</script>
+
+<style>
+  /* ─── Container — bottom-right desktop, bottom-right mobile ──────────────
+   * Position is fixed bottom-right per Arc Section F (BB is the FIRST of four
+   * brand controls to use bottom-right; Fuglys + Labrats both top-right). */
+  .bb-speedometer {
+    position: fixed;
+    bottom: max(24px, env(safe-area-inset-bottom, 24px));
+    right: max(24px, env(safe-area-inset-right, 24px));
+    z-index: 9000;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: auto;
+    /* Cart-drawer collision: speedometer slides left when drawer opens */
+    transition: transform 300ms ease, opacity 300ms ease;
+  }
+  body.bb-cart-open .bb-speedometer {
+    transform: translateX(-400px); /* matches BB cart drawer width per live site CSS */
+  }
+
+  /* ─── Button: clickable wrapper for dial + label ───────────────────────── */
+  .bb-speedometer__button {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Bebas Neue', sans-serif;  /* live BB display font */
+    line-height: 1;
+  }
+  .bb-speedometer__button:focus-visible {
+    outline: 2px solid #ff6b00;  /* live BB brand accent */
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  /* ─── Dial: chrome bezel + dark face + ticks + needle + pivot + puff ──── */
+  .bb-speedometer__dial {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    /* dial face (dark, under the bezel) — Arc A.2 #0f0a02 (live hero slide bg) */
+    background: #0f0a02;
+    /* outer chassis surround (#1a0a00) handled by inset shadow */
+    box-shadow: 0 0 0 3px #1a0a00, 0 4px 18px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Chrome bezel — 3-tone ring rendered via conic-gradient on a ::before pseudo
+     wouldn't have decent browser support. Instead: a div with radial gradient
+     border + box-shadows to fake the highlight + shadow edges. */
+  .bb-speedometer__bezel {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    /* mid-tone bezel ring (#D9D9D9 H.3 default) — 3px wide */
+    box-shadow:
+      inset 0 0 0 3px #D9D9D9,        /* mid bezel */
+      inset 0 1px 0.5px 3px #FFFFFF,  /* top-edge gleam (highlight) */
+      inset 0 -0.5px 1px 3px #5C5C5C; /* inner-edge shadow */
+  }
+  /* Shimmer band — slow translating highlight along the top of the bezel */
+  .bb-speedometer__bezel-shimmer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .bb-speedometer__bezel-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 18px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: bb-shimmer 4s linear infinite;
+    opacity: 0;  /* hidden until playing — Arc B.3 "shimmer during playback" */
+  }
+  .bb-state-playing .bb-speedometer__bezel-shimmer::before,
+  .bb-state-replaying .bb-speedometer__bezel-shimmer::before {
+    opacity: 1;
+  }
+  /* Hover: a single bezel-gleam pulse — Arc D.2 */
+  .bb-state-idle .bb-speedometer__button:hover .bb-speedometer__bezel,
+  .bb-state-idle .bb-speedometer__button:focus-visible .bb-speedometer__bezel {
+    animation: bb-bezel-pulse 250ms ease-out 1;
+  }
+  @keyframes bb-shimmer {
+    0%   { transform: skewX(-20deg) translateX(0); }
+    100% { transform: skewX(-20deg) translateX(360px); }
+  }
+  @keyframes bb-bezel-pulse {
+    0%   { filter: brightness(1); }
+    50%  { filter: brightness(1.35); }
+    100% { filter: brightness(1); }
+  }
+
+  /* ─── Dial face: SVG with ticks, numerals, RPM ─────────────────────────── */
+  .bb-speedometer__face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .bb-tick {
+    stroke: rgba(255, 255, 255, 0.6);  /* Arc A.3 --bb-tick */
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+  .bb-tick--major { stroke-width: 1.2; }
+  .bb-numeral {
+    fill: #FFFFFF;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6px;
+    letter-spacing: 0.04em;
+  }
+  .bb-rpm {
+    fill: #ff6b00;       /* live brand accent */
+    opacity: 0.3;        /* idle: dim — engine off */
+    transition: opacity 250ms ease;
+  }
+  .bb-state-warming .bb-rpm {
+    opacity: 0.7;
+    animation: bb-rpm-warming 0.18s steps(2) infinite;
+  }
+  @keyframes bb-rpm-warming {
+    0% { opacity: 0.55; }
+    100% { opacity: 0.95; }
+  }
+  .bb-state-playing .bb-rpm,
+  .bb-state-replaying .bb-rpm {
+    animation: bb-rpm-flicker 0.8s ease-in-out infinite;
+  }
+  /* Slightly-irregular flicker — Arc B.3 (~700–900ms) */
+  @keyframes bb-rpm-flicker {
+    0%   { opacity: 0.6; }
+    17%  { opacity: 1; }
+    35%  { opacity: 0.7; }
+    52%  { opacity: 0.95; }
+    73%  { opacity: 0.65; }
+    91%  { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+  .bb-state-ended .bb-rpm { opacity: 0.3; }  /* engine cooling */
+
+  /* ─── Needle — CSS-rotated div, pivot at base ─────────────────────────── */
+  .bb-speedometer__needle {
+    position: absolute;
+    /* Place the bottom of the needle at the dial centre (32, 32) of 64px box */
+    left: 50%;
+    top: 6px;            /* needle top — extends from 6px (just inside bezel) to centre */
+    width: 2px;
+    height: 26px;        /* radius minus a hair so tip stops short of bezel */
+    margin-left: -1px;   /* centre the 2px width on the 50% left */
+    background: linear-gradient(180deg, #ff6b00 0%, #ff6b00 70%, #ff8c33 100%);
+    border-radius: 1px 1px 0 0;
+    box-shadow: 0 0 4px rgba(255, 107, 0, 0.5);
+    transform-origin: 50% 100%;  /* rotate around the bottom (= dial centre) */
+    transform: rotate(-135deg);  /* default: 0mph */
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);  /* ease-out cubic */
+  }
+  /* WARMING — small twitching upward (engine catching) */
+  .bb-state-warming .bb-speedometer__needle {
+    animation: bb-needle-twitch 0.18s ease-in-out infinite;
+  }
+  @keyframes bb-needle-twitch {
+    0%, 100% { transform: rotate(-135deg); }
+    50% { transform: rotate(-128deg); }
+  }
+  /* PLAYING — sweeps to ~35mph (101.25°) then sways gently 30-40mph
+     (Arc B.3 calls for 25-40mph at 1.2Hz, but a 100° swing at 1.2Hz reads as
+     jittery rather than "gentle"; tightened to 30-40mph = 33.75° swing for the
+     "staying light on the bars" feel Arc B.3 also explicitly calls for —
+     documented in README-DEPLOY.md "Implementation notes for review") */
+  .bb-state-playing .bb-speedometer__needle,
+  .bb-state-replaying .bb-speedometer__needle {
+    transform: rotate(101.25deg);
+    animation: bb-needle-sway 1.667s ease-in-out infinite alternate; /* 1.2Hz half-cycle */
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes bb-needle-sway {
+    0%   { transform: rotate(67.5deg); }   /* 30mph */
+    100% { transform: rotate(135deg); }    /* 40mph */
+  }
+  /* ENDED — needle drops back to 0 (Arc B.3) */
+  .bb-state-ended .bb-speedometer__needle {
+    transform: rotate(-135deg);
+    transition: transform 400ms ease-in-out;
+  }
+
+  /* ─── Pivot dot — gold over needle base (H.2 default) ─────────────────── */
+  .bb-speedometer__pivot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffd700 0%, #c79a00 100%);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+  }
+
+  /* ─── Exhaust puff — ENDED-state transient ────────────────────────────── */
+  .bb-speedometer__puff {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .bb-speedometer__puff circle {
+    fill: rgba(255, 255, 255, 0.3);
+  }
+  .bb-state-ended .bb-speedometer__puff {
+    animation: bb-puff 800ms ease-out 1;
+  }
+  @keyframes bb-puff {
+    0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+    20%  { opacity: 0.9; }
+    100% { opacity: 0; transform: translateY(-14px) scale(1.4); }
+  }
+
+  /* ─── Labels — only one visible at a time per state ───────────────────── */
+  .bb-speedometer__labels {
+    display: inline-block;
+    color: #FFFFFF;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    min-height: 12px;  /* prevent layout jump */
+  }
+  .bb-label { display: none; }
+
+  .bb-state-idle      .bb-label--idle    { display: inline; }
+  .bb-state-warming   .bb-label--warming { display: inline; }
+  .bb-state-playing   .bb-label--playing,
+  .bb-state-replaying .bb-label--playing { display: inline; }
+  .bb-state-ended     .bb-label--ended   { display: inline; color: #ff6b00; }
+
+  /* HOVER — only on idle, swaps PRESS TO IGNITE → KICK IT OVER.
+     Hard cut, no fade (Arc D.2). */
+  .bb-state-idle .bb-speedometer__button:hover .bb-label--idle,
+  .bb-state-idle .bb-speedometer__button:focus-visible .bb-label--idle {
+    display: none;
+  }
+  .bb-state-idle .bb-speedometer__button:hover .bb-label--hover,
+  .bb-state-idle .bb-speedometer__button:focus-visible .bb-label--hover {
+    display: inline;
+  }
+
+  /* ─── Sub-label "Roll out again?" — only visible during ENDED state ──── */
+  .bb-speedometer__subreplay {
+    display: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'Inter', sans-serif;  /* live BB body font (Arc D.9) */
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+  .bb-state-ended .bb-speedometer__subreplay { display: inline; }
+
+  /* ─── Mobile — simplified circular dial, no labels (Arc Section F) ───── */
+  @media (max-width: 768px) {
+    .bb-speedometer {
+      bottom: max(16px, env(safe-area-inset-bottom, 16px));
+      right: max(16px, env(safe-area-inset-right, 16px));
+    }
+    .bb-speedometer__dial {
+      width: 48px;
+      height: 48px;
+    }
+    /* needle scaled down */
+    .bb-speedometer__needle {
+      top: 5px;
+      height: 19px;
+    }
+    .bb-speedometer__pivot {
+      width: 5px;
+      height: 5px;
+      margin-left: -2.5px;
+      margin-top: -2.5px;
+    }
+    /* drop labels + sub-label + chrome shimmer + exhaust puff on mobile per brief */
+    .bb-speedometer__labels,
+    .bb-speedometer__subreplay,
+    .bb-speedometer__bezel-shimmer,
+    .bb-speedometer__puff {
+      display: none !important;
+    }
+  }
+
+  /* ─── Reduced-motion variant (Arc Section D.8) ─────────────────────────
+     JS-tagged class disables all decorative motion. Audio still plays
+     (audio is not motion). */
+  .bb-reduced-motion .bb-speedometer__bezel-shimmer::before,
+  .bb-reduced-motion .bb-rpm,
+  .bb-reduced-motion .bb-speedometer__needle,
+  .bb-reduced-motion .bb-speedometer__puff,
+  .bb-reduced-motion .bb-speedometer__bezel {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* Reduced-motion playing-state needle locks at 35mph (no sway) */
+  .bb-reduced-motion.bb-state-playing .bb-speedometer__needle,
+  .bb-reduced-motion.bb-state-replaying .bb-speedometer__needle {
+    transform: rotate(101.25deg);
+    animation: none;
+  }
+  /* Reduced-motion RPM static at 80% during playing */
+  .bb-reduced-motion.bb-state-playing .bb-rpm,
+  .bb-reduced-motion.bb-state-replaying .bb-rpm { opacity: 0.8; }
+  /* Reduced-motion ENDED-state needle jumps instantly back to 0, no exhaust puff */
+  .bb-reduced-motion.bb-state-ended .bb-speedometer__needle {
+    transform: rotate(-135deg);
+    animation: none;
+  }
+  .bb-reduced-motion .bb-speedometer__puff { display: none !important; }
+
+  /* OS-level reduced motion (in addition to JS-tagged class) */
+  @media (prefers-reduced-motion: reduce) {
+    .bb-speedometer__bezel-shimmer::before,
+    .bb-rpm,
+    .bb-speedometer__needle,
+    .bb-speedometer__puff,
+    .bb-speedometer__bezel {
+      animation: none !important;
+      transition: none !important;
+    }
+    .bb-state-playing .bb-speedometer__needle,
+    .bb-state-replaying .bb-speedometer__needle {
+      transform: rotate(101.25deg);
+      animation: none;
+    }
+    .bb-state-playing .bb-rpm,
+    .bb-state-replaying .bb-rpm { opacity: 0.8; }
+    .bb-state-ended .bb-speedometer__needle {
+      transform: rotate(-135deg);
+      animation: none;
+    }
+    .bb-speedometer__puff { display: none !important; }
+  }
+</style>

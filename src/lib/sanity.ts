@@ -49,3 +49,36 @@ export async function getPageBySlug(slug: string) {
 export async function getSiteSettings() {
   return client.fetch(`*[_type == "siteSettings"][0] { siteName, tagline, siteDescription, contactEmail, youtubeChannel, socialLinks, announcementBar, logo, footerLogo, footerText, newsletterHeadline, newsletterSubtext }`);
 }
+
+// ─── Theme audio (added 2026-04-30 for the IP brand theme-tune feature build #3/4) ───
+// Pinned to _id == "siteSettings" so it only ever reads the canonical singleton.
+// Returns null URLs if the singleton has no MP3 uploaded yet OR if themeEnabled
+// is explicitly false — both render-blocking states the BBSpeedometer component
+// safely handles by rendering nothing.
+//
+// engineSfxUrl is OPTIONAL — the BB build is the first of the four to use a
+// pre-track engine-start SFX prologue. Component degrades gracefully to silent
+// prologue (~700ms WARMING UP... visual continuity) if the asset isn't uploaded.
+export interface ThemeAudio {
+  audioUrl: string | null;
+  engineSfxUrl: string | null;
+  trackTitle: string | null;
+  trackArtist: string | null;
+  enabled: boolean;
+}
+export async function getThemeAudio(): Promise<ThemeAudio> {
+  const result = await client.fetch(`*[_type == "siteSettings" && _id == "siteSettings"][0]{
+    "audioUrl": themeAudioFile.asset->url,
+    "engineSfxUrl": themeEngineSfxFile.asset->url,
+    "trackTitle": themeTrackTitle,
+    "trackArtist": themeTrackArtist,
+    "enabled": themeEnabled
+  }`);
+  return {
+    audioUrl: result?.audioUrl ?? null,
+    engineSfxUrl: result?.engineSfxUrl ?? null,
+    trackTitle: result?.trackTitle ?? 'The Biker Babies Main Theme',
+    trackArtist: result?.trackArtist ?? '',
+    enabled: result?.enabled !== false, // null treated as enabled (kill switch must be explicit false to disable)
+  };
+}
