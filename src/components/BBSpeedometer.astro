@@ -182,6 +182,18 @@ const shouldRender = enabled !== false && !!audioUrl;
     {/* Optional ENDED-state sub-label — ships per H.4 default. Hidden by
         default, shown on ENDED via CSS. ~10px Inter, 60% white opacity. */}
     <span class="bb-speedometer__subreplay" aria-hidden="true">Roll out again?</span>
+
+    {/* v1.2 (2026-04-30) — dismiss button. Session-scoped: persists only for
+        this browser tab, reappears on next visit per Alan brief 30 April.
+        Click pauses audio if playing, then hides component for this session. */}
+    <button
+      type="button"
+      class="bb-speedometer__dismiss"
+      aria-label="Hide The Biker Babies theme music control until next visit"
+      title="Hide for this session"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
   </div>
 )}
 
@@ -195,7 +207,17 @@ const shouldRender = enabled !== false && !!audioUrl;
 
   const root = document.getElementById('bb-speedometer');
   if (root) {
+    // v1.2 — session-scoped dismissal. If the user clicked × in this tab's
+    // session, hide the component entirely and skip all init. Re-checked on
+    // every script run (handles view-transition swaps too).
+    const DISMISS_KEY = 'bb_theme_dismissed';
+    let isDismissed = false;
+    try { isDismissed = sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { /* private mode */ }
+    if (isDismissed) {
+      root.style.display = 'none';
+    } else {
     const button = root.querySelector('.bb-speedometer__button');
+    const dismissBtn = root.querySelector('.bb-speedometer__dismiss');
     const audioSrc = root.dataset.audioSrc;
     const engineSfxSrc = (root.dataset.engineSfxSrc || '').trim();
 
@@ -333,13 +355,36 @@ const shouldRender = enabled !== false && !!audioUrl;
     }
     bindCartDrawerObserver();
 
+    // v1.2 — dismiss button click. Pauses audio if playing, sets the
+    // session flag, hides the component for the rest of this tab's session.
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();  // don't bubble to the play button
+        const s = controller.state;
+        if (s === 'playing' || s === 'replaying') {
+          try { controller.pause(); } catch { /* no-op */ }
+        }
+        try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch { /* private mode */ }
+        root.style.display = 'none';
+      });
+    }
+
     window.addEventListener('astro:page-load', () => {
+      // v1.2 — re-check dismissal on view-transition swap before re-applying suppression
+      try {
+        if (sessionStorage.getItem(DISMISS_KEY) === '1') {
+          root.style.display = 'none';
+          return;
+        }
+      } catch { /* no-op */ }
       controller.applySuppression(window.location.pathname);
       bindCartDrawerObserver(); // re-bind after view-transition swap
     });
     window.addEventListener('popstate', () => {
       controller.applySuppression(window.location.pathname);
     });
+    }  // close the v1.2 isDismissed-else branch
   }
 </script>
 
@@ -652,6 +697,56 @@ const shouldRender = enabled !== false && !!audioUrl;
     display: inline;
   }
 
+  /* ─── Dismiss × button (v1.2, 2026-04-30) ─────────────────────────────
+     Session-scoped close button. Always visible but dimmed in idle so it
+     doesn't fight the play affordance for attention. Brightens on hover/
+     focus. Click pauses audio if playing + hides component for this session
+     (handled in script). Reappears on next visit (new tab / browser restart). */
+  .bb-speedometer__dismiss {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 50%;
+    background: #1a0a00;
+    border: 1.5px solid rgba(255, 107, 0, 0.6);
+    color: rgba(255, 255, 255, 0.85);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 200ms ease, background 200ms ease, transform 150ms ease;
+    z-index: 1;
+  }
+  /* Larger invisible hit target so the click region clears WCAG-ish even with
+     a 22px visible glyph. ::before extends the click area by 8px on all sides
+     → effective 38px desktop hit area / 44px mobile (with media-query override). */
+  .bb-speedometer__dismiss::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .bb-speedometer__dismiss:hover,
+  .bb-speedometer__dismiss:focus-visible {
+    opacity: 1;
+    background: #ff6b00;
+    border-color: #ff6b00;
+    color: #FFFFFF;
+    transform: scale(1.08);
+  }
+  .bb-speedometer__dismiss:focus-visible {
+    outline: 2px solid #ff6b00;
+    outline-offset: 3px;
+  }
+  /* Active state — slight press feedback */
+  .bb-speedometer__dismiss:active { transform: scale(0.94); }
+
   /* ─── Sub-label "Roll out again?" — only visible during ENDED state ──── */
   .bb-speedometer__subreplay {
     display: none;
@@ -702,6 +797,15 @@ const shouldRender = enabled !== false && !!audioUrl;
     .bb-speedometer__puff {
       display: none !important;
     }
+    /* v1.2 — bump dismiss × hit area on mobile (visible button stays 22px,
+       extended invisible click area pushes effective tap target to ~44px) */
+    .bb-speedometer__dismiss {
+      top: -10px;
+      right: -10px;
+    }
+    .bb-speedometer__dismiss::before {
+      inset: -11px; /* effective 44px hit area on mobile */
+    }
   }
 
   /* ─── Reduced-motion variant (Arc Section D.8) ─────────────────────────
@@ -713,9 +817,16 @@ const shouldRender = enabled !== false && !!audioUrl;
   .bb-reduced-motion .bb-speedometer__needle,
   .bb-reduced-motion .bb-speedometer__puff,
   .bb-reduced-motion .bb-speedometer__bezel,
-  .bb-reduced-motion .bb-speedometer__dial::after {
+  .bb-reduced-motion .bb-speedometer__dial::after,
+  .bb-reduced-motion .bb-speedometer__dismiss {
     animation: none !important;
     transition: none !important;
+  }
+  /* v1.2 — under reduced-motion, kill the dismiss-button hover scale */
+  .bb-reduced-motion .bb-speedometer__dismiss:hover,
+  .bb-reduced-motion .bb-speedometer__dismiss:focus-visible,
+  .bb-reduced-motion .bb-speedometer__dismiss:active {
+    transform: none;
   }
   .bb-reduced-motion .bb-speedometer__dial::after {
     opacity: 0;  /* hide pulse remnant entirely under reduced-motion */
@@ -743,12 +854,17 @@ const shouldRender = enabled !== false && !!audioUrl;
     .bb-speedometer__needle,
     .bb-speedometer__puff,
     .bb-speedometer__bezel,
-    .bb-speedometer__dial::after {
+    .bb-speedometer__dial::after,
+    .bb-speedometer__dismiss {
       animation: none !important;
       transition: none !important;
     }
     /* PROMINENCE RETROFIT v1.1: hide attention-pulse remnant under OS-level reduced-motion */
     .bb-speedometer__dial::after { opacity: 0; }
+    /* v1.2 — under OS-level reduced-motion, kill dismiss-button hover scale */
+    .bb-speedometer__dismiss:hover,
+    .bb-speedometer__dismiss:focus-visible,
+    .bb-speedometer__dismiss:active { transform: none; }
     .bb-state-playing .bb-speedometer__needle,
     .bb-state-replaying .bb-speedometer__needle {
       transform: rotate(101.25deg);
