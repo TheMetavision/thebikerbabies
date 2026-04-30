@@ -385,6 +385,9 @@ const shouldRender = enabled !== false && !!audioUrl;
   }
 
   /* ─── Dial: chrome bezel + dark face + ticks + needle + pivot + puff ──── */
+  /* PROMINENCE RETROFIT v1.1 (2026-04-30) — adds persistent outer halo glow
+     for visible-from-3-metres compliance per cross-brand prominence floor
+     standard. Reads as "headlight halo" — on-brand for chrome speedometer. */
   .bb-speedometer__dial {
     position: relative;
     width: 64px;
@@ -392,8 +395,38 @@ const shouldRender = enabled !== false && !!audioUrl;
     border-radius: 50%;
     /* dial face (dark, under the bezel) — Arc A.2 #0f0a02 (live hero slide bg) */
     background: #0f0a02;
-    /* outer chassis surround (#1a0a00) handled by inset shadow */
-    box-shadow: 0 0 0 3px #1a0a00, 0 4px 18px rgba(0, 0, 0, 0.55);
+    /* outer chassis surround (#1a0a00) + brand-orange halo ring + outer glow */
+    box-shadow:
+      0 0 0 3px #1a0a00,                      /* chassis surround */
+      0 0 0 4px rgba(255, 107, 0, 0.30),      /* PROMINENCE: brand-orange halo ring */
+      0 0 22px 2px rgba(255, 107, 0, 0.22),   /* PROMINENCE: outer glow */
+      0 4px 18px rgba(0, 0, 0, 0.55);         /* drop shadow */
+  }
+
+  /* PROMINENCE RETROFIT v1.1 — attention pulse on first idle.
+     Bounded 2-cycle outer-ring expand+fade over ~2.4s, then stops.
+     Triggers once on initial idle state. NOT infinite. Disabled under
+     prefers-reduced-motion (see reduced-motion block below). */
+  .bb-state-idle .bb-speedometer__dial::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 2px solid #ff6b00;
+    opacity: 0;
+    animation: bb-attention-pulse 1.2s ease-out 2;  /* 2 iterations, NOT infinite */
+    animation-delay: 0.4s;
+    animation-fill-mode: forwards;
+  }
+  @keyframes bb-attention-pulse {
+    0%   { opacity: 0.75; transform: scale(0.92); }
+    100% { opacity: 0;    transform: scale(1.55); }
+  }
+  /* Once we leave idle (user clicked), kill the pulse permanently. */
+  .bb-speedometer:not(.bb-state-idle) .bb-speedometer__dial::after {
+    animation: none;
+    opacity: 0;
   }
 
   /* Chrome bezel — 3-tone ring rendered via conic-gradient on a ::before pseudo
@@ -587,16 +620,18 @@ const shouldRender = enabled !== false && !!audioUrl;
   }
 
   /* ─── Labels — only one visible at a time per state ───────────────────── */
+  /* PROMINENCE RETROFIT v1.1: bumped 11px→13px + stronger text-shadow with
+     subtle orange glow for visibility-from-distance per prominence standard. */
   .bb-speedometer__labels {
     display: inline-block;
     color: #FFFFFF;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 13px;
+    letter-spacing: 0.09em;
     line-height: 1;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 0 8px rgba(255, 107, 0, 0.35);
     white-space: nowrap;
-    min-height: 12px;  /* prevent layout jump */
+    min-height: 14px;  /* prevent layout jump */
   }
   .bb-label { display: none; }
 
@@ -630,20 +665,24 @@ const shouldRender = enabled !== false && !!audioUrl;
   }
   .bb-state-ended .bb-speedometer__subreplay { display: inline; }
 
-  /* ─── Mobile — simplified circular dial, no labels (Arc Section F) ───── */
+  /* ─── Mobile — simplified circular dial WITH label (prominence floor) ─── */
+  /* PROMINENCE RETROFIT v1.1 — dial 48px→56px (≥52px floor) and label
+     RESTORED on mobile (was display:none in v1, violated standard #1
+     "applies to desktop and mobile equally"). Sub-label + decorative
+     animations still hidden on mobile per brief Phase 2. */
   @media (max-width: 768px) {
     .bb-speedometer {
       bottom: max(16px, env(safe-area-inset-bottom, 16px));
       right: max(16px, env(safe-area-inset-right, 16px));
     }
     .bb-speedometer__dial {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
     }
     /* needle scaled down */
     .bb-speedometer__needle {
       top: 5px;
-      height: 19px;
+      height: 23px;
     }
     .bb-speedometer__pivot {
       width: 5px;
@@ -651,8 +690,13 @@ const shouldRender = enabled !== false && !!audioUrl;
       margin-left: -2.5px;
       margin-top: -2.5px;
     }
-    /* drop labels + sub-label + chrome shimmer + exhaust puff on mobile per brief */
-    .bb-speedometer__labels,
+    /* mobile label — smaller to fit corner but still visible (prominence floor) */
+    .bb-speedometer__labels {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      min-height: 11px;
+    }
+    /* drop sub-label + chrome shimmer + exhaust puff on mobile per brief */
     .bb-speedometer__subreplay,
     .bb-speedometer__bezel-shimmer,
     .bb-speedometer__puff {
@@ -662,14 +706,19 @@ const shouldRender = enabled !== false && !!audioUrl;
 
   /* ─── Reduced-motion variant (Arc Section D.8) ─────────────────────────
      JS-tagged class disables all decorative motion. Audio still plays
-     (audio is not motion). */
+     (audio is not motion). PROMINENCE RETROFIT v1.1 adds attention-pulse
+     to the disable list (per prominence standard #6). */
   .bb-reduced-motion .bb-speedometer__bezel-shimmer::before,
   .bb-reduced-motion .bb-rpm,
   .bb-reduced-motion .bb-speedometer__needle,
   .bb-reduced-motion .bb-speedometer__puff,
-  .bb-reduced-motion .bb-speedometer__bezel {
+  .bb-reduced-motion .bb-speedometer__bezel,
+  .bb-reduced-motion .bb-speedometer__dial::after {
     animation: none !important;
     transition: none !important;
+  }
+  .bb-reduced-motion .bb-speedometer__dial::after {
+    opacity: 0;  /* hide pulse remnant entirely under reduced-motion */
   }
   /* Reduced-motion playing-state needle locks at 35mph (no sway) */
   .bb-reduced-motion.bb-state-playing .bb-speedometer__needle,
@@ -693,10 +742,13 @@ const shouldRender = enabled !== false && !!audioUrl;
     .bb-rpm,
     .bb-speedometer__needle,
     .bb-speedometer__puff,
-    .bb-speedometer__bezel {
+    .bb-speedometer__bezel,
+    .bb-speedometer__dial::after {
       animation: none !important;
       transition: none !important;
     }
+    /* PROMINENCE RETROFIT v1.1: hide attention-pulse remnant under OS-level reduced-motion */
+    .bb-speedometer__dial::after { opacity: 0; }
     .bb-state-playing .bb-speedometer__needle,
     .bb-state-replaying .bb-speedometer__needle {
       transform: rotate(101.25deg);
