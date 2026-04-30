@@ -301,6 +301,22 @@ export function createThemeAudio(config) {
   // fire initial render with reset/loaded state so the UI reflects current state
   queueMicrotask(() => onStateChange(state));
 
+  // ── v3 (2026-04-30) — position/duration accessors for progress UI ──────
+  // Additive-only: existing brand components (Fuglys, Labrats) ignore these.
+  // Used by BB v1.3+ progress arc + rewind button.
+  function getCurrentPosition() {
+    return getPosition();  // existing internal helper
+  }
+  function getCurrentDuration() {
+    if (!howl) return 0;
+    try {
+      const d = howl.duration();
+      return typeof d === 'number' && isFinite(d) ? d : 0;
+    } catch {
+      return 0;
+    }
+  }
+
   return {
     handleClick,
     play,
@@ -309,6 +325,8 @@ export function createThemeAudio(config) {
     setVolume,
     applySuppression,
     destroy,
+    getCurrentPosition,
+    getCurrentDuration,
     get state() { return state; },
     get volume() { return volume; },
     get isSuppressed() { return suppressed; },
