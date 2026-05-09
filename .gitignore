@@ -11,3 +11,21 @@ CLAUDE.md
 *.lnk
 import-*.mjs
 verify.mjs
+
+# Local-only agent / migration artifacts
+CLAUDE.md
+*.lnk
+import-*.mjs
+verify.mjs
+
+# Work in progress \u2014 not ready for production
+games/
+
+# Local-only agent / migration artifacts
+CLAUDE.md
+*.lnk
+import-*.mjs
+verify.mjs
+
+# Work in progress - not ready for production
+games/
