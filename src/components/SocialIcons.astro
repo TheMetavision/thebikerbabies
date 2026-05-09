@@ -56,20 +56,25 @@ const socials = [
   .social-icons {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 1rem;
+    min-width: 0;
   }
 
   .social-icon {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: var(--icon-size);
-    height: var(--icon-size);
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 8px;
     color: #888;
     border-radius: 4px;
     transition: color 0.2s ease, opacity 0.2s ease;
     text-decoration: none;
     opacity: 1;
+    box-sizing: border-box;
   }
 
   .social-icon svg {
