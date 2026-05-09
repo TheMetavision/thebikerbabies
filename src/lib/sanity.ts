@@ -5,6 +5,7 @@ export const client = createClient({
   projectId: import.meta.env.SANITY_PROJECT_ID || 'v518t53u',
   dataset: import.meta.env.SANITY_DATASET || 'production',
   apiVersion: '2024-01-01', useCdn: true,
+token: import.meta.env.SANITY_API_TOKEN,
 });
 
 const builder = imageUrlBuilder(client);

@@ -1,5 +1,6 @@
 ---
 import SocialIcons from "./SocialIcons.astro";
+import LegalLinks from "./LegalLinks.astro";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -36,6 +37,11 @@ const navLinks = [
       </ul>
     </nav>
 
+    <nav class="footer-col footer-col--legal" aria-label="Legal navigation">
+      <p class="footer-col-heading">Legal</p>
+      <LegalLinks />
+    </nav>
+
     <div class="footer-col footer-col--social">
       <p class="footer-col-heading">Follow The Crew</p>
       <SocialIcons size={20} class="footer-social-row" />
@@ -63,13 +69,13 @@ const navLinks = [
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1.4fr;
-    gap: 3rem 4rem;
+    grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
+    gap: 3rem;
     padding-bottom: 3rem;
     align-items: start;
   }
 
-  /* ── Brand column ─────────────────────────────────────── */
+  /* -- Brand column ----------------------------------- */
   .footer-col--brand {
     display: flex;
     flex-direction: column;
@@ -102,26 +108,7 @@ const navLinks = [
     margin: 0;
   }
 
-  .footer-credit {
-    font-size: 0.82rem;
-    color: #555;
-    margin: 0;
-  }
-
-  .footer-credit-link {
-    color: #888;
-    text-decoration: none;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
-    text-underline-offset: 3px;
-  }
-
-  .footer-credit-link:hover {
-    color: #ff6b00;
-    text-decoration: underline;
-    text-decoration-color: rgba(255, 107, 0, 0.5);
-  }
-
-  /* ── Shared column heading ────────────────────────────── */
+  /* -- Shared column heading -------------------------- */
   .footer-col-heading {
     font-family: "Bebas Neue", sans-serif;
     font-size: 0.82rem;
@@ -131,7 +118,7 @@ const navLinks = [
     margin: 0 0 1.1rem;
   }
 
-  /* ── Nav column ───────────────────────────────────────── */
+  /* -- Nav column ------------------------------------- */
   .footer-nav-list {
     list-style: none;
     margin: 0;
@@ -153,7 +140,33 @@ const navLinks = [
     color: #ff6b00;
   }
 
-  /* ── Social column ────────────────────────────────────── */
+  /* -- Legal column (forces nav-list look on LegalLinks) */
+  .footer-col--legal :global(ul) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .footer-col--legal :global(li) {
+    list-style: none;
+  }
+
+  .footer-col--legal :global(a) {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.88rem;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+  }
+
+  .footer-col--legal :global(a:hover) {
+    color: #ff6b00;
+  }
+
+  /* -- Social column ---------------------------------- */
   .footer-col--social {
     display: flex;
     flex-direction: column;
@@ -172,7 +185,7 @@ const navLinks = [
     margin: 0;
   }
 
-  /* ── Bottom bar ───────────────────────────────────────── */
+  /* -- Bottom bar ------------------------------------- */
   .footer-bottom-wrap {
     max-width: 1200px;
     margin: 0 auto;
@@ -210,8 +223,8 @@ const navLinks = [
     text-decoration-color: rgba(255, 107, 0, 0.5);
   }
 
-  /* ── Responsive ───────────────────────────────────────── */
-  @media (max-width: 820px) {
+  /* -- Responsive ------------------------------------- */
+  @media (max-width: 1000px) {
     .footer-inner {
       grid-template-columns: 1fr 1fr;
       gap: 2.5rem;
@@ -222,13 +235,9 @@ const navLinks = [
       order: 0;
     }
 
-    .footer-col--nav {
-      order: 1;
-    }
-
-    .footer-col--social {
-      order: 2;
-    }
+    .footer-col--nav    { order: 1; }
+    .footer-col--legal  { order: 2; }
+    .footer-col--social { order: 3; grid-column: 1 / -1; }
   }
 
   @media (max-width: 500px) {
@@ -238,17 +247,11 @@ const navLinks = [
       width: 100%;
     }
 
-    .footer-col--brand {
-      grid-column: auto;
-      order: 0;
-    }
-
-    .footer-col--nav {
-      order: 1;
-    }
-
+    .footer-col--brand,
+    .footer-col--nav,
+    .footer-col--legal,
     .footer-col--social {
-      order: 2;
+      grid-column: auto;
     }
   }
 </style>
