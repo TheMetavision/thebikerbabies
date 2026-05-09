@@ -253,5 +253,13 @@ const navLinks = [
     .footer-col--social {
       grid-column: auto;
     }
+
+    /* The floating BBSpeedometer audio control sits position:fixed in the
+       bottom-right corner. On mobile it overlaps the social icons + footer
+       bottom. Reserve enough bottom padding here to let everything scroll
+       clear of it. ~90px speedometer + 30px breathing room + safe-area. */
+    .site-footer {
+      padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+    }
   }
 </style>
