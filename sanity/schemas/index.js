@@ -1,5 +1,6 @@
-﻿import character from './character';
+import character from './character';
 import episode from './episode';
+import book from './book';
 import blogPost from './blogPost';
 import product from './product';
 import category from './category';
@@ -7,5 +8,4 @@ import faq from './faq';
 import page from './page';
 import siteSettings from './siteSettings';
 import legalPage from './legalPage';
-export const schemaTypes = [siteSettings, character, episode, blogPost, product, category, faq, page, legalPage];
-
+export const schemaTypes = [siteSettings, character, episode, book, blogPost, product, category, faq, page, legalPage];
