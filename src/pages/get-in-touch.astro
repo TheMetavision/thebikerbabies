@@ -34,7 +34,8 @@ import NewsletterSection from "../components/NewsletterSection.astro";
       <div class="contact-form-wrap">
         <h2 class="form-heading">Send Us a Message</h2>
         <p class="form-intro">We aim to respond within 48 hours.</p>
-        <form class="contact-form" id="contact-form">
+        <form class="contact-form" id="contact-form" novalidate>
+          <input type="checkbox" name="botcheck" class="contact-form__honeypot" style="display:none" />
           <div class="form-row">
             <div class="form-group">
               <label for="name" class="form-label">Name</label>
@@ -81,7 +82,10 @@ import NewsletterSection from "../components/NewsletterSection.astro";
               rows="6"
               required></textarea>
           </div>
-          <button type="submit" class="form-submit">Send Message →</button>
+          <button type="submit" class="form-submit" id="form-submit">
+            <span class="submit-text">Send Message &rarr;</span>
+            <span class="submit-sending" style="display:none;">Sending...</span>
+          </button>
         </form>
 
         <div class="dispatch-confirm" id="dispatch-confirm" style="display:none;" role="status" aria-live="polite">
@@ -105,7 +109,26 @@ import NewsletterSection from "../components/NewsletterSection.astro";
             </div>
           </div>
         </div>
-        </form>
+
+        <div class="dispatch-error" id="dispatch-error" style="display:none;" role="alert" aria-live="polite">
+          <div class="dispatch dispatch--error">
+            <div class="dispatch__body">
+              <div class="dispatch__badge dispatch__badge--error" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div>
+                <div class="dispatch__label dispatch__label--error">Signal lost</div>
+                <h3 class="dispatch__headline">Couldn't send, rider.</h3>
+                <p class="dispatch__sub">Try again, or email <a href="mailto:pitcrew@thebikerbabies.com" style="color:inherit;text-decoration:underline;">pitcrew@thebikerbabies.com</a> directly.</p>
+              </div>
+            </div>
+            <div class="dispatch__footer">
+              <div class="dispatch__actions">
+                <button type="button" class="dispatch__btn dispatch__btn--solid" id="form-retry">Try Again</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="contact-info">
@@ -399,6 +422,24 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     text-transform: uppercase;
   }
 
+  /* Error variant of the dispatch card — same shape, alarm red instead of orange */
+  .dispatch-error { display: none; }
+  .dispatch--error {
+    border-left-color: #ff3838;
+  }
+  .dispatch__badge--error {
+    background: #ff3838;
+    box-shadow: 0 0 16px rgba(255, 56, 56, 0.35);
+  }
+  .dispatch__label--error {
+    color: #ff7575;
+  }
+  .dispatch__btn[type="button"] {
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+  }
+
   .dispatch__headline {
     font-family: "Bebas Neue", sans-serif;
     font-size: clamp(1.75rem, 4vw, 2.25rem);
@@ -559,42 +600,77 @@ import NewsletterSection from "../components/NewsletterSection.astro";
 </style>
 
 <script>
-  const form = document.getElementById("contact-form") as HTMLFormElement;
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
   const dispatchConfirm = document.getElementById("dispatch-confirm");
-  const submitBtn = form?.querySelector(".form-submit") as HTMLButtonElement;
+  const dispatchError = document.getElementById("dispatch-error");
+  const submitBtn = document.getElementById("form-submit") as HTMLButtonElement | null;
+  const sendText = form?.querySelector(".submit-text") as HTMLElement | null;
+  const sending = form?.querySelector(".submit-sending") as HTMLElement | null;
+  const retryBtn = document.getElementById("form-retry");
+
+  function setSending(on: boolean) {
+    if (submitBtn) submitBtn.disabled = on;
+    if (sendText) sendText.style.display = on ? "none" : "";
+    if (sending) sending.style.display = on ? "inline" : "none";
+  }
+
+  function resetState() {
+    if (form) form.style.display = "";
+    if (dispatchConfirm) dispatchConfirm.style.display = "none";
+    if (dispatchError) dispatchError.style.display = "none";
+    setSending(false);
+  }
+
+  retryBtn?.addEventListener("click", resetState);
+
+  // Maps the subject dropdown value to a human-readable label for the email subject line.
+  // Mirrors the option text in the form so the notification email reads naturally.
+  const subjectLabels: Record<string, string> = {
+    general: "General Enquiry",
+    merch: "Merchandise",
+    books: "Book Series",
+    media: "Media & Press",
+    partnership: "Partnership / Collaboration",
+    other: "Other",
+  };
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!form) return;
+    setSending(true);
 
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = "Sending...";
-    submitBtn.disabled = true;
+    const fd = new FormData(form);
+    const topicValue = String(fd.get("subject") || "").trim();
+    const topicLabel = subjectLabels[topicValue] || topicValue || "General Enquiry";
 
-    const formData = new FormData(form);
-    const topic = formData.get("subject") || "General";
-    formData.delete("subject");
-    formData.append("access_key", "ae5f8d86-af04-457f-bca3-73d9041cc56c");
-    formData.append("subject", `The Biker Babies - ${topic}`);
-    formData.append("from_name", "The Biker Babies Website");
-    formData.append("botcheck", "");
+    const payload = {
+      name: String(fd.get("name") || "").trim(),
+      email: String(fd.get("email") || "").trim(),
+      subject: `The Biker Babies - ${topicLabel}`,
+      message: String(fd.get("message") || "").trim(),
+      // Honeypot checkbox \u2014 only present in FormData when ticked.
+      botcheck: fd.get("botcheck") ? "on" : "",
+      pageUri: window.location.href,
+    };
 
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contact", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.success) {
         form.style.display = "none";
         if (dispatchConfirm) dispatchConfirm.style.display = "block";
       } else {
-        throw new Error("Submission failed");
+        throw new Error(data?.error || "Submission failed");
       }
-    } catch (err) {
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-      alert("Something went wrong — please try again or email pitcrew@thebikerbabies.com directly.");
+    } catch {
+      form.style.display = "none";
+      if (dispatchError) dispatchError.style.display = "block";
+    } finally {
+      setSending(false);
     }
   });
 </script>
