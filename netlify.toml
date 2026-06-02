@@ -6,10 +6,24 @@
   NPM_FLAGS = "--legacy-peer-deps"
 
 # Route /api/* requests to Netlify Functions.
-# Required for the contact form (src/pages/get-in-touch.astro POSTs to
+# Required for the contact form (src/pages/contact.astro POSTs to
 # /api/contact which gets rewritten to /.netlify/functions/contact).
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+  force = true
+
+# Legacy contact URL → new canonical /contact
+# (page renamed from get-in-touch.astro to contact.astro).
+[[redirects]]
+  from = "/get-in-touch"
+  to = "/contact"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/get-in-touch/"
+  to = "/contact/"
+  status = 301
   force = true
