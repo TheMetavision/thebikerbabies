@@ -4,11 +4,14 @@
 // live dataset — 7 worldLocation docs and 4 merchCategory docs existed in
 // production with no matching local schemas). Added contactSubmission for the
 // new Sanity-backed contact form intake.
+// 2026-06-03: added printfulVariant (object type) for the Wyrmfuel-model
+// product schema, so the variants[].printfulVariants field resolves.
 import character from './character';
 import episode from './episode';
 import book from './book';
 import blogPost from './blogPost';
 import product from './product';
+import printfulVariant from './printfulVariant';
 import category from './category';
 import faq from './faq';
 import page from './page';
@@ -25,6 +28,7 @@ export const schemaTypes = [
   book,
   blogPost,
   product,
+  printfulVariant,
   category,
   merchCategory,
   faq,
