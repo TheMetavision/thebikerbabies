@@ -27,3 +27,9 @@
   to = "/contact/"
   status = 301
   force = true
+
+[[redirects]]
+  from = "/product/*"
+  to = "/products/:splat"
+  status = 301
+  force = true
