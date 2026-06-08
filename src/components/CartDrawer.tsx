@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react';
+import { useState, useEffect } from 'react';
 import { cartItems, cartOpen, cartTotal, removeFromCart, updateQuantity, toggleCart, clearCart } from '../lib/cart';
 
 /* Brand tokens — read from the site's CSS variables (defined in Layout.astro)
@@ -15,6 +16,9 @@ export default function CartDrawer() {
   const items = useStore(cartItems);
   const isOpen = useStore(cartOpen);
   const total = useStore(cartTotal);
+  const [confirmClear, setConfirmClear] = useState(false);
+
+  useEffect(() => { if (!isOpen || items.length === 0) setConfirmClear(false); }, [isOpen, items.length]);
 
   async function handleCheckout() {
     if (items.length === 0) return;
@@ -45,8 +49,9 @@ export default function CartDrawer() {
 
   function handleClear() {
     if (items.length === 0) return;
-    if (window.confirm('Empty your cart?')) clearCart();
+    setConfirmClear(true);
   }
+  function confirmClearYes() { clearCart(); setConfirmClear(false); }
 
   return (
     <>
@@ -101,6 +106,23 @@ export default function CartDrawer() {
           </div>
         )}
       </div>
+
+      {confirmClear && (
+        <div onClick={() => setConfirmClear(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.82)', zIndex:2100, display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ position:'relative', width:'360px', maxWidth:'90vw', background:BG, border:`2px solid ${ACCENT}`, borderRadius:'10px', padding:'34px 30px 30px', textAlign:'center' as const, boxShadow:`0 24px 60px rgba(0,0,0,0.6)` }}>
+            <span style={{ position:'absolute', top:0, right:0, background:ACCENT, color:'#0a0a14', fontFamily:HEADING_FONT, fontWeight:700, fontSize:'0.8rem', letterSpacing:'2px', padding:'6px 14px', textTransform:'uppercase' as const, borderRadius:'0 8px 0 10px' }}>Whoa!</span>
+            <h3 style={{ fontFamily:HEADING_FONT, fontSize:'2rem', letterSpacing:'1px', color:HIGHLIGHT, margin:'0 0 8px', textTransform:'uppercase' as const }}>Empty the garage?</h3>
+            <div style={{ width:'48px', height:'3px', background:ACCENT, margin:'0 auto 16px' }} />
+            <p style={{ color:'#cfcfcf', fontFamily:BODY_FONT, fontSize:'14px', lineHeight:1.6, margin:'0 0 26px' }}>
+              This rolls all {items.length} {items.length === 1 ? 'item' : 'items'} out of your cart. No backsies!
+            </p>
+            <div style={{ display:'flex', gap:'12px' }}>
+              <button onClick={() => setConfirmClear(false)} style={{ flex:1, padding:'12px', background:'transparent', color:TEXT, border:`1px solid ${ACCENT}`, borderRadius:'8px', fontFamily:HEADING_FONT, fontWeight:700, fontSize:'1.05rem', letterSpacing:'1.5px', textTransform:'uppercase' as const, cursor:'pointer' }}>Keep it</button>
+              <button onClick={confirmClearYes} style={{ flex:1, padding:'12px', background:ACCENT, color:'#0a0a14', border:'none', borderRadius:'8px', fontFamily:HEADING_FONT, fontWeight:700, fontSize:'1.05rem', letterSpacing:'1.5px', textTransform:'uppercase' as const, cursor:'pointer' }}>Clear it</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
