@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { tvSeriesSchema } from "../lib/schema";
 import NewsletterSection from "../components/NewsletterSection.astro";
 import CharacterCarousel from "../components/CharacterCarousel.astro";
+import MerchPromo from "../components/MerchPromo.astro";
 ---
 
 <Layout title="The Biker Babies – Adventure on Two Wheels!" jsonLd={tvSeriesSchema()}>
@@ -125,6 +126,15 @@ import CharacterCarousel from "../components/CharacterCarousel.astro";
   </section>
 
   <CharacterCarousel />
+
+  <MerchPromo
+    accent="#ff6b00"
+    accentText="#ffd700"
+    eyebrow="Official Merch"
+    heading="Gear Up & Ride"
+    blurb="Character tees, hoodies, kids sizes and baby grows — printed on demand and shipped worldwide."
+    ctaLabel="Shop the Merch"
+  />
 
   <div id="newsletter">
     <NewsletterSection quote="Where pint-sized power meets the open road!" />
