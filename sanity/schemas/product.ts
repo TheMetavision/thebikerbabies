@@ -1,10 +1,16 @@
 import { defineType, defineField } from 'sanity';
 
+// The Biker Babies — Product (Design) schema. Clone of the Fuglys nested schema:
+// one design holds variants[] across the garment range, each variant carrying
+// its size/colour matrix + per-colour mockups. Structurally identical to Fuglys
+// so the shared sync pipeline (sync-products.mjs) writes the same shape.
+// NOTE: requires the `printfulVariant` object type (see printfulVariant.ts) and
+// the existing `character` + `category` document types (The Biker Babies already has both).
 export default defineType({
   name: 'product',
   title: 'Product (Design)',
   type: 'document',
-  icon: () => '🔥',
+  icon: () => '🏍️',
   fields: [
     defineField({
       name: 'name',
@@ -30,14 +36,14 @@ export default defineType({
       name: 'accent',
       title: 'Accent Colour',
       type: 'string',
-      description: 'Hex colour for UI accents, e.g. #39FF14',
+      description: 'Hex colour for UI accents, e.g. #00C2D4',
       validation: (r) => r.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }),
     }),
     defineField({
       name: 'creatureArtwork',
-      title: 'Creature Artwork URL',
+      title: 'Character Artwork URL',
       type: 'url',
-      description: 'Raw creature illustration (not on a product). Used in Meet the Creatures section.',
+      description: 'Raw character illustration (not on a product). Used in the meet-the-crew section.',
     }),
     defineField({
       name: 'tagline',
@@ -56,10 +62,24 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'designStory',
+      title: 'Design Story',
+      type: 'text',
+      rows: 4,
+      description: 'Longer-form story behind the design (rendered on the product page).',
+    }),
+    defineField({
+      name: 'featuredCharacter',
+      title: 'Featured Character',
+      type: 'reference',
+      to: [{ type: 'character' }],
+      description: 'Optional — links this design to a The Biker Babies character.',
+    }),
+    defineField({
       name: 'category',
       title: 'Category',
       type: 'reference',
-      to: [{ type: 'merchCategory' }],
+      to: [{ type: 'category' }],
       description: 'Optional primary category grouping',
     }),
     defineField({
@@ -85,6 +105,12 @@ export default defineType({
                   { title: 'Socks', value: 'socks' },
                   { title: '20oz Tumbler', value: 'tumbler' },
                   { title: '16oz Can Glass', value: 'glass' },
+                  { title: 'Cap', value: 'cap' },
+                  { title: 'Mug', value: 'mug' },
+                  { title: 'Kids T-Shirt', value: 'kids-tshirt' },
+                  { title: 'Kids Hoodie', value: 'kids-hoodie' },
+                  { title: 'Kids Long Sleeve', value: 'kids-longsleeve' },
+                  { title: 'Baby Grow', value: 'babygrow' },
                 ],
               },
               validation: (r) => r.required(),
@@ -120,8 +146,10 @@ export default defineType({
               of: [{ type: 'string' }],
               options: {
                 list: [
-                  'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 'One Size',
+                  'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 'One Size',
+                  '6M', '12M', '18M', '24M',
                   '16 oz', '16 oz With Lid & Straw', '20 oz',
+                  '11 oz', '15 oz',
                 ],
               },
             }),
@@ -222,17 +250,21 @@ export default defineType({
       initialValue: true,
     }),
     defineField({
-      name: 'fmFeatured',
-      title: 'Featured on Wyrmfuel FM',
-      description: 'Display this product on the /wyrmfuel-fm hub in the "Merch from the Station" section',
-      type: 'boolean',
-      initialValue: false,
-    }),
-    defineField({
       name: 'sortOrder',
       title: 'Sort Order',
       type: 'number',
       initialValue: 0,
+    }),
+    defineField({
+      name: 'seoTitle',
+      title: 'SEO Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'seoDescription',
+      title: 'SEO Description',
+      type: 'text',
+      rows: 2,
     }),
   ],
   orderings: [

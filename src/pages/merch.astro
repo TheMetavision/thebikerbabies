@@ -1,44 +1,47 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { getAllProducts } from "../lib/sanity";
 
-const categories = [
-  {
-    title: "Apparel",
-    description: "Character-themed t-shirts, hoodies, and outfits for every young rider.",
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>`,
-  },
-  {
-    title: "Stickers & Collectibles",
-    description: "Collectible character stickers, badges, and limited-edition items.",
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-  },
-  {
-    title: "Artwork & Prints",
-    description: "Unique hand-designed artwork and prints featuring your favourite characters.",
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`,
-  },
-  {
-    title: "Accessories",
-    description: "Bags, bottles, keyrings, and more – gear up in true Biker Babies style.",
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="2" y="9" width="20" height="11" rx="2"/></svg>`,
-  },
-];
+/* NESTED model: one product doc = one design holding variants[] per garment.
+   Card image = first variant's first colour mockup; price = cheapest size
+   across all variants ("From £X"). Only active products are returned. */
+const sanityProducts = await getAllProducts();
+
+const fromPrice = (p) => {
+  const prices = (p.variants || []).flatMap((v) => {
+    const sp = (v.sizePrices || []).map((s) => s.price).filter((n) => typeof n === "number");
+    return sp.length ? sp : (typeof v.basePrice === "number" ? [v.basePrice] : []);
+  });
+  return prices.length ? Math.min(...prices) : null;
+};
+const cardImage = (p) => {
+  const v = p.variants?.[0];
+  return v?.colourImages?.[0]?.imageUrl || v?.printfulImageUrl || null;
+};
+
+const products = (sanityProducts || []).map((p) => ({
+  name: p.name,
+  slug: p.slug,
+  price: fromPrice(p),
+  image: cardImage(p),
+  blurb: p.description || p.tagline || "",
+}));
 ---
 
 <Layout
   title="Merch – The Biker Babies"
-  description="Bring the adventure home with official Biker Babies merchandise – apparel, stickers, artwork and more!"
+  description="Bring the adventure home with official Biker Babies merchandise – tees, hoodies, kids sizes, baby grows and more!"
 >
   <section class="merch-hero">
     <div class="merch-hero-content">
       <div class="hero-text">
         <h1 class="merch-hero-title">Official Merch</h1>
         <span class="h1-accent-bar" aria-hidden="true"></span>
-        <p class="merch-hero-sub">Gear Up & Ride in Style</p>
+        <p class="merch-hero-sub">Gear Up &amp; Ride in Style</p>
         <p class="merch-hero-body">
-          Bring the adventure home with <em>The Biker Babies</em> official merchandise! From
-          character-themed apparel to collectible stickers, unique artwork, and accessories — there's
-          something for every fan of the crew.
+          Bring the adventure home with <em>The Biker Babies</em> official merchandise! Character
+          tees, hoodies and bottles for every fan of the crew — with kids sizes and baby grows for
+          the youngest riders in the clubhouse.
         </p>
       </div>
       <div class="hero-image-wrap">
@@ -52,21 +55,27 @@ const categories = [
     </div>
   </section>
 
-  <section class="categories-section">
-    <div class="categories-inner">
-      <h2 class="section-heading">Shop by Category</h2>
-      <div class="categories-grid">
-        {
-          categories.map((cat) => (
-            <div class="category-card">
-              <span class="category-icon" aria-hidden="true">
-                <Fragment set:html={cat.svg} />
-              </span>
-              <h3 class="category-title">{cat.title}</h3>
-              <p class="category-desc">{cat.description}</p>
+  <section class="products-section">
+    <div class="products-inner">
+      <h2 class="section-heading">Shop the Collection</h2>
+      <div class="products-grid">
+        {products.map((product) => (
+          <a class="product-card" href={`/product/${product.slug}`}>
+            <div class="product-card-img-wrap">
+              {product.image ? (
+                <img src={product.image} alt={product.name} class="product-card-img" loading="lazy" />
+              ) : (
+                <div class="product-card-placeholder"><span>The Biker Babies</span></div>
+              )}
+              <div class="product-card-overlay"><span class="product-card-cta">View Product</span></div>
             </div>
-          ))
-        }
+            <div class="product-card-body">
+              <p class="product-card-name">{product.name}</p>
+              {product.blurb && <p class="product-card-blurb">{product.blurb}</p>}
+              {product.price != null && <p class="product-card-price">From £{product.price.toFixed(2)}</p>}
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
@@ -75,38 +84,10 @@ const categories = [
     <div class="waitlist-inner">
 
       <div class="waitlist-content">
-        <span class="launching-badge" aria-label="Launching soon">
-          <span class="badge-dot"></span>
-          LAUNCHING SOON
-        </span>
-
-        <p class="countdown-label">Store opens in</p>
-        <div class="countdown" id="countdown" aria-label="Countdown to merch launch">
-          <div class="countdown-block">
-            <span class="countdown-value" id="cd-days">--</span>
-            <span class="countdown-unit">Days</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-block">
-            <span class="countdown-value" id="cd-hours">--</span>
-            <span class="countdown-unit">Hours</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-block">
-            <span class="countdown-value" id="cd-mins">--</span>
-            <span class="countdown-unit">Mins</span>
-          </div>
-          <span class="countdown-sep">:</span>
-          <div class="countdown-block">
-            <span class="countdown-value" id="cd-secs">--</span>
-            <span class="countdown-unit">Secs</span>
-          </div>
-        </div>
-        <p class="countdown-note">Early access for subscribers only</p>
-
-        <h2 class="waitlist-heading">The Merch Drop Is Coming</h2>
+        <h2 class="waitlist-heading">Never Miss a Drop</h2>
         <p class="waitlist-sub">
-          Be first in line. Join the waitlist and we'll hit you up the moment the shop goes live.
+          New designs and kids gear land regularly. Join the newsletter and we'll hit you up the
+          moment fresh merch rolls out of the workshop.
         </p>
 
         <form class="waitlist-form" id="waitlist-form" novalidate>
@@ -120,7 +101,7 @@ const categories = [
               required
               autocomplete="email"
             />
-            <button type="submit" class="waitlist-btn">Get Me First Dibs</button>
+            <button type="submit" class="waitlist-btn">Keep Me Posted</button>
           </div>
           <p class="form-status" id="form-status" aria-live="polite"></p>
         </form>
@@ -140,47 +121,7 @@ const categories = [
 </Layout>
 
 <script>
-  // ── Countdown Timer ──────────────────────────────────
-  // Set your launch date here (ISO format)
-  const LAUNCH_DATE = new Date("2026-06-01T00:00:00Z");
-
-  function updateCountdown() {
-    const now = new Date();
-    const diff = LAUNCH_DATE.getTime() - now.getTime();
-
-    const daysEl = document.getElementById("cd-days");
-    const hoursEl = document.getElementById("cd-hours");
-    const minsEl = document.getElementById("cd-mins");
-    const secsEl = document.getElementById("cd-secs");
-
-    if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
-
-    if (diff <= 0) {
-      daysEl.textContent = "00";
-      hoursEl.textContent = "00";
-      minsEl.textContent = "00";
-      secsEl.textContent = "00";
-      return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-    daysEl.textContent = String(days).padStart(2, "0");
-    hoursEl.textContent = String(hours).padStart(2, "0");
-    minsEl.textContent = String(mins).padStart(2, "0");
-    secsEl.textContent = String(secs).padStart(2, "0");
-  }
-
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-
-  // ── Waitlist Form ────────────────────────────────────
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
+  // ── Newsletter form → /api/subscribe (server-side MailerLite proxy) ──────
   const form = document.getElementById("waitlist-form") as HTMLFormElement | null;
   const statusEl = document.getElementById("form-status") as HTMLParagraphElement | null;
   const btn = form?.querySelector(".waitlist-btn") as HTMLButtonElement | null;
@@ -204,22 +145,17 @@ const categories = [
     statusEl.className = "form-status";
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/merch_waitlist`, {
+      const res = await fetch("/api/subscribe", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-          "Prefer": "return=minimal",
-        },
-        body: JSON.stringify({ email }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, fields: { source: "bikerbabies-merch-newsletter" } }),
       });
 
-      if (res.status === 201 || res.status === 200) {
-        statusEl.textContent = "You're on the list! We'll be in touch when the shop drops.";
+      if (res.ok) {
+        statusEl.textContent = "You're on the list! Fresh drops, straight to your inbox.";
         statusEl.className = "form-status form-status--success";
         form.reset();
-      } else if (res.status === 409) {
+      } else if (res.status === 422) {
         statusEl.textContent = "You're already on the list — we've got you!";
         statusEl.className = "form-status form-status--info";
       } else {
@@ -230,7 +166,7 @@ const categories = [
       statusEl.className = "form-status form-status--error";
     } finally {
       btn.disabled = false;
-      btn.textContent = "Get Me First Dibs";
+      btn.textContent = "Keep Me Posted";
     }
   });
 </script>
@@ -261,7 +197,7 @@ const categories = [
     display: block;
     width: 60px;
     height: 4px;
-    background: #ff6b00;
+    background: var(--color-orange);
     border-radius: 9999px;
     margin-bottom: 1rem;
     box-shadow: 0 0 12px rgba(255, 107, 0, 0.55);
@@ -270,7 +206,7 @@ const categories = [
   .merch-hero-sub {
     font-family: "Bebas Neue", sans-serif;
     font-size: clamp(1.1rem, 2.5vw, 1.6rem);
-    color: #ff6b00;
+    color: var(--color-orange);
     letter-spacing: 0.1em;
     margin-bottom: 0.75rem;
   }
@@ -278,116 +214,139 @@ const categories = [
   .merch-hero-body {
     font-size: 0.95rem;
     color: #d0d0d0;
-    line-height: 1.65;
-  }
-
-  .hero-image-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
+    line-height: 1.7;
+    max-width: 460px;
   }
 
   .hero-img {
     width: 100%;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 0, 0.15);
-    object-fit: cover;
-    max-height: 420px;
+    border-radius: 16px;
   }
 
-  @media (max-width: 768px) {
-    .merch-hero-content {
-      grid-template-columns: 1fr;
-    }
-
-    .hero-image-wrap {
-      min-height: auto;
-    }
-
-    .hero-img {
-      max-height: 300px;
-    }
+  /* ── Products grid ────────────────────────────────────── */
+  .products-section {
+    padding: 4rem 2rem 5rem;
+    background: var(--color-bg-section);
   }
 
-  /* ── Category cards ───────────────────────────────────── */
-  .categories-section {
-    padding: 5rem 2rem;
-    background: var(--color-bg);
-  }
-
-  .categories-inner {
+  .products-inner {
     max-width: 1200px;
     margin: 0 auto;
   }
 
   .section-heading {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(2rem, 4.5vw, 3.2rem);
-    font-weight: 700;
-    color: #ff6b00;
-    letter-spacing: 0.06em;
-    margin-bottom: 2.5rem;
-    border-bottom: 2px solid rgba(255, 107, 0, 0.2);
-    padding-bottom: 0.75rem;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    color: #fff;
+    margin-bottom: 2.25rem;
   }
 
-  .categories-grid {
+  .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem 1.5rem;
   }
 
-  .category-card {
-    background: var(--color-bg-card);
-    border: 1px solid rgba(255, 107, 0, 0.12);
+  .product-card {
+    display: block;
+    text-decoration: none;
+  }
+
+  .product-card-img-wrap {
+    position: relative;
+    aspect-ratio: 1;
     border-radius: 12px;
-    padding: 2rem 1.75rem;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
   }
 
-  .category-card:hover {
-    border-color: rgba(255, 107, 0, 0.45);
-    transform: translateY(-4px);
-    box-shadow: 0 14px 36px rgba(255, 107, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3);
+  .product-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
   }
 
-  .category-icon {
+  .product-card:hover .product-card-img {
+    transform: scale(1.04);
+  }
+
+  .product-card-placeholder {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    background: rgba(255, 107, 0, 0.12);
-    color: #ff6b00;
-    margin-bottom: 1.25rem;
   }
 
-  .category-icon svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  .category-title {
+  .product-card-placeholder span {
     font-family: "Bebas Neue", sans-serif;
-    font-size: 1.4rem;
+    font-size: 1rem;
+    letter-spacing: 0.18em;
+    color: var(--color-orange);
+    text-transform: uppercase;
+  }
+
+  .product-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 20, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .product-card:hover .product-card-overlay {
+    opacity: 1;
+  }
+
+  .product-card-cta {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.14em;
+    color: var(--color-gold);
+    border: 2px solid var(--color-gold);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+  }
+
+  .product-card-body {
+    padding: 0.9rem 0.25rem 0;
+  }
+
+  .product-card-name {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.05em;
     color: #fff;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.5rem;
   }
 
-  .category-desc {
-    font-size: 0.88rem;
-    color: #aaa;
-    line-height: 1.6;
+  .product-card-blurb {
+    font-size: 0.82rem;
+    color: #999;
+    line-height: 1.55;
+    margin-top: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
-  /* ── Waitlist section ─────────────────────────────────── */
+  .product-card-price {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: var(--color-orange);
+    margin-top: 0.4rem;
+  }
+
+  /* ── Newsletter section ───────────────────────────────── */
   .waitlist-section {
-    padding: 6rem 2rem 7rem;
-    background: var(--color-bg-section);
+    padding: 5rem 2rem 6rem;
+    background: var(--color-bg);
     overflow: hidden;
   }
 
@@ -398,97 +357,6 @@ const categories = [
     grid-template-columns: 1fr 1fr;
     gap: 5rem;
     align-items: center;
-  }
-
-  /* Badge */
-  .launching-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(255, 107, 0, 0.12);
-    border: 1px solid rgba(255, 107, 0, 0.35);
-    border-radius: 100px;
-    padding: 0.4rem 1rem;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.18em;
-    color: #ff6b00;
-    margin-bottom: 1.75rem;
-    animation: badge-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes badge-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.82; transform: scale(1.03); }
-  }
-
-  .badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ff6b00;
-    flex-shrink: 0;
-    box-shadow: 0 0 6px rgba(255, 107, 0, 0.8);
-  }
-
-  /* ── Countdown Timer ──────────────────────────────────── */
-  .countdown-label {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.18em;
-    color: #888;
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
-  }
-
-  .countdown {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .countdown-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 56px;
-    background: rgba(255, 107, 0, 0.08);
-    border: 1px solid rgba(255, 107, 0, 0.2);
-    border-radius: 10px;
-    padding: 0.6rem 0.75rem 0.4rem;
-  }
-
-  .countdown-value {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    color: #ff6b00;
-    line-height: 1;
-    letter-spacing: 0.04em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .countdown-unit {
-    font-size: 0.65rem;
-    color: #777;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-top: 0.2rem;
-  }
-
-  .countdown-sep {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.6rem;
-    color: rgba(255, 107, 0, 0.4);
-    line-height: 1;
-    padding-bottom: 0.8rem;
-  }
-
-  .countdown-note {
-    font-size: 0.78rem;
-    color: #666;
-    font-style: italic;
-    margin-bottom: 2rem;
   }
 
   .waitlist-heading {
@@ -507,7 +375,6 @@ const categories = [
     margin-bottom: 2.5rem;
   }
 
-  /* Form */
   .waitlist-form {
     width: 100%;
   }
@@ -544,7 +411,7 @@ const categories = [
 
   .waitlist-btn {
     flex-shrink: 0;
-    background: #ff6b00;
+    background: var(--color-orange);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -560,7 +427,7 @@ const categories = [
   }
 
   .waitlist-btn:hover:not(:disabled) {
-    background: #e05c00;
+    background: var(--color-orange-dark);
     transform: translateY(-2px);
     box-shadow: 0 8px 28px rgba(255, 107, 0, 0.5);
   }
@@ -586,7 +453,6 @@ const categories = [
   .form-status--error   { color: #ef5350; }
   .form-status--info    { color: #aaa; }
 
-  /* Image */
   .waitlist-image-wrap {
     position: relative;
   }
@@ -614,7 +480,14 @@ const categories = [
   }
 
   /* ── Responsive ───────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .products-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
   @media (max-width: 900px) {
+    .merch-hero-content,
     .waitlist-inner {
       grid-template-columns: 1fr;
       gap: 3rem;
@@ -622,6 +495,12 @@ const categories = [
 
     .waitlist-image-wrap {
       order: -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .products-grid {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -633,11 +512,6 @@ const categories = [
     .waitlist-btn {
       width: 100%;
       text-align: center;
-    }
-
-    .countdown-block {
-      min-width: 48px;
-      padding: 0.5rem 0.5rem 0.3rem;
     }
   }
 </style>
