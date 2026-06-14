@@ -6,12 +6,16 @@
 // new Sanity-backed contact form intake.
 // 2026-06-03: added printfulVariant (object type) for the Wyrmfuel-model
 // product schema, so the variants[].printfulVariants field resolves.
+// 2026-06-14: added wallArt (in-house printed & dispatched wall art) for the
+// cross-brand Wall Art feature. Manufactured in-house (NOT Printful); priced
+// from src/lib/artwork-pricing.cjs; routed to in-house dispatch by the webhook.
 import character from './character';
 import episode from './episode';
 import book from './book';
 import blogPost from './blogPost';
 import product from './product';
 import printfulVariant from './printfulVariant';
+import wallArt from './wallArt';
 import category from './category';
 import faq from './faq';
 import page from './page';
@@ -29,6 +33,7 @@ export const schemaTypes = [
   blogPost,
   product,
   printfulVariant,
+  wallArt,
   category,
   merchCategory,
   faq,

@@ -1,8 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getAllProducts } from "../lib/sanity";
+import { getAllWallArt } from "../lib/wallart";
+import { ARTWORK_FROM_PRICE, formatGBP } from "../lib/artwork-pricing.cjs";
 
 const products = await getAllProducts();
+const wallArt = await getAllWallArt();
 function seededRandom(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
 
 const categoryOrder = [
@@ -45,17 +48,20 @@ const categories = categoryOrder.map((cat, catIdx) => ({
     })
   ),
 })).filter((cat) => cat.items.length > 0);
-const defaultCat = categories[0]?.key || 'tshirt';
+
+/* Wall art is its own tab (links to /wall-art/[slug], not /products/). If there
+   are no garments at all, it becomes the default tab. */
+const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt');
 ---
 
-<Layout title="Merch – The Biker Babies" description="Official Biker Babies merch – tees, hoodies, kids sizes, baby grows and more. Gear up and ride!">
+<Layout title="Merch – The Biker Babies" description="Official Biker Babies merch – tees, hoodies, kids sizes, baby grows, wall art and more. Gear up and ride!">
   <section class="merch-hero">
     <div class="merch-hero-content">
       <div class="hero-text">
         <h1 class="merch-hero-title">Official Merch</h1>
         <span class="h1-accent-bar" aria-hidden="true"></span>
         <p class="merch-hero-sub">Gear Up &amp; Ride in Style</p>
-        <p class="merch-hero-body">Character tees, hoodies and bottles for every fan of the crew — plus sticker sets, pin badges, kids sizes and baby grows for the youngest riders in the clubhouse.</p>
+        <p class="merch-hero-body">Character tees, hoodies and bottles for every fan of the crew — plus sticker sets, pin badges, wall art, kids sizes and baby grows for the youngest riders in the clubhouse.</p>
       </div>
       <div class="hero-image-wrap">
         <img src="/images/merch-hero.webp" alt="The Biker Babies merch" class="hero-img" loading="eager" />
@@ -71,6 +77,11 @@ const defaultCat = categories[0]?.key || 'tshirt';
             {cat.label}<span class="cat-count">{cat.items.length}</span>
           </button>
         ))}
+        {wallArt.length > 0 && (
+          <button class={`cat-tab cat-tab--art ${defaultCat === 'wallart' ? 'active' : ''}`} data-cat="wallart" aria-pressed={defaultCat === 'wallart' ? 'true' : 'false'}>
+            Wall Art<span class="cat-count">{wallArt.length}</span>
+          </button>
+        )}
       </nav>
 
       {categories.map((cat) => (
@@ -97,6 +108,24 @@ const defaultCat = categories[0]?.key || 'tshirt';
           ))}
         </div>
       ))}
+
+      {wallArt.length > 0 && (
+        <div class={`products-grid ${defaultCat === 'wallart' ? 'active' : ''}`} data-grid="wallart">
+          {wallArt.map((piece: any) => (
+            <a href={`/wall-art/${piece.slug}`} class="product-card">
+              <div class="product-thumb">
+                <img class="card-img card-img--front active" src={piece.imageUrl} alt={piece.title} loading="lazy" />
+                <div class="thumb-overlay"><span>View Product</span></div>
+              </div>
+              <div class="product-info">
+                <h3>{piece.title}</h3>
+                <span class="product-type-label">Poster &amp; Canvas</span>
+                <span class="product-price">from {formatGBP(ARTWORK_FROM_PRICE)}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
 
       <p class="sizing-link-wrap"><a href="/size-guide" class="sizing-link">Not sure on sizing? Check the size guide →</a></p>
     </div>
@@ -197,6 +226,12 @@ const defaultCat = categories[0]?.key || 'tshirt';
   .card-dots { display: flex; gap: 4px; }
   .card-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); }
   .card-dot.active { background: var(--color-orange); }
+
+  /* Wall-art cards: landscape frame, show the whole piece (no crop). Scoped to
+     the wall-art grid so garment cards keep their square crop. The thumb's dark
+     --color-bg-card backing pillarboxes any portrait piece cleanly. */
+  .products-grid[data-grid="wallart"] .product-thumb { aspect-ratio: 16 / 9; }
+  .products-grid[data-grid="wallart"] .card-img { object-fit: contain; }
 
   .product-info { padding: 0.9rem 0.25rem 0; }
   .product-info h3 { font-family: "Bebas Neue", sans-serif; font-size: 1.15rem; letter-spacing: 0.05em; color: #fff; }
