@@ -107,9 +107,9 @@ const gallery = [piece.imageUrl, piece.studioMockupUrl, piece.posterMockupUrl, p
 
   .wa-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: start; }
 
-  /* Gallery — dark stage so the landscape art reads, portrait pieces pillarbox */
-  .wa-stage { position: relative; aspect-ratio: 16 / 9; background: var(--color-bg-card, #13131e); border: 1px solid var(--color-border, rgba(255,255,255,0.1)); border-radius: 12px; overflow: hidden; }
-  .wa-main-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  /* Gallery — dark stage; each piece shown whole at its own aspect ratio */
+  .wa-stage { position: relative; background: var(--color-bg-card, #13131e); border: 1px solid var(--color-border, rgba(255,255,255,0.1)); border-radius: 12px; overflow: hidden; }
+  .wa-main-img { display: block; width: 100%; height: auto; object-fit: contain; }
   .wa-thumbs { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
   .wa-thumb { width: 64px; height: 64px; padding: 0; border: 1px solid var(--color-border, rgba(255,255,255,0.15)); border-radius: 8px; background: var(--color-bg-card, #13131e); cursor: pointer; overflow: hidden; transition: border-color 0.2s; }
   .wa-thumb img { width: 100%; height: 100%; object-fit: cover; }
