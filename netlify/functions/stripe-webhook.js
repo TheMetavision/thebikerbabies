@@ -395,6 +395,20 @@ exports.handler = async (event) => {
   }
 
   const session = stripeEvent.data.object;
+
+  /* ── Brand guard ──────────────────────────────────────────────────────────
+     All four IP-brand sites share ONE Stripe account, so Stripe delivers every
+     checkout event to every registered webhook endpoint. Only process sessions
+     that THIS site's create-checkout created (it stamps metadata.source =
+     'bikerbabies-web'). Anything else is another brand's order — acknowledge
+     with a 200 and do nothing, or we send wrong-brand emails and file doomed
+     Printful orders against the wrong store. */
+  const source = (session.metadata && session.metadata.source) || '';
+  if (source !== 'bikerbabies-web') {
+    console.log(`[BRAND-SKIP] session ${session.id}: metadata.source="${source || '(none)'}" — not a Biker Babies order; ignoring.`);
+    return { statusCode: 200, body: JSON.stringify({ received: true, ignored: 'foreign-brand', source: source || null }) };
+  }
+
   console.log(`[ORDER] checkout.session.completed — session ${session.id}`);
 
   let lineItems;
