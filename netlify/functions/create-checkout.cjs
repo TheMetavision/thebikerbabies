@@ -1,5 +1,5 @@
 /**
- * netlify/functions/create-checkout.js  (The Biker Babies)
+ * netlify/functions/create-checkout.cjs  (The Biker Babies)
  *
  * Cloned from The Fuglys function (itself the Cats On Crack / Wyrmfuel model).
  * Matching/pricing logic is brand-agnostic; the marked CONFIG / metadata

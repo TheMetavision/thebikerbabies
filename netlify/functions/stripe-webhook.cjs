@@ -1,5 +1,5 @@
 /**
- * netlify/functions/stripe-webhook.js  (The Biker Babies — email + Sanity order log)
+ * netlify/functions/stripe-webhook.cjs  (The Biker Babies — email + Sanity order log)
  *
  * Cloned from The Fuglys webhook. On checkout.session.completed:
  *   1. Verify the Stripe signature (STRIPE_WEBHOOK_SECRET).
@@ -21,7 +21,7 @@
  *   SANITY_PROJECT_ID     — optional; default v518t53u
  *   SANITY_DATASET        — optional; default production
  *
- * Must be named stripe-webhook.js (not .cjs/.mjs); delete any stale duplicate.
+ * Must be named stripe-webhook.cjs (CommonJS in a "type": "module" repo); delete any stale duplicate.
  */
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
