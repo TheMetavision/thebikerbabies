@@ -4,6 +4,7 @@ import { tvSeriesSchema } from "../lib/schema";
 import NewsletterSection from "../components/NewsletterSection.astro";
 import CharacterCarousel from "../components/CharacterCarousel.astro";
 import MerchPromo from "../components/MerchPromo.astro";
+import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
 ---
 
 <Layout title="The Biker Babies – Adventure on Two Wheels!" jsonLd={tvSeriesSchema()}>
@@ -112,15 +113,7 @@ import MerchPromo from "../components/MerchPromo.astro";
         </div>
       </div>
       <div class="series-video">
-        <div class="series-video-wrap">
-          <iframe
-            src="https://www.youtube.com/embed/apdKrN8E2Ko"
-            title="The Biker Babies – Animated Series Trailer"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            loading="lazy"
-          ></iframe>
-        </div>
+        <ClickToLoadVideo videoId="apdKrN8E2Ko" title="The Biker Babies – Animated Series Trailer" fit="contain" class="series-video-wrap" />
       </div>
     </div>
   </section>
@@ -519,9 +512,10 @@ import MerchPromo from "../components/MerchPromo.astro";
 
   .series-video {
     position: relative;
+    --ctl-note: rgba(0, 0, 0, 0.75);
   }
 
-  .series-video-wrap {
+  .series-video :global(.series-video-wrap) {
     position: relative;
     padding-bottom: 56.25%;
     height: 0;
@@ -532,13 +526,6 @@ import MerchPromo from "../components/MerchPromo.astro";
       0 0 0 1px rgba(255, 255, 255, 0.07);
   }
 
-  .series-video-wrap iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
 
   /* ── Responsive ─────────────────────────────────────────── */
   @media (max-width: 900px) {
