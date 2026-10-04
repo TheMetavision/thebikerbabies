@@ -4,7 +4,8 @@ import imageUrlBuilder from '@sanity/image-url';
 export const client = createClient({
   projectId: import.meta.env.SANITY_PROJECT_ID || 'v518t53u',
   dataset: import.meta.env.SANITY_DATASET || 'production',
-  apiVersion: '2024-01-01', useCdn: true,
+  // Never the CDN: a build triggered by a Sanity publish must read what was just published.
+  apiVersion: '2024-01-01', useCdn: false,
   token: import.meta.env.SANITY_API_TOKEN,
   // Keeps drafts out of the static build even with a token present
   // (same fix as the Fuglys/Labrats double-listing bug).
