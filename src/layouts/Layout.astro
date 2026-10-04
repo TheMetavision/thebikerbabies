@@ -4,6 +4,7 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import { organizationSchema, websiteSchema } from '../lib/schema';
 import { canonicalUrl } from '../lib/url';
+import { socialImg } from '../lib/sanityImage';
 // ── Theme audio additions (2026-04-30 — IP brand theme-tune feature build #3/4) ──
 import BBSpeedometer from '../components/BBSpeedometer.astro';
 import { getThemeAudio } from '../lib/sanity';
@@ -14,6 +15,8 @@ interface Props {
   description?: string;
   jsonLd?: Record<string, any> | Record<string, any>[];
   noIndex?: boolean;
+  /** Absolute social-card image; defaults to the homepage hero. */
+  ogImage?: string;
 }
 
 const {
@@ -21,6 +24,7 @@ const {
   description = "Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!",
   jsonLd,
   noIndex = false,
+  ogImage = socialImg('/images/hero-character.jpg'),
 } = Astro.props;
 
 // Apex host, trailing slash: the address Netlify actually serves.
@@ -82,6 +86,8 @@ const preloadAudio = renderThemeAudio ? themeAudio.audioUrl : null;
     <meta property="og:type" content="website" />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:site_name" content="The Biker Babies" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@TheBikerBabies" />
     <meta name="twitter:title" content={title} />

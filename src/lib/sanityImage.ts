@@ -100,3 +100,14 @@ export function localSrcset(path: string, maxRenderedW: number, originalW: numbe
   if (!ws.length) ws.push(cap);
   return ws.map(w => `${localImg(path, w)} ${w}w`).join(', ');
 }
+
+/** Absolute 1200px JPEG for og:image / JSON-LD (Sanity, Printful or a /public path). */
+export function socialImg(url: string | undefined | null, site = 'https://thebikerbabies.com'): string | undefined {
+  if (!url) return undefined;
+  if (url.includes('cdn.sanity.io/images/')) {
+    const u = new URL(url); u.search = '';
+    u.searchParams.set('w', '1200'); u.searchParams.set('fm', 'jpg'); u.searchParams.set('q', '85'); u.searchParams.set('fit', 'max');
+    return u.toString();
+  }
+  return `${site}/.netlify/images?url=${encodeURIComponent(url)}&w=1200&fm=jpg&q=85`;
+}
