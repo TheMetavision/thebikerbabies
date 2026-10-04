@@ -118,6 +118,7 @@ const characters = [
           aria-label={`${char.name} — ${char.role}`}
         />
       ))}
+      <button type="button" class="carousel-pause" id="carousel-pause" aria-pressed="false">Pause</button>
     </div>
 
     <div class="carousel-cta-wrap">
@@ -296,6 +297,21 @@ const characters = [
     transform: scale(0.96);
   }
 
+  .carousel-pause {
+    margin-left: 0.75rem;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    color: #bbb;
+    font: inherit;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+  }
+  .carousel-pause:hover { color: #ff6b00; border-color: rgba(255, 107, 0, 0.5); }
+
   .carousel-dots {
     display: flex;
     align-items: center;
@@ -450,6 +466,10 @@ const characters = [
     let current = 0;
     let autoTimer: ReturnType<typeof setTimeout> | null = null;
     let isPaused = false;
+    // Stopped by the Pause button, or from the start under reduced motion.
+    // Hover/focus pauses are temporary; this one stays until Play.
+    let stopped = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const pauseBtn = document.getElementById("carousel-pause");
 
     const stage = document.getElementById("carousel-stage")!;
     const slides = Array.from(stage.querySelectorAll<HTMLElement>(".carousel-slide"));
@@ -488,6 +508,7 @@ const characters = [
 
     function startAuto() {
       if (autoTimer) clearTimeout(autoTimer);
+      if (stopped) return;
       autoTimer = setTimeout(() => {
         if (!isPaused) {
           goTo(current + 1);
@@ -539,6 +560,19 @@ const characters = [
       resetAuto();
     });
 
+    function paintPause() {
+      if (!pauseBtn) return;
+      pauseBtn.textContent = stopped ? "Play" : "Pause";
+      pauseBtn.setAttribute("aria-pressed", String(stopped));
+      pauseBtn.setAttribute("aria-label", stopped ? "Start the character slideshow" : "Stop the character slideshow");
+    }
+    pauseBtn?.addEventListener("click", () => {
+      stopped = !stopped;
+      paintPause();
+      resetAuto();
+    });
+
+    paintPause();
     startAuto();
   })();
 </script>
