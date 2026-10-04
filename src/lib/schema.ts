@@ -22,7 +22,7 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
 }
 export function tvSeriesSchema() {
   return { '@context': 'https://schema.org', '@type': 'TVSeries', name: 'The Biker Babies',
-    description: 'An animated series following a diverse crew of young riders on thrilling bike adventures, learning teamwork and friendship along the way.',
+    description: 'An animated series following a diverse crew of young riders on thrilling motorbike adventures, learning teamwork and friendship along the way.',
     genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: canonicalUrl('/'),
     productionCompany: { '@type': 'Organization', name: 'The Metavision Multimedia Limited' } };
 }
