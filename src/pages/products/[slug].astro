@@ -47,7 +47,7 @@ const variantsJson = JSON.stringify(
 ---
 
 <Layout
-  title={design.seoTitle || `${design.name} — The Biker Babies Merch`}
+  title={design.seoTitle || [`${design.name} — The Biker Babies Merch`, `${design.name} — Biker Babies Merch`].find((t) => t.length <= 60) || design.name}
   description={design.seoDescription || design.description || design.tagline || `Official The Biker Babies ${design.name} merchandise.`}
 
 >

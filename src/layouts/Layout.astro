@@ -26,6 +26,17 @@ const {
 // Apex host, trailing slash: the address Netlify actually serves.
 const pageUrl = canonicalUrl(Astro.url.pathname);
 
+// Safety net: descriptions over 155 characters are trimmed at a word
+// boundary (templates and Sanity SEO fields should already fit).
+const DESC_MAX = 155;
+function fitDescription(d: string): string {
+  const clean = String(d || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= DESC_MAX) return clean;
+  const cut = clean.slice(0, DESC_MAX - 1);
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:—–-]+$/, '') + '…';
+}
+const metaDescription = fitDescription(description) || 'Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!';
+
 const allSchemas: object[] = [organizationSchema(), websiteSchema()];
 if (jsonLd) {
   if (Array.isArray(jsonLd)) allSchemas.push(...jsonLd);
@@ -57,7 +68,7 @@ const preloadAudio = renderThemeAudio ? themeAudio.audioUrl : null;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -67,14 +78,14 @@ const preloadAudio = renderThemeAudio ? themeAudio.audioUrl : null;
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:title" content={`${title} | The Biker Babies`} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={pageUrl} />
     <meta property="og:site_name" content="The Biker Babies" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@TheBikerBabies" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
 
     <slot name="head" />
     {allSchemas.map((schema) => (

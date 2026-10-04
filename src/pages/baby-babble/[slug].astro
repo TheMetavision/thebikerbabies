@@ -89,7 +89,7 @@ const heroImageUrl = post.featuredImage
 ---
 
 <Layout
-  title={post.seoTitle || `${post.title} — Baby Babble`}
+  title={post.seoTitle || (`${post.title} — Baby Babble`.length <= 60 ? `${post.title} — Baby Babble` : post.title)}
   description={post.seoDescription || post.excerpt || ""}
 >
   <article class="article-wrap">
