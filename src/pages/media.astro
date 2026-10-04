@@ -1,4 +1,5 @@
 ---
+import { sanityImg, sanitySrcset, sanityDims, localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
 import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
@@ -65,7 +66,7 @@ const books = await sanity.fetch(`
       </div>
       <div class="hero-image-wrap">
         <img
-          src="/images/behind-the-scenes.webp"
+          src={localImg('/images/behind-the-scenes.webp', 800)} srcset={localSrcset('/images/behind-the-scenes.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="670"
           alt="Behind the scenes of a Biker Babies episode in production – the crew at work bringing the characters to life"
           class="hero-img"
           loading="eager"
@@ -134,7 +135,10 @@ const books = await sanity.fetch(`
               <div class="book-card-cover">
                 {book.coverImageUrl ? (
                   <img
-                    src={book.coverImageUrl}
+                    src={sanityImg(book.coverImageUrl, 400)}
+                    srcset={sanitySrcset(book.coverImageUrl, 300)}
+                    sizes="(min-width: 900px) 300px, 100vw"
+                    {...sanityDims(book.coverImageUrl, 400)}
                     alt={`${book.title} — Book ${book.seriesOrder} cover`}
                     loading="lazy"
                   />

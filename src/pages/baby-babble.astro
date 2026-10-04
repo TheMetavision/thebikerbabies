@@ -1,4 +1,5 @@
 ---
+import { localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
 import { getAllBlogPosts, urlFor } from "../lib/sanity";
@@ -91,7 +92,7 @@ const posts = (sanityPosts || []).map((p: any) => {
       </div>
       <div class="hero-image-wrap">
         <img
-          src="/images/baby-babble.webp"
+          src={localImg('/images/baby-babble.webp', 800)} srcset={localSrcset('/images/baby-babble.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="669"
           alt="The Biker Babies story time – Mateo reads aloud to the crew in a sunny park clearing with motorbikes parked behind them"
           class="hero-img"
           loading="eager"

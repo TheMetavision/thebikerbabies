@@ -1,4 +1,5 @@
 ---
+import { sanityImg, sanitySrcset, sanityDims } from '../lib/sanityImage';
 const characters = [
   {
     name: "Maddison",
@@ -85,7 +86,10 @@ const characters = [
               </div>
               <div class="slide-image-col">
                 <img
-                  src={char.image}
+                  src={sanityImg(char.image, 280)}
+                  srcset={sanitySrcset(char.image, 280)}
+                  sizes="280px"
+                  {...sanityDims(char.image, 280)}
                   alt={`${char.name} — ${char.role}`}
                   class="slide-portrait"
                   loading={i === 0 ? "eager" : "lazy"}

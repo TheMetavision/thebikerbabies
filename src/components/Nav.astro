@@ -1,4 +1,5 @@
 ---
+import { localImg } from '../lib/sanityImage';
 import SocialIcons from "./SocialIcons.astro";
 import CartButton from "./CartButton";
 
@@ -18,7 +19,10 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
   <nav class="nav-container">
     <a href="/" class="nav-logo">
       <img
-        src="/images/the-biker-babies-logo.png"
+        src={localImg('/images/the-biker-babies-logo.png', 72)}
+        srcset={`${localImg('/images/the-biker-babies-logo.png', 72)} 1x, ${localImg('/images/the-biker-babies-logo.png', 144)} 2x`}
+        width="72"
+        height="72"
         alt="The Biker Babies logo"
         class="logo-img"
       />

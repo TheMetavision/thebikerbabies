@@ -1,4 +1,6 @@
 ---
+import { sanityImg, sanitySrcset, sanityDims, localImg, localSrcset, productImg, productSrcset, productDims } from '../lib/sanityImage';
+const BOOKS = 'https://cdn.sanity.io/images/v518t53u/production/3c5866e7ff83926e5f5fd9b678be08a9d8ead23f-2048x2048.png';
 import Layout from "../layouts/Layout.astro";
 import { tvSeriesSchema } from "../lib/schema";
 import NewsletterSection from "../components/NewsletterSection.astro";
@@ -8,17 +10,24 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
 ---
 
 <Layout title="The Biker Babies – Adventure on Two Wheels!" jsonLd={tvSeriesSchema()}>
+  <link slot="head" rel="preload" as="image" fetchpriority="high"
+        href={localImg('/images/hero-character.jpg', 1600)}
+        imagesrcset={localSrcset('/images/hero-character.jpg', 1920, 2752)}
+        imagesizes="100vw" />
   <section class="hero">
     <div class="hero-image-wrap">
       <div class="hero-parallax-wrap">
         <img
-          src="/images/hero-character.jpg"
+          src={localImg('/images/hero-character.jpg', 1600)}
+          srcset={localSrcset('/images/hero-character.jpg', 1920, 2752)} sizes="100vw" width="2752" height="1536"
+          fetchpriority="high"
           alt="The Biker Babies landscape"
           class="hero-landscape"
         />
       </div>
       <img
-        src="/images/hero-character.jpg"
+        src={localImg('/images/hero-character.jpg', 1600)}
+        srcset={localSrcset('/images/hero-character.jpg', 1920, 2752)} sizes="100vw" width="2752" height="1536"
         alt="The Biker Babies"
         class="hero-portrait"
       />
@@ -79,7 +88,11 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
       </div>
       <div class="books-image">
         <img
-          src="https://cdn.sanity.io/images/v518t53u/production/3c5866e7ff83926e5f5fd9b678be08a9d8ead23f-2048x2048.png"
+          src={sanityImg(BOOKS, 580)}
+          srcset={sanitySrcset(BOOKS, 580)}
+          sizes="(min-width: 900px) 580px, 100vw"
+          {...sanityDims(BOOKS, 580)}
+          loading="lazy"
           alt="The Biker Babies book series"
           class="section-img"
         />

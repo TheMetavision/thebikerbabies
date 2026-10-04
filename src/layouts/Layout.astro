@@ -76,6 +76,7 @@ const preloadAudio = renderThemeAudio ? themeAudio.audioUrl : null;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
 
+    <slot name="head" />
     {allSchemas.map((schema) => (
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}
