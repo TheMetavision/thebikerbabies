@@ -92,7 +92,8 @@ async function fetchSanityVariantData() {
       printfulVariants[]{ size, colour, syncVariantId }
     }
   }`;
-  const url = `https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}?query=${encodeURIComponent(groq)}`;
+  // The API host, not apicdn: prices and the active flag must be what is published now.
+  const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}?query=${encodeURIComponent(groq)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Sanity query failed (${res.status})`);
   return (await res.json()).result || [];

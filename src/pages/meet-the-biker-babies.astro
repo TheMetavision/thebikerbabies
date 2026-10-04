@@ -9,7 +9,7 @@ const client = createClient({
   projectId: import.meta.env.SANITY_PROJECT_ID,
   dataset: import.meta.env.SANITY_DATASET || "production",
   apiVersion: "2026-04-01",
-  useCdn: true,
+  useCdn: false, // build-time read: never the CDN (it lags a publish)
 });
 
 const allCharacters = await client.fetch(`
