@@ -3,6 +3,8 @@ import CartDrawer from '../components/CartDrawer';
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import { organizationSchema, websiteSchema } from '../lib/schema';
+import { canonicalUrl } from '../lib/url';
+import { socialImg } from '../lib/sanityImage';
 // ── Theme audio additions (2026-04-30 — IP brand theme-tune feature build #3/4) ──
 import BBSpeedometer from '../components/BBSpeedometer.astro';
 import { getThemeAudio } from '../lib/sanity';
@@ -13,6 +15,8 @@ interface Props {
   description?: string;
   jsonLd?: Record<string, any> | Record<string, any>[];
   noIndex?: boolean;
+  /** Absolute social-card image; defaults to the homepage hero. */
+  ogImage?: string;
 }
 
 const {
@@ -20,7 +24,22 @@ const {
   description = "Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!",
   jsonLd,
   noIndex = false,
+  ogImage = socialImg('/images/hero-character.jpg'),
 } = Astro.props;
+
+// Apex host, trailing slash: the address Netlify actually serves.
+const pageUrl = canonicalUrl(Astro.url.pathname);
+
+// Safety net: descriptions over 155 characters are trimmed at a word
+// boundary (templates and Sanity SEO fields should already fit).
+const DESC_MAX = 155;
+function fitDescription(d: string): string {
+  const clean = String(d || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= DESC_MAX) return clean;
+  const cut = clean.slice(0, DESC_MAX - 1);
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:—–-]+$/, '') + '…';
+}
+const metaDescription = fitDescription(description) || 'Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!';
 
 const allSchemas: object[] = [organizationSchema(), websiteSchema()];
 if (jsonLd) {
@@ -53,25 +72,28 @@ const preloadAudio = renderThemeAudio ? themeAudio.audioUrl : null;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="canonical" href={Astro.url.href} />
+    <link rel="canonical" href={pageUrl} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:title" content={`${title} | The Biker Babies`} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:url" content={pageUrl} />
     <meta property="og:site_name" content="The Biker Babies" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@TheBikerBabies" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
 
+    <slot name="head" />
     {allSchemas.map((schema) => (
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}

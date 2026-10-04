@@ -1,21 +1,29 @@
+import { canonicalUrl } from './url';
+
+/* The real trader: The Biker Babies is a trading name of The Metavision
+   Multimedia Limited (not a separate subsidiary), at its registered office. */
 export function organizationSchema() {
-  return { '@context': 'https://schema.org', '@type': 'Organization', name: 'The Biker Babies', url: 'https://thebikerbabies.com', logo: 'https://thebikerbabies.com/favicon.svg',
-    description: 'Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise!',
-    sameAs: ['https://www.youtube.com/@TheBikerBabies', 'https://www.instagram.com/thebikerbabies', 'https://www.facebook.com/thebikerbabies', 'https://www.tiktok.com/@thebikerbabies', 'https://x.com/TheBikerBabies'],
-    parentOrganization: { '@type': 'Organization', name: 'The Metavision Multimedia Limited', url: 'https://themetavision.co.uk' } };
+  return { '@context': 'https://schema.org', '@type': 'Organization', '@id': canonicalUrl('/') + '#organization',
+    name: 'The Biker Babies', legalName: 'The Metavision Multimedia Limited', url: canonicalUrl('/'), logo: 'https://thebikerbabies.com/favicon.svg',
+    description: 'Join The Biker Babies on thrilling animated adventures, dive into the book series, and grab official merchandise! A trading name of The Metavision Multimedia Limited, registered in England & Wales.',
+    email: 'pitcrew@thebikerbabies.com',
+    address: { '@type': 'PostalAddress', streetAddress: '167-169 Great Portland Street, 5th Floor', addressLocality: 'London', postalCode: 'W1W 5PF', addressCountry: 'GB' },
+    vatID: 'GB503753017',
+    identifier: { '@type': 'PropertyValue', propertyID: 'Companies House', value: '16282479' },
+    sameAs: ['https://www.youtube.com/@TheBikerBabies', 'https://www.instagram.com/thebikerbabies', 'https://www.facebook.com/thebikerbabies', 'https://www.tiktok.com/@thebikerbabies', 'https://x.com/TheBikerBabies'] };
 }
 export function websiteSchema() {
-  return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: 'https://thebikerbabies.com',
+  return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: canonicalUrl('/'),
     description: 'Adventure on two wheels! The Biker Babies animated series, book universe, and official merch.',
-    publisher: { '@type': 'Organization', name: 'The Biker Babies' } };
+    publisher: { '@id': canonicalUrl('/') + '#organization' } };
 }
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
   return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((item, i) => ({ '@type': 'ListItem', position: i + 1, name: item.name, item: item.url })) };
 }
 export function tvSeriesSchema() {
   return { '@context': 'https://schema.org', '@type': 'TVSeries', name: 'The Biker Babies',
-    description: 'An animated series following a diverse crew of young riders on thrilling bike adventures, learning teamwork and friendship along the way.',
-    genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: 'https://thebikerbabies.com',
+    description: 'An animated series following a diverse crew of young riders on thrilling motorbike adventures, learning teamwork and friendship along the way.',
+    genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: canonicalUrl('/'),
     productionCompany: { '@type': 'Organization', name: 'The Metavision Multimedia Limited' } };
 }
 export function characterSchema(character: { name: string; bio: string; image?: string; url: string }) {

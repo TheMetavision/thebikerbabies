@@ -1,4 +1,5 @@
 ---
+import { localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import CharacterCard from "../components/CharacterCard.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
@@ -44,7 +45,7 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
       </div>
       <div class="hero-image-wrap">
         <img
-          src="/images/meet-the-gang.webp"
+          src={localImg('/images/meet-the-gang.webp', 800)} srcset={localSrcset('/images/meet-the-gang.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="669"
           alt="Wanted posters of The Biker Babies villains pinned to a garage wall – Grumpy Gearhead, Professor Pothole, Captain Cone and The Flat Tyre Gang"
           class="hero-img"
           loading="eager"

@@ -1,4 +1,5 @@
 ---
+import { sanityImg, sanityDims } from '../lib/sanityImage';
 interface Props {
   name: string;
   title: string;
@@ -18,14 +19,14 @@ const { name, title, description, image, isVillain = false } = Astro.props;
   data-name={name}
   data-title={title}
   data-description={description}
-  data-image={image ?? ""}
+  data-image={image ? sanityImg(image, 640) : ""}
   data-villain={isVillain ? "true" : "false"}
 >
   <div class="card-image-wrap">
     {
       image ? (
         <div class="card-image">
-          <img src={image} alt={name} loading="lazy" />
+          <img src={sanityImg(image, 360)} {...sanityDims(image, 360)} alt={name} loading="lazy" />
         </div>
       ) : (
         <div class="card-image placeholder">
