@@ -13,9 +13,9 @@ export function organizationSchema() {
     sameAs: ['https://www.youtube.com/@TheBikerBabies', 'https://www.instagram.com/thebikerbabies', 'https://www.facebook.com/thebikerbabies', 'https://www.tiktok.com/@thebikerbabies', 'https://x.com/TheBikerBabies'] };
 }
 export function websiteSchema() {
-  return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: 'https://thebikerbabies.com',
+  return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: canonicalUrl('/'),
     description: 'Adventure on two wheels! The Biker Babies animated series, book universe, and official merch.',
-    publisher: { '@type': 'Organization', name: 'The Biker Babies' } };
+    publisher: { '@id': canonicalUrl('/') + '#organization' } };
 }
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
   return { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((item, i) => ({ '@type': 'ListItem', position: i + 1, name: item.name, item: item.url })) };
@@ -23,7 +23,7 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
 export function tvSeriesSchema() {
   return { '@context': 'https://schema.org', '@type': 'TVSeries', name: 'The Biker Babies',
     description: 'An animated series following a diverse crew of young riders on thrilling bike adventures, learning teamwork and friendship along the way.',
-    genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: 'https://thebikerbabies.com',
+    genre: ['Animation', 'Adventure', 'Comedy', 'Children'], url: canonicalUrl('/'),
     productionCompany: { '@type': 'Organization', name: 'The Metavision Multimedia Limited' } };
 }
 export function characterSchema(character: { name: string; bio: string; image?: string; url: string }) {

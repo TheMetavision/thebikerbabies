@@ -3,6 +3,7 @@ import CartDrawer from '../components/CartDrawer';
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import { organizationSchema, websiteSchema } from '../lib/schema';
+import { canonicalUrl } from '../lib/url';
 // ── Theme audio additions (2026-04-30 — IP brand theme-tune feature build #3/4) ──
 import BBSpeedometer from '../components/BBSpeedometer.astro';
 import { getThemeAudio } from '../lib/sanity';
@@ -21,6 +22,9 @@ const {
   jsonLd,
   noIndex = false,
 } = Astro.props;
+
+// Apex host, trailing slash: the address Netlify actually serves.
+const pageUrl = canonicalUrl(Astro.url.pathname);
 
 const allSchemas: object[] = [organizationSchema(), websiteSchema()];
 if (jsonLd) {
@@ -59,13 +63,13 @@ const preloadAudio = renderThemeAudio ? themeAudio.audioUrl : null;
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="canonical" href={Astro.url.href} />
+    <link rel="canonical" href={pageUrl} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:title" content={`${title} | The Biker Babies`} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:url" content={pageUrl} />
     <meta property="og:site_name" content="The Biker Babies" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@TheBikerBabies" />
