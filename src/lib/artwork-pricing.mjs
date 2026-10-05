@@ -1,13 +1,15 @@
-// artwork-pricing.cjs
+// artwork-pricing.mjs
 // -----------------------------------------------------------------------------
 // Single source of truth for in-house WALL ART pricing, formats and sizes.
 // Mirrored from Comic Strip Canvas (ready-made prints; no personalisation).
 //
-// CommonJS so BOTH consumers work:
-//   - Netlify functions (CJS):   const { artworkPrice } = require('../../src/lib/artwork-pricing.cjs')
-//   - Astro / Vite (ESM):        import { artworkPrice } from '../lib/artwork-pricing.cjs'
-//     (Vite resolves CJS named exports; if your setup objects, use a default
-//      import: `import pricing from '...'; pricing.artworkPrice(...)`.)
+// An ES module so BOTH consumers work:
+//   - Astro / Vite (ESM):        import { artworkPrice } from '../lib/artwork-pricing.mjs'
+//     (Vite's dev server serves files as ES modules, so CommonJS here broke
+//      `npm run dev` with "module is not defined".)
+//   - Netlify functions (CJS):   const { artworkPrice } = require('../../src/lib/artwork-pricing.mjs')
+//     netlify.toml bundles those functions with esbuild, which inlines this
+//     file, so the deployed function never needs the runtime's require(esm).
 //
 // Money is in GBP **pence** (integers) to match Stripe and avoid float drift.
 //
@@ -84,7 +86,7 @@ const ARTWORK_FROM_PRICE = Math.min(
   ...Object.values(ARTWORK_PRICES).flatMap((row) => Object.values(row))
 );
 
-module.exports = {
+export {
   ARTWORK_FORMATS,
   ARTWORK_SIZES,
   ARTWORK_PRICES,

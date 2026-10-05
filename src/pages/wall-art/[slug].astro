@@ -4,7 +4,7 @@ import { canonicalUrl } from '../../lib/url';
 // src/pages/wall-art/[slug].astro  (The Biker Babies)
 import Layout from '../../layouts/Layout.astro';
 import { getAllWallArt } from '../../lib/wallart';
-import { ARTWORK_FORMATS, ARTWORK_SIZES, ARTWORK_PRICES } from '../../lib/artwork-pricing.cjs';
+import { ARTWORK_FORMATS, ARTWORK_SIZES, ARTWORK_PRICES } from '../../lib/artwork-pricing.mjs';
 
 export async function getStaticPaths() {
   const pieces = await getAllWallArt();

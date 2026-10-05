@@ -57,7 +57,7 @@ function isBikerBabiesSession(session) {
 
 // Shared wall-art helper (same module the checkout uses; single source of truth).
 // Path assumes netlify/functions/ -> src/lib/. Adjust if your lib lives elsewhere.
-const { artworkVariantLabel } = require('../../src/lib/artwork-pricing.cjs');
+const { artworkVariantLabel } = require('../../src/lib/artwork-pricing.mjs');
 
 /* The Biker Babies palette for the customer email */
 const C = {
