@@ -35,6 +35,7 @@ export default defineConfig({
             S.documentTypeListItem('page').title('Pages'),
             S.documentTypeListItem('legalPage').title('Legal Pages'),
             S.divider(),
+            S.documentTypeListItem('order').title('Orders'),
             S.documentTypeListItem('contactSubmission').title('Contact Submissions'),
           ]),
     }),
