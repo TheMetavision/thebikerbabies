@@ -332,7 +332,9 @@ exports.handler = async (event) => {
       shipping_options: buildShippingOptions(cartTotalPence),
       success_url: `${SITE_URL}/order-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/merch`,
-      metadata: { source: 'bikerbabies-web' },
+      // brand matches the other estate sites; source is the legacy stamp.
+      // stripe-webhook.cjs accepts either (isBikerBabiesSession).
+      metadata: { brand: 'bikerbabies', source: 'bikerbabies-web' },
     });
 
     return { statusCode: 200, headers, body: JSON.stringify({ url: session.url }) };

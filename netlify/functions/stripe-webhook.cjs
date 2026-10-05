@@ -5,7 +5,7 @@
  *   1. Verify the Stripe signature (STRIPE_WEBHOOK_SECRET).
  *   2. Email the customer a branded order confirmation (RESEND_API_KEY).
  *   3. Create the Printful order (PRINTFUL_API_KEY), idempotent via external_id.
- *   4. Write an `order` document to Sanity (SANITY_TOKEN) with status of
+ *   4. Write an `order` document to Sanity (SANITY_API_TOKEN) with status of
  *      fulfilled / fulfilment-failed / paid.
  *
  * Steps 2–4 are each non-fatal: a failure in one never blocks the others or
@@ -17,7 +17,8 @@
  *   ORDER_EMAIL_FROM      — optional; default "The Biker Babies <orders@thebikerbabies.com>"
  *   LOGO_URL, EMAIL_HEADER_BG — optional branding for the email header
  *   NOTIFICATION_FROM, ORDER_NOTIFICATION_TO / NOTIFICATION_TO — merchant alert
- *   SANITY_TOKEN          — Sanity *write* (Editor) token for the order log
+ *   SANITY_API_TOKEN      — Sanity *write* (Editor) token for the order log
+ *                           (legacy name SANITY_TOKEN still read as a fallback)
  *   SANITY_PROJECT_ID     — optional; default v518t53u
  *   SANITY_DATASET        — optional; default production
  *
@@ -36,6 +37,23 @@ const MERCHANT_FROM = process.env.NOTIFICATION_FROM || 'The Biker Babies <orders
 const SANITY_PROJECT_ID = process.env.SANITY_PROJECT_ID || 'v518t53u';
 const SANITY_DATASET = process.env.SANITY_DATASET || 'production';
 const SANITY_API_VER = '2024-01-01';
+
+/* Sanity write token, read per call so env changes apply without a cold start.
+   SANITY_API_TOKEN is the estate name; SANITY_TOKEN is the legacy fallback. */
+function sanityToken() {
+  return process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN || '';
+}
+
+/* Brand guard. All four IP-brand sites share ONE Stripe account, so Stripe
+   delivers every checkout event to every registered webhook endpoint. Only
+   sessions THIS site's create-checkout made are ours; anything else is another
+   brand's order. create-checkout stamps metadata.brand = 'bikerbabies';
+   sessions created before that carry only the legacy metadata.source =
+   'bikerbabies-web', which still counts. */
+function isBikerBabiesSession(session) {
+  const metadata = (session && session.metadata) || {};
+  return metadata.brand === 'bikerbabies' || metadata.source === 'bikerbabies-web';
+}
 
 // Shared wall-art helper (same module the checkout uses; single source of truth).
 // Path assumes netlify/functions/ -> src/lib/. Adjust if your lib lives elsewhere.
@@ -302,7 +320,7 @@ async function orderExists(id) {
     const q = encodeURIComponent('count(*[_id == $id])');
     const res = await fetch(
       `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}?query=${q}&$id=${encodeURIComponent(JSON.stringify(id))}`,
-      { headers: { Authorization: 'Bearer ' + process.env.SANITY_TOKEN } }
+      { headers: { Authorization: 'Bearer ' + sanityToken() } }
     );
     return res.ok && (await res.json()).result > 0;
   } catch {
@@ -313,8 +331,8 @@ async function orderExists(id) {
 /* Write/overwrite the order doc in Sanity. Deterministic _id keyed on the
    session id makes webhook retries idempotent (createOrReplace). Non-fatal. */
 async function saveOrder(session, lineItems, status, printfulOrderId) {
-  if (!process.env.SANITY_TOKEN) {
-    console.warn(`[ORDER-SKIP] session ${session.id}: SANITY_TOKEN not set.`);
+  if (!sanityToken()) {
+    console.warn(`[ORDER-SKIP] session ${session.id}: neither SANITY_API_TOKEN nor SANITY_TOKEN is set.`);
     return;
   }
   const ship = getShip(session);
@@ -375,7 +393,7 @@ async function saveOrder(session, lineItems, status, printfulOrderId) {
       `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VER}/data/mutate/${SANITY_DATASET}`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + process.env.SANITY_TOKEN },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sanityToken() },
         body: JSON.stringify({ mutations: [{ createOrReplace: doc }] }),
       }
     );
@@ -418,17 +436,14 @@ exports.handler = async (event) => {
 
   const session = stripeEvent.data.object;
 
-  /* ── Brand guard ──────────────────────────────────────────────────────────
-     All four IP-brand sites share ONE Stripe account, so Stripe delivers every
-     checkout event to every registered webhook endpoint. Only process sessions
-     that THIS site's create-checkout created (it stamps metadata.source =
-     'bikerbabies-web'). Anything else is another brand's order — acknowledge
+  /* Brand guard (isBikerBabiesSession). Another brand's order: acknowledge
      with a 200 and do nothing, or we send wrong-brand emails and file doomed
      Printful orders against the wrong store. */
-  const source = (session.metadata && session.metadata.source) || '';
-  if (source !== 'bikerbabies-web') {
-    console.log(`[BRAND-SKIP] session ${session.id}: metadata.source="${source || '(none)'}" — not a Biker Babies order; ignoring.`);
-    return { statusCode: 200, body: JSON.stringify({ received: true, ignored: 'foreign-brand', source: source || null }) };
+  if (!isBikerBabiesSession(session)) {
+    const brand = (session.metadata && session.metadata.brand) || '';
+    const source = (session.metadata && session.metadata.source) || '';
+    console.log(`[BRAND-SKIP] session ${session.id}: metadata.brand="${brand || '(none)'}" source="${source || '(none)'}" — not a Biker Babies order; ignoring.`);
+    return { statusCode: 200, body: JSON.stringify({ received: true, ignored: 'foreign-brand', brand: brand || null, source: source || null }) };
   }
 
   console.log(`[ORDER] checkout.session.completed — session ${session.id}`);
@@ -541,3 +556,7 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: JSON.stringify({ received: true, printful: 'error' }) };
   }
 };
+
+// For tests.
+exports.isBikerBabiesSession = isBikerBabiesSession;
+exports.sanityToken = sanityToken;
