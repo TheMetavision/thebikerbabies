@@ -34,12 +34,12 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     <div class="contact-inner">
       <div class="contact-form-wrap">
         <h2 class="form-heading">Send Us a Message</h2>
-        <p class="form-intro">We aim to respond within 48 hours.</p>
+        <p class="form-intro">We aim to respond within 48 hours. Fields marked <span class="form-required" aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required.</p>
         <form class="contact-form" id="contact-form" novalidate>
           <input type="checkbox" name="botcheck" class="contact-form__honeypot" style="display:none" />
           <div class="form-row">
             <div class="form-group">
-              <label for="name" class="form-label">Name</label>
+              <label for="name" class="form-label">Name <span class="form-required" aria-hidden="true">*</span></label>
               <input
                 type="text"
                 id="name"
@@ -47,10 +47,12 @@ import NewsletterSection from "../components/NewsletterSection.astro";
                 class="form-input"
                 placeholder="Your full name"
                 required
+                aria-describedby="name-error"
               />
+              <p class="field-error" id="name-error" hidden>Tell us your name.</p>
             </div>
             <div class="form-group">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">Email <span class="form-required" aria-hidden="true">*</span></label>
               <input
                 type="email"
                 id="email"
@@ -58,12 +60,14 @@ import NewsletterSection from "../components/NewsletterSection.astro";
                 class="form-input"
                 placeholder="your@email.com"
                 required
+                aria-describedby="email-error"
               />
+              <p class="field-error" id="email-error" hidden>That email address doesn&rsquo;t look right.</p>
             </div>
           </div>
           <div class="form-group">
-            <label for="subject" class="form-label">Subject</label>
-            <select id="subject" name="subject" class="form-input form-select" required>
+            <label for="subject" class="form-label">Subject <span class="form-required" aria-hidden="true">*</span></label>
+            <select id="subject" name="subject" class="form-input form-select" required aria-describedby="subject-error">
               <option value="" disabled selected>Select a topic</option>
               <option value="general">General Enquiry</option>
               <option value="merch">Merchandise</option>
@@ -72,16 +76,19 @@ import NewsletterSection from "../components/NewsletterSection.astro";
               <option value="partnership">Partnership / Collaboration</option>
               <option value="other">Other</option>
             </select>
+            <p class="field-error" id="subject-error" hidden>Pick a topic.</p>
           </div>
           <div class="form-group">
-            <label for="message" class="form-label">Message</label>
+            <label for="message" class="form-label">Message <span class="form-required" aria-hidden="true">*</span></label>
             <textarea
               id="message"
               name="message"
               class="form-input form-textarea"
               placeholder="Tell us what's on your mind..."
               rows="6"
-              required></textarea>
+              required
+              aria-describedby="message-error"></textarea>
+            <p class="field-error" id="message-error" hidden>Write us a message.</p>
           </div>
           <button type="submit" class="form-submit" id="form-submit">
             <span class="submit-text">Send Message &rarr;</span>
@@ -106,6 +113,7 @@ import NewsletterSection from "../components/NewsletterSection.astro";
               <div class="dispatch__actions">
                 <a class="dispatch__btn dispatch__btn--ghost" href="/meet-the-biker-babies">Meet the Gang</a>
                 <a class="dispatch__btn dispatch__btn--solid" href="https://www.youtube.com/@TheBikerBabies" target="_blank" rel="noopener">Watch the Action</a>
+                <button type="button" class="dispatch__btn dispatch__btn--ghost" id="form-send-another">Send Another</button>
               </div>
             </div>
           </div>
@@ -121,6 +129,7 @@ import NewsletterSection from "../components/NewsletterSection.astro";
                 <div class="dispatch__label dispatch__label--error">Signal lost</div>
                 <h3 class="dispatch__headline">Couldn't send, rider.</h3>
                 <p class="dispatch__sub">Try again, or email <a href="mailto:pitcrew@thebikerbabies.com" style="color:inherit;text-decoration:underline;">pitcrew@thebikerbabies.com</a> directly.</p>
+                <p class="dispatch__sub" id="form-error-detail" hidden></p>
               </div>
             </div>
             <div class="dispatch__footer">
@@ -293,6 +302,35 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+  }
+
+  .form-required {
+    color: #ff6b00;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .form-input.form-input--invalid,
+  .form-input.form-input--invalid:focus {
+    border-color: #ff4d5e;
+    box-shadow: 0 0 0 3px rgba(255, 77, 94, 0.2);
+  }
+
+  .field-error {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    font-size: 0.8rem;
+    color: #ff8a95;
   }
 
   .form-row {
@@ -608,6 +646,8 @@ import NewsletterSection from "../components/NewsletterSection.astro";
   const sendText = form?.querySelector(".submit-text") as HTMLElement | null;
   const sending = form?.querySelector(".submit-sending") as HTMLElement | null;
   const retryBtn = document.getElementById("form-retry");
+  const sendAnotherBtn = document.getElementById("form-send-another");
+  const errorDetail = document.getElementById("form-error-detail");
 
   function setSending(on: boolean) {
     if (submitBtn) submitBtn.disabled = on;
@@ -615,14 +655,83 @@ import NewsletterSection from "../components/NewsletterSection.astro";
     if (sending) sending.style.display = on ? "inline" : "none";
   }
 
-  function resetState() {
-    if (form) form.style.display = "";
+  // One result at a time: both cards are hidden first and only this
+  // attempt's outcome is shown, with the form hidden behind it. With no result
+  // the form is shown. Before, neither branch hid the other card.
+  function showResult(kind: "success" | "error" | null, detail = "") {
     if (dispatchConfirm) dispatchConfirm.style.display = "none";
     if (dispatchError) dispatchError.style.display = "none";
+    if (errorDetail) {
+      errorDetail.textContent = detail;
+      errorDetail.hidden = !detail;
+    }
+    if (kind === "success" && dispatchConfirm) dispatchConfirm.style.display = "block";
+    if (kind === "error" && dispatchError) dispatchError.style.display = "block";
+    if (form) form.style.display = kind ? "none" : "";
+  }
+
+  function resetState() {
+    showResult(null);
     setSending(false);
   }
 
+  // Required fields, checked here before anything is sent, so an empty
+  // submit marks what is missing and never swaps the form for the error card.
+  // The subject has to be picked: there is no silent "General Enquiry".
+  // The function still validates.
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const REQUIRED: { id: string; ok: (v: string) => boolean }[] = [
+    { id: "name", ok: (v) => v.length > 0 },
+    { id: "email", ok: (v) => EMAIL_RE.test(v) },
+    { id: "subject", ok: (v) => v.length > 0 },
+    { id: "message", ok: (v) => v.length > 0 },
+  ];
+
+  function markField(id: string, bad: boolean) {
+    const field = document.getElementById(id);
+    const msg = document.getElementById(`${id}-error`);
+    if (!field) return;
+    field.classList.toggle("form-input--invalid", bad);
+    if (bad) field.setAttribute("aria-invalid", "true");
+    else field.removeAttribute("aria-invalid");
+    if (msg) msg.hidden = !bad;
+  }
+
+  function validateFields(): boolean {
+    let firstBad: HTMLElement | null = null;
+    for (const { id, ok } of REQUIRED) {
+      const field = document.getElementById(id) as HTMLInputElement | null;
+      if (!field) continue;
+      const bad = !ok(field.value.trim());
+      markField(id, bad);
+      if (bad && !firstBad) firstBad = field;
+    }
+    firstBad?.focus();
+    return !firstBad;
+  }
+
+  // Clear a field's mark as soon as it is fixed (input for text, change for the select).
+  for (const { id, ok } of REQUIRED) {
+    const field = document.getElementById(id) as HTMLInputElement | null;
+    const recheck = () => {
+      if (field?.getAttribute("aria-invalid") && ok(field.value.trim())) markField(id, false);
+    };
+    field?.addEventListener("input", recheck);
+    field?.addEventListener("change", recheck);
+  }
+
+  let inFlight = false;
+  let sent = false;
+
+  // Try Again keeps what was typed; Send Another starts a clean form.
   retryBtn?.addEventListener("click", resetState);
+  sendAnotherBtn?.addEventListener("click", () => {
+    sent = false;
+    form?.reset();
+    for (const { id } of REQUIRED) markField(id, false);
+    resetState();
+    document.getElementById("name")?.focus();
+  });
 
   // Maps the subject dropdown value to a human-readable label for the email subject line.
   // Mirrors the option text in the form so the notification email reads naturally.
@@ -637,12 +746,16 @@ import NewsletterSection from "../components/NewsletterSection.astro";
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!form) return;
+    // One submission at a time, and none after a success until Send Another.
+    if (!form || inFlight || sent) return;
+    showResult(null);
+    if (!validateFields()) return;
+    inFlight = true;
     setSending(true);
 
     const fd = new FormData(form);
     const topicValue = String(fd.get("subject") || "").trim();
-    const topicLabel = subjectLabels[topicValue] || topicValue || "General Enquiry";
+    const topicLabel = subjectLabels[topicValue] || topicValue;
 
     const payload = {
       name: String(fd.get("name") || "").trim(),
@@ -662,15 +775,16 @@ import NewsletterSection from "../components/NewsletterSection.astro";
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data?.success) {
-        form.style.display = "none";
-        if (dispatchConfirm) dispatchConfirm.style.display = "block";
+        sent = true;
+        showResult("success");
       } else {
-        throw new Error(data?.error || "Submission failed");
+        // The function's own message, as text, under the generic copy.
+        showResult("error", typeof data?.error === "string" ? data.error : "");
       }
     } catch {
-      form.style.display = "none";
-      if (dispatchError) dispatchError.style.display = "block";
+      showResult("error");
     } finally {
+      inFlight = false;
       setSending(false);
     }
   });
