@@ -1,5 +1,8 @@
 import { atom, computed } from 'nanostores';
 import { persistentAtom } from '@nanostores/persistent';
+import { addLine, setLineQty, sanitizeStoredCart, MAX_QTY_PER_LINE } from './cart-quantity';
+
+export { MAX_QTY_PER_LINE };
 
 export interface CartItem {
   productId: string;
@@ -17,11 +20,13 @@ export interface CartItem {
 
 /* Persistent cart — survives page navigations and browser restarts.
    Astro full-page-loads between routes, so a plain atom() empties the cart
-   on every navigation; persistentAtom keeps it in localStorage. */
+   on every navigation; persistentAtom keeps it in localStorage.
+   Key and stored shape unchanged by quantity controls; decoding only repairs
+   or drops entries that could never check out (see sanitizeStoredCart). */
 export const cartItems = persistentAtom<CartItem[]>('bb-cart-v1', [], {
   encode: JSON.stringify,
   decode: (v) => {
-    try { return JSON.parse(v) ?? []; } catch { return []; }
+    try { return sanitizeStoredCart(JSON.parse(v)) as CartItem[]; } catch { return []; }
   },
 });
 
@@ -52,26 +57,12 @@ export const amountToFreeShipping = computed(cartTotal, (total) =>
    already encodes format + size, and colour is ""), so the same (productId,
    size, colour) dedup below keeps each format/size as its own line. Garment
    behaviour is unchanged. */
-export function addToCart(item: Omit<CartItem, 'quantity'>) {
-  const current = cartItems.get();
-  const existing = current.find(
-    (i) =>
-      i.productId === item.productId &&
-      i.size === item.size &&
-      i.colour === item.colour
-  );
-
-  if (existing) {
-    cartItems.set(
-      current.map((i) =>
-        i === existing ? { ...i, quantity: i.quantity + 1 } : i
-      )
-    );
-  } else {
-    cartItems.set([...current, { ...item, quantity: 1 }]);
-  }
-
+export function addToCart(item: Omit<CartItem, 'quantity'>, quantity: unknown = 1): number {
+  // Same productId + size + colour merges into one line, capped at MAX_QTY_PER_LINE.
+  const { items, added } = addLine(cartItems.get(), item, quantity);
+  if (added > 0) cartItems.set(items);
   cartOpen.set(true);
+  return added;
 }
 
 export function removeFromCart(productId: string, size: string, colour: string) {
@@ -83,19 +74,12 @@ export function removeFromCart(productId: string, size: string, colour: string) 
   );
 }
 
+/* Drawer − / +. Below 1 removes the line (the drawer disables − at 1, so only
+   the ✕ does that); increases stop at MAX_QTY_PER_LINE. */
 export function updateQuantity(productId: string, size: string, colour: string, quantity: number) {
-  if (quantity <= 0) {
-    removeFromCart(productId, size, colour);
-    return;
-  }
-
-  cartItems.set(
-    cartItems.get().map((i) =>
-      i.productId === productId && i.size === size && i.colour === colour
-        ? { ...i, quantity }
-        : i
-    )
-  );
+  const before = cartItems.get();
+  const after = setLineQty(before, { productId, size, colour }, quantity);
+  if (after !== before) cartItems.set(after);
 }
 
 /* Empty the cart. Called from the drawer's Clear button and from
