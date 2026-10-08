@@ -32,6 +32,8 @@
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// This site's metadata.brand (create-checkout stamps it; the brand guard checks it).
+const BRAND_KEY = 'bikerbabies';
 const PRINTFUL_ORDERS_URL = 'https://api.printful.com/orders';
 const RESEND_URL = 'https://api.resend.com/emails';
 const FROM = process.env.ORDER_EMAIL_FROM || 'The Biker Babies <orders@thebikerbabies.com>';
@@ -49,6 +51,38 @@ function sanityToken() {
   return process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN || '';
 }
 
+/* The promotion code on this session and the two team flags. Never throws.
+     repeatWelcomeCode — a welcome code (VROOM10) from an email that already
+       has an order in the log. Stripe judges "first-time" per Customer and
+       this checkout is a guest, so it can't refuse it; the team is told.
+     crossBrandCode — a code whose metadata.brand is another IP brand's. */
+async function promoFor(session) {
+  const promo = await readDiscount(stripe, session, BRAND_KEY);
+  if (promo.otherBrand.length) {
+    promo.crossBrandCode = crossBrandNote(promo.otherBrand, BRAND_KEY);
+    console.warn(`[PROMO] session ${session.id}: OTHER BRAND'S CODE — ${promo.crossBrandCode}`);
+  }
+  const email = String((session.customer_details && session.customer_details.email) || '').trim().toLowerCase();
+  if (promo.welcomeCodes.length && email && sanityToken()) {
+    try {
+      const q = encodeURIComponent('*[_type == "order" && lower(customerEmail) == $email && stripeSessionId != $sid] | order(placedAt asc)[0]{ _id, orderRef, placedAt }');
+      const res = await fetch(
+        `https://${SANITY_PROJECT_ID}.api.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}?query=${q}` +
+        `&$email=${encodeURIComponent(JSON.stringify(email))}&$sid=${encodeURIComponent(JSON.stringify(session.id))}`,
+        { headers: { Authorization: 'Bearer ' + sanityToken() } }
+      );
+      const earlier = res.ok ? (await res.json()).result : null;
+      if (earlier && earlier._id) {
+        promo.repeatWelcomeCode = repeatWelcomeNote(promo.welcomeCodes, earlier);
+        console.warn(`[PROMO] session ${session.id}: REPEAT WELCOME CODE ${promo.welcomeCodes.join(', ')} — earlier order #${earlier.orderRef || earlier._id}`);
+      }
+    } catch (err) {
+      console.error(`[PROMO] session ${session.id}: repeat-welcome-code check failed:`, err && err.message ? err.message : err);
+    }
+  }
+  return promo;
+}
+
 /* Brand guard. All four IP-brand sites share ONE Stripe account, so Stripe
    delivers every checkout event to every registered webhook endpoint. Only
    sessions THIS site's create-checkout made are ours; anything else is another
@@ -63,6 +97,14 @@ function isBikerBabiesSession(session) {
 // Shared wall-art helper (same module the checkout uses; single source of truth).
 // Path assumes netlify/functions/ -> src/lib/. Adjust if your lib lives elsewhere.
 const { artworkVariantLabel } = require('../../src/lib/artwork-pricing.mjs');
+const {
+  readDiscount, discountLabel, repeatWelcomeNote, crossBrandNote,
+} = require('../../src/lib/promo-codes.cjs');
+
+/* A line at the price it was sold at, before any promotion code. Stripe's
+   amount_total is AFTER the discount, so listing that and then a separate
+   "Discount" row would take it off twice. */
+const lineSubtotal = (li) => (li.amount_subtotal != null ? li.amount_subtotal : li.amount_total);
 
 /* The Biker Babies palette for the customer email */
 const C = {
@@ -122,7 +164,7 @@ function getShip(session) {
     || null;
 }
 
-function buildOrderEmailHtml(session, lineItems) {
+function buildOrderEmailHtml(session, lineItems, promo = {}) {
   const ref = String(session.id).slice(-8).toUpperCase();
   const ship = getShip(session);
   const a = ship && ship.address ? ship.address : null;
@@ -135,7 +177,7 @@ function buildOrderEmailHtml(session, lineItems) {
     <tr>
       <td style="padding:12px 0;border-bottom:1px solid ${C.border};color:${C.text};font-size:14px;">${esc(li.description)}</td>
       <td style="padding:12px 0;border-bottom:1px solid ${C.border};color:${C.muted};font-size:14px;text-align:center;">${li.quantity || 1}</td>
-      <td style="padding:12px 0;border-bottom:1px solid ${C.border};color:${C.teal};font-size:14px;text-align:right;font-weight:700;">${gbp(li.amount_total)}</td>
+      <td style="padding:12px 0;border-bottom:1px solid ${C.border};color:${C.teal};font-size:14px;text-align:right;font-weight:700;">${gbp(lineSubtotal(li))}</td>
     </tr>`).join('');
 
   const shipCost = session.shipping_cost ? gbp(session.shipping_cost.amount_total) : null;
@@ -169,6 +211,7 @@ function buildOrderEmailHtml(session, lineItems) {
         </td></tr>
         <tr><td style="padding:16px 28px 0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            ${promo.amountPence ? `<tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${C.muted};padding:4px 0;">${esc(discountLabel(promo.codes))}</td><td align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${C.text};padding:4px 0;">&minus;${gbp(promo.amountPence)}</td></tr>` : ''}
             ${shipCost ? `<tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${C.muted};padding:4px 0;">Shipping</td><td align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${C.text};padding:4px 0;">${shipCost}</td></tr>` : ''}
             <tr>
               <td style="font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:800;color:${C.text};text-transform:uppercase;letter-spacing:1px;padding:10px 0 0;">Total</td>
@@ -191,7 +234,7 @@ function buildOrderEmailHtml(session, lineItems) {
 </body></html>`;
 }
 
-async function sendCustomerEmail(session, lineItems) {
+async function sendCustomerEmail(session, lineItems, promo) {
   if (!process.env.RESEND_API_KEY) {
     console.warn(`[EMAIL-SKIP] session ${session.id}: RESEND_API_KEY not set.`);
     return;
@@ -209,7 +252,7 @@ async function sendCustomerEmail(session, lineItems) {
         from: FROM,
         to,
         subject: 'Your Biker Babies order is confirmed',
-        html: buildOrderEmailHtml(session, lineItems),
+        html: buildOrderEmailHtml(session, lineItems, promo),
       }),
     });
     if (!res.ok) {
@@ -225,7 +268,7 @@ async function sendCustomerEmail(session, lineItems) {
 
 /* Internal heads-up to the shop owner. Fulfilment-aware: shouts loudly when an
    order did NOT reach Printful so it can be placed manually. Never fatal. */
-async function sendMerchantEmail(session, lineItems, status, printfulOrderId) {
+async function sendMerchantEmail(session, lineItems, status, printfulOrderId, promo = {}) {
   if (!process.env.RESEND_API_KEY) return; // already warned via the customer email
   if (!MERCHANT_TO) {
     console.warn(`[MERCHANT-SKIP] session ${session.id}: no ORDER_NOTIFICATION_TO / NOTIFICATION_TO set.`);
@@ -243,7 +286,7 @@ async function sendMerchantEmail(session, lineItems, status, printfulOrderId) {
     <tr>
       <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;font-size:14px;">${esc(li.description)}</td>
       <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;font-size:14px;text-align:center;">${li.quantity || 1}</td>
-      <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;font-size:14px;text-align:right;">${gbp(li.amount_total)}</td>
+      <td style="padding:8px 0;border-bottom:1px solid #e5e5e5;font-size:14px;text-align:right;">${gbp(lineSubtotal(li))}</td>
     </tr>`).join('');
   const failed = status === 'fulfilment-failed';
   const inhouseLis = (lineItems.data || []).filter(isInhouse);
@@ -269,7 +312,7 @@ async function sendMerchantEmail(session, lineItems, status, printfulOrderId) {
             </table>
             <p style="margin:8px 0 0;font-size:12px;color:#555;">Print, frame and post to the address below. These are NOT in Printful.</p>
           </div>` : '';
-  const subject = `${failed ? '\u26A0 ACTION NEEDED \u2014 ' : (hasInhouse ? '\uD83D\uDCE6 MAKE \u2014 ' : '')}New Biker Babies order #${ref} \u2014 ${gbp(session.amount_total)}`;
+  const subject = `${promo.crossBrandCode ? '\u26A0 OTHER BRAND\u2019S CODE \u2014 ' : ''}${promo.repeatWelcomeCode ? '\u26A0 REPEAT WELCOME CODE \u2014 ' : ''}${failed ? '\u26A0 ACTION NEEDED \u2014 ' : (hasInhouse ? '\uD83D\uDCE6 MAKE \u2014 ' : '')}New Biker Babies order #${ref} \u2014 ${gbp(session.amount_total)}`;
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
       <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#fff;border-radius:8px;padding:28px;">
@@ -277,6 +320,8 @@ async function sendMerchantEmail(session, lineItems, status, printfulOrderId) {
           <h1 style="margin:0 0 4px;font-size:20px;">New order #${ref}</h1>
           <p style="margin:0 0 16px;color:#666;font-size:13px;">The Biker Babies &middot; ${esc(new Date().toLocaleString('en-GB'))}</p>
           ${banner}
+          ${promo.crossBrandCode ? `<p style="background:#fff4e5;color:#8a4b00;padding:12px 16px;border-radius:6px;font-size:14px;margin:0 0 16px;"><strong>&#9888; OTHER BRAND&rsquo;S CODE</strong><br>${esc(promo.crossBrandCode)}</p>` : ''}
+          ${promo.repeatWelcomeCode ? `<p style="background:#fff4e5;color:#8a4b00;padding:12px 16px;border-radius:6px;font-size:14px;margin:0 0 16px;"><strong>&#9888; REPEAT WELCOME CODE</strong><br>${esc(promo.repeatWelcomeCode)}</p>` : ''}
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
             <tr>
               <th align="left" style="font-size:11px;color:#888;text-transform:uppercase;padding-bottom:4px;">Item</th>
@@ -284,6 +329,7 @@ async function sendMerchantEmail(session, lineItems, status, printfulOrderId) {
               <th align="right" style="font-size:11px;color:#888;text-transform:uppercase;padding-bottom:4px;">Price</th>
             </tr>
             ${rows}
+            ${promo.amountPence ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">${esc(discountLabel(promo.codes))}</td><td></td><td style="padding:8px 0;font-size:14px;text-align:right;color:#666;">&minus;${gbp(promo.amountPence)}</td></tr>` : ''}
             ${session.shipping_cost ? `<tr><td style="padding:8px 0;font-size:14px;color:#666;">Shipping</td><td></td><td style="padding:8px 0;font-size:14px;text-align:right;color:#666;">${gbp(session.shipping_cost.amount_total)}</td></tr>` : ''}
             <tr><td style="padding:10px 0 0;font-size:15px;font-weight:700;">Total</td><td></td><td style="padding:10px 0 0;font-size:15px;font-weight:700;text-align:right;">${gbp(session.amount_total)}</td></tr>
           </table>
@@ -315,12 +361,12 @@ async function sendMerchantEmail(session, lineItems, status, printfulOrderId) {
 
 /* Persist the order, then alert the merchant. A Stripe retry of an order
    already in the log doesn't get the alert again. */
-async function finalize(session, lineItems, status, printfulOrderId, alreadyRecorded) {
-  await saveOrder(session, lineItems, status, printfulOrderId);
+async function finalize(session, lineItems, status, printfulOrderId, alreadyRecorded, promo) {
+  await saveOrder(session, lineItems, status, printfulOrderId, promo);
   if (alreadyRecorded) {
     console.log(`[MERCHANT-SKIP] session ${session.id}: order already in the Sanity log (Stripe retry) — alert not resent.`);
   } else {
-    await sendMerchantEmail(session, lineItems, status, printfulOrderId);
+    await sendMerchantEmail(session, lineItems, status, printfulOrderId, promo);
   }
 }
 
@@ -359,7 +405,7 @@ async function orderExists(id) {
    happened since — a "shipped" status, the owner's in-house progress — and
    never touches the fields printful-webhook owns (carrier, trackingNumber,
    trackingUrl, shippedAt, failureReason). Non-fatal. */
-async function saveOrder(session, lineItems, status, printfulOrderId) {
+async function saveOrder(session, lineItems, status, printfulOrderId, promo = {}) {
   if (!sanityToken()) {
     console.warn(`[ORDER-SKIP] session ${session.id}: neither SANITY_API_TOKEN nor SANITY_TOKEN is set.`);
     return;
@@ -378,7 +424,8 @@ async function saveOrder(session, lineItems, status, printfulOrderId) {
       colour: inhouse ? (meta(li, 'wallart_format') || '') : (meta(li, 'bikerbabies_colour') || ''),
       size: inhouse ? (meta(li, 'wallart_size') || '') : (meta(li, 'bikerbabies_size') || ''),
       quantity: li.quantity || 1,
-      price: (li.amount_total || 0) / 100,
+      // Sold price, before any promotion code (that is discountAmount below).
+      price: (lineSubtotal(li) || 0) / 100,
       fulfilment: inhouse ? 'inhouse' : 'printful',
     };
   });
@@ -403,6 +450,13 @@ async function saveOrder(session, lineItems, status, printfulOrderId) {
     currency: (session.currency || 'gbp').toUpperCase(),
     stripeSessionId: session.id,
   };
+  // Promotion code: what came off the goods, the code, and the two flags.
+  if (promo.amountPence) {
+    payment.discountAmount = promo.amountPence / 100;
+    if (promo.codes && promo.codes.length) payment.discountCode = promo.codes.join(', ');
+  }
+  if (promo.repeatWelcomeCode) payment.repeatWelcomeCode = promo.repeatWelcomeCode;
+  if (promo.crossBrandCode) payment.crossBrandCode = promo.crossBrandCode;
   if (a) {
     payment.shippingAddress = {
       name: (ship && ship.name) || '',
@@ -494,18 +548,19 @@ exports.handler = async (event) => {
      delivery saves it? A retry gets no customer confirmation or merchant
      alert again. orderAlreadyRecorded never rejects. */
   const alreadyRecorded = await orderAlreadyRecorded(session);
+  const promo = await promoFor(session);
 
   /* Customer confirmation email — independent of Printful, never fatal. */
   if (alreadyRecorded) {
     console.log(`[EMAIL-SKIP] session ${session.id}: order already in the Sanity log (Stripe retry) — confirmation not resent.`);
   } else {
-    await sendCustomerEmail(session, lineItems);
+    await sendCustomerEmail(session, lineItems, promo);
   }
 
   try {
     if (!process.env.PRINTFUL_API_KEY) {
       console.error(`[FULFILMENT-FAIL] session ${session.id}: PRINTFUL_API_KEY not set.`);
-      await finalize(session, lineItems, 'paid', null, alreadyRecorded);
+      await finalize(session, lineItems, 'paid', null, alreadyRecorded, promo);
       return { statusCode: 200, body: JSON.stringify({ received: true }) };
     }
 
@@ -535,18 +590,18 @@ exports.handler = async (event) => {
     if (printfulItems.length === 0) {
       if (inhouseLines.length > 0 && missing.length === 0) {
         console.log(`[INHOUSE] session ${session.id}: ${inhouseLines.length} in-house item(s), no POD — owner will make & dispatch.`);
-        await finalize(session, lineItems, 'inhouse', null, alreadyRecorded);
+        await finalize(session, lineItems, 'inhouse', null, alreadyRecorded, promo);
         return { statusCode: 200, body: JSON.stringify({ received: true, inhouse: inhouseLines.length }) };
       }
       console.error(`[FULFILMENT-FAIL] session ${session.id}: nothing to send to Printful and no in-house items — place it manually.`);
-      await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded);
+      await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded, promo);
       return { statusCode: 200, body: JSON.stringify({ received: true }) };
     }
 
     const ship = getShip(session);
     if (!ship || !ship.address) {
       console.error(`[FULFILMENT-FAIL] session ${session.id}: no shipping address on session — order NOT fulfilled. Place it manually.`);
-      await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded);
+      await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded, promo);
       return { statusCode: 200, body: JSON.stringify({ received: true }) };
     }
 
@@ -580,7 +635,7 @@ exports.handler = async (event) => {
       console.error(
         `[FULFILMENT-FAIL] session ${session.id}: Printful API ${res.status} — order NOT created. Response: ${bodyText}`
       );
-      await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded);
+      await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded, promo);
       return { statusCode: 200, body: JSON.stringify({ received: true, printful: 'failed' }) };
     }
 
@@ -588,11 +643,11 @@ exports.handler = async (event) => {
     try { printfulId = JSON.parse(bodyText).result?.id; } catch (_) { /* ignore */ }
     console.log(`[FULFILMENT-OK] session ${session.id}: Printful order created${printfulId ? ' #' + printfulId : ''} (${printfulItems.length} item(s)).`);
 
-    await finalize(session, lineItems, 'fulfilled', printfulId, alreadyRecorded);
+    await finalize(session, lineItems, 'fulfilled', printfulId, alreadyRecorded, promo);
     return { statusCode: 200, body: JSON.stringify({ received: true, printful: 'created' }) };
   } catch (err) {
     console.error(`[FULFILMENT-FAIL] session ${session.id}: unexpected error —`, err && err.message ? err.message : err);
-    await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded);
+    await finalize(session, lineItems, 'fulfilment-failed', null, alreadyRecorded, promo);
     return { statusCode: 200, body: JSON.stringify({ received: true, printful: 'error' }) };
   }
 };
