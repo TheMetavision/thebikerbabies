@@ -90,7 +90,9 @@ import NewsletterSection from "../components/NewsletterSection.astro";
               aria-describedby="message-error"></textarea>
             <p class="field-error" id="message-error" hidden>Write us a message.</p>
           </div>
-          <button type="submit" class="form-submit" id="form-submit">
+          {/* Disabled until the page script is listening: a press before then
+              was a native GET that put the message in the URL. */}
+          <button type="submit" class="form-submit" id="form-submit" disabled>
             <span class="submit-text">Send Message &rarr;</span>
             <span class="submit-sending" style="display:none;">Sending...</span>
           </button>
@@ -788,4 +790,7 @@ import NewsletterSection from "../components/NewsletterSection.astro";
       setSending(false);
     }
   });
+
+  // Listening now; the button was rendered disabled until this point.
+  setSending(false);
 </script>

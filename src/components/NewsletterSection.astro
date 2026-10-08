@@ -19,7 +19,10 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
           class="nl-input"
           required
         />
-        <button type="submit" class="nl-btn">
+        {/* Disabled until the script below has defined handleNlSubscribe: before
+            that the inline onsubmit throws and the browser reloads the page,
+            losing the typed email. */}
+        <button type="submit" class="nl-btn" disabled>
           <span class="nl-btn-text">Join the Crew</span>
           <span class="nl-arrow" aria-hidden="true">→</span>
         </button>
@@ -271,4 +274,7 @@ const { quote = "Where pint-sized power meets the open road!" } = Astro.props;
   }
 
   (window as any).handleNlSubscribe = handleNlSubscribe;
+
+  // The handler exists now; the buttons were rendered disabled until this point.
+  document.querySelectorAll<HTMLButtonElement>('.nl-form .nl-btn').forEach((b) => { b.disabled = false; });
 </script>
