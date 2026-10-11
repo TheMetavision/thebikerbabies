@@ -1,0 +1,95 @@
+---
+/**
+ * The card the newsletter's confirm pages share (/newsletter/confirm,
+ * /newsletter/confirmed, /newsletter/link-expired), in the order-success
+ * page's style. Body and buttons come in through the slot; their classes are
+ * styled with :global() below because scoped styles do not reach slotted
+ * content.
+ */
+import Layout from '../layouts/Layout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  label: string;
+  heading: string;
+}
+const { title, description, label, heading } = Astro.props;
+---
+
+<Layout title={title} description={description} noIndex={true}>
+  <main class="nl-notice">
+    <div class="nl-notice__card">
+      <span class="nl-notice__label">{label}</span>
+      <h1 class="nl-notice__title">{heading}</h1>
+      <slot />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .nl-notice {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem 4rem;
+    background: var(--color-bg);
+  }
+  .nl-notice__card {
+    max-width: 560px;
+    width: 100%;
+    text-align: center;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-orange);
+    border-radius: 12px;
+    padding: 48px 32px;
+  }
+  .nl-notice__label {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--color-orange);
+    margin-bottom: 10px;
+  }
+  .nl-notice__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 6vw, 56px);
+    color: var(--color-gold);
+    line-height: 1.05;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .nl-notice :global(.nl-notice__text) {
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin: 12px 0 28px;
+  }
+  .nl-notice :global(.nl-notice__small) {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin: 24px 0 0;
+  }
+  .nl-notice :global(.nl-notice__small a) { color: var(--color-orange); text-decoration: underline; }
+  .nl-notice :global(.nl-notice__actions) { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .nl-notice :global(.nl-notice__btn) {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 700; font-size: 14px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 13px 26px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--color-orange);
+    color: #0a0a14;
+  }
+  .nl-notice :global(.nl-notice__btn:hover) { filter: brightness(1.12); transform: translateY(-2px); }
+  .nl-notice :global(.nl-notice__btn:disabled) { opacity: 0.6; cursor: not-allowed; transform: none; filter: none; }
+  .nl-notice :global(.nl-notice__btn--ghost) { background: transparent; border: 2px solid var(--color-orange); color: var(--color-orange); }
+  .nl-notice :global(.nl-notice__btn--ghost:hover) { background: var(--color-orange); color: #0a0a14; }
+  .nl-notice :global([hidden]) { display: none !important; }
+</style>
