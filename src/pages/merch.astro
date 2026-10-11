@@ -5,6 +5,12 @@ import { getAllProducts } from "../lib/sanity";
 import { getAllWallArt } from "../lib/wallart";
 import { ARTWORK_FROM_PRICE, formatGBP } from "../lib/artwork-pricing.mjs";
 
+// Cloudflare Turnstile for the newsletter form below: public site key, baked in
+// at build time. Without it the form renders no widget and /api/subscribe
+// refuses its sign-ups.
+const TURNSTILE_SITE_KEY =
+  import.meta.env.TURNSTILE_SITE_KEY || process.env.TURNSTILE_SITE_KEY || '';
+
 const products = await getAllProducts();
 if (!products?.length) throw new Error('[merch] Sanity returned no active products'); // fail the build, not ship an empty shop
 const wallArt = await getAllWallArt();
@@ -182,8 +188,26 @@ const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt')
                 not a native GET with the email in the URL. */}
             <button type="submit" class="waitlist-btn" disabled>Keep Me Posted</button>
           </div>
+          {/* Honeypot, as in NewsletterSection: off-screen, unreachable, and a
+              name autofill does not recognise. */}
+          <div class="waitlist-extra" aria-hidden="true">
+            <label for="bb-waitlist-extra">Extra</label>
+            <input type="text" id="bb-waitlist-extra" name="bb_nl_extra" tabindex="-1" autocomplete="off" />
+          </div>
+          {TURNSTILE_SITE_KEY && (
+            <div
+              class="cf-turnstile waitlist-turnstile"
+              data-sitekey={TURNSTILE_SITE_KEY}
+              data-theme="dark"
+              data-action="newsletter"
+              data-response-field-name="cf-turnstile-response"
+            ></div>
+          )}
           <p class="form-status" id="form-status" aria-live="polite"></p>
         </form>
+        {TURNSTILE_SITE_KEY && (
+          <script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+        )}
       </div>
       <div class="waitlist-image-wrap">
         <img src={localImg('/images/Merch_Drop.png', 800)} srcset={localSrcset('/images/Merch_Drop.png', 600, 1536)} sizes="(min-width: 900px) 600px, 100vw" width="1536" height="1024" loading="lazy" alt="Mateo holding a freshly printed Biker Babies tee in the workshop" class="waitlist-img" />
@@ -216,18 +240,54 @@ const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt')
   const form = document.getElementById("waitlist-form") as HTMLFormElement | null;
   const statusEl = document.getElementById("form-status") as HTMLParagraphElement | null;
   const btn = form?.querySelector(".waitlist-btn") as HTMLButtonElement | null;
+  // Time on page, the Turnstile token and the honeypot go with the email; the
+  // function checks all three (netlify/functions/subscribe.mts).
+  const waitlistLoadedAt = Date.now();
+  const waitlistWidget = form?.querySelector(".cf-turnstile") as HTMLElement | null;
+  const waitlistToken = () =>
+    (form?.querySelector('input[name="cf-turnstile-response"]') as HTMLInputElement | null)?.value?.trim() || "";
+  const setStatus = (kind: "error" | "success" | "", text: string) => {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.className = kind ? `form-status form-status--${kind}` : "form-status";
+  };
   form?.addEventListener("submit", async (e) => {
     e.preventDefault(); if (!form || !statusEl || !btn) return;
     const email = (form.querySelector<HTMLInputElement>("#waitlist-email")?.value || "").trim();
-    if (!email) { statusEl.textContent = "Please enter your email address."; statusEl.className = "form-status form-status--error"; return; }
-    btn.disabled = true; btn.textContent = "Signing you up…"; statusEl.textContent = ""; statusEl.className = "form-status";
+    if (!email) { setStatus("error", "Please enter your email address."); return; }
+    if (waitlistWidget && !waitlistToken()) { setStatus("error", "Please complete the anti-spam check first."); return; }
+    btn.disabled = true; btn.textContent = "Signing you up…"; setStatus("", "");
+    let ok = false;
     try {
-      const res = await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, fields: { source: "bikerbabies-merch-newsletter" } }) });
-      if (res.ok) { statusEl.textContent = "You're on the list! Fresh drops, straight to your inbox."; statusEl.className = "form-status form-status--success"; form.reset(); }
-      else if (res.status === 422) { statusEl.textContent = "You're already on the list — we've got you!"; statusEl.className = "form-status form-status--info"; }
-      else { throw new Error("unexpected"); }
-    } catch { statusEl.textContent = "Something went wrong. Please try again."; statusEl.className = "form-status form-status--error"; }
-    finally { btn.disabled = false; btn.textContent = "Keep Me Posted"; }
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          turnstileToken: waitlistToken(),
+          bb_nl_extra: form.querySelector<HTMLInputElement>('input[name="bb_nl_extra"]')?.value || "",
+          bb_nl_ts_load: waitlistLoadedAt,
+          bb_nl_ts_submit: Date.now(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        // The same reply whoever the address belongs to (see subscribe.mts).
+        ok = true;
+        setStatus("success", "Nearly there! If you're new, check your inbox and click the link to confirm.");
+        form.reset();
+      } else {
+        // The function's own reason for a 4xx; the generic line otherwise.
+        const reason = res.status < 500 && typeof data?.error === "string" ? data.error.replace(/\.?$/, ".") : "";
+        setStatus("error", reason || "Something went wrong. Please try again.");
+      }
+    } catch { setStatus("error", "Couldn't reach us just now. Please try again."); }
+    finally {
+      btn.disabled = false; btn.textContent = "Keep Me Posted";
+      // A Turnstile token is single use: fresh widget for the next attempt.
+      const ts = (window as any).turnstile;
+      if (!ok && waitlistWidget && ts && typeof ts.reset === "function") { try { ts.reset(waitlistWidget); } catch { /* not rendered */ } }
+    }
   });
   // Listening now; the button was rendered disabled until this point.
   if (btn) btn.disabled = false;
@@ -302,6 +362,8 @@ const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt')
   .waitlist-input { flex: 1 1 220px; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.14); border-radius: 8px; padding: 1rem 1.25rem; font-size: 0.95rem; color: #fff; font-family: "Inter", sans-serif; outline: none; max-height: 54px; }
   .waitlist-input::placeholder { color: #555; }
   .waitlist-input:focus { border-color: rgba(255,107,0,0.55); box-shadow: 0 0 0 3px rgba(255,107,0,0.14); }
+  .waitlist-extra { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+  .waitlist-turnstile { margin-top: 0.75rem; min-height: 65px; }
   .waitlist-btn { flex-shrink: 0; background: var(--color-orange); color: #fff; border: none; border-radius: 8px; padding: 1rem 2rem; font-family: "Bebas Neue", sans-serif; font-size: 1.15rem; letter-spacing: 0.1em; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap; box-shadow: 0 4px 20px rgba(255,107,0,0.35); }
   .waitlist-btn:hover:not(:disabled) { background: var(--color-orange-dark); transform: translateY(-2px); }
   .waitlist-btn:disabled { opacity: 0.6; cursor: not-allowed; }

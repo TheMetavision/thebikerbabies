@@ -1,0 +1,20 @@
+---
+/** /newsletter/confirmed/  (The Biker Babies) -- where /api/newsletter-confirm sends a confirmed subscriber. */
+import NewsletterNotice from '../../components/NewsletterNotice.astro';
+---
+
+<NewsletterNotice
+  title="You're in — The Biker Babies"
+  description="Your Biker Babies newsletter subscription is confirmed."
+  label="Kickstands up"
+  heading="You're in the crew!"
+>
+  <p class="nl-notice__text">
+    Welcome aboard, rider. Your welcome email is on its way, so keep an eye on your inbox
+    (and your spam folder, just in case).
+  </p>
+  <div class="nl-notice__actions">
+    <a href="/merch" class="nl-notice__btn">Browse the merch</a>
+    <a href="/" class="nl-notice__btn nl-notice__btn--ghost">Home</a>
+  </div>
+</NewsletterNotice>
