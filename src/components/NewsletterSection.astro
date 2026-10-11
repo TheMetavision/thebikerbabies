@@ -17,16 +17,16 @@ const TURNSTILE_SITE_KEY =
       <p class="nl-quote">"{quote}"</p>
       <h3 class="nl-heading">Subscribe to Our Newsletter</h3>
       <p class="nl-sub">No spam. Just adventures, merch drops, and Biker Babies updates.</p>
-      <form class="nl-form" onsubmit="handleNlSubscribe(event)">
+      {/* No onsubmit attribute: the script below binds exactly one listener. */}
+      <form class="nl-form">
         <input
           type="email"
           placeholder="Enter your email address"
           class="nl-input"
           required
         />
-        {/* Disabled until the script below has defined handleNlSubscribe: before
-            that the inline onsubmit throws and the browser reloads the page,
-            losing the typed email. */}
+        {/* Disabled until the script below is listening, so an early press is
+            not a native GET that reloads the page and loses the typed email. */}
         <button type="submit" class="nl-btn" disabled>
           <span class="nl-btn-text">Join the Crew</span>
           <span class="nl-arrow" aria-hidden="true">→</span>
@@ -268,81 +268,112 @@ const TURNSTILE_SITE_KEY =
 </style>
 
 <script>
-  // Time on page: stamped now, compared with the submit time by the function.
+  /* One listener per form, bound once: before, the form carried an inline
+     onsubmit attribute calling a global handler, with nothing but the
+     button's disabled state between a submit and a second one, and nothing
+     stopping an error and the success panel from showing together. Now:
+
+       - exactly one submit listener per form (data-nl-bound guards against the
+         script ever running twice over the same form);
+       - submits are ignored while one is in flight, and after a success;
+       - one outcome on screen: the success panel or one error line, never both.
+
+     The widget, message and confirmation are found within the form's own
+     section, so the component does not depend on page-wide ids. */
   const nlLoadedAt = Date.now();
-  // The Turnstile widget sits just outside the form, so its token is read from
-  // the widget itself. A token is single use: reset after any failed attempt.
-  const nlWidget = document.getElementById("nl-turnstile");
-  const nlToken = () =>
-    (nlWidget?.querySelector('input[name="cf-turnstile-response"]') as HTMLInputElement | null)?.value?.trim() || "";
-  const resetTurnstile = () => {
-    const ts = (window as any).turnstile;
-    if (nlWidget && ts && typeof ts.reset === "function") {
-      try { ts.reset(nlWidget); } catch { /* not rendered yet */ }
-    }
-  };
 
-  function handleNlSubscribe(e: Event) {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const input = form.querySelector('input[type="email"]') as HTMLInputElement;
-    const btn = form.querySelector(".nl-btn") as HTMLButtonElement;
-    const btnText = form.querySelector(".nl-btn-text") as HTMLSpanElement;
-    const nlConfirm = document.getElementById("nl-confirm");
-    const nlMessage = document.getElementById("nl-message");
-    if (!input?.value) return;
+  function bindNewsletterForm(form: HTMLFormElement) {
+    if (form.dataset.nlBound) return;
+    form.dataset.nlBound = "1";
 
-    const showError = (text: string) => {
-      if (!nlMessage) return;
-      nlMessage.textContent = text;
-      nlMessage.style.display = "block";
-    };
-    if (nlMessage) nlMessage.style.display = "none";
-    if (nlWidget && !nlToken()) {
-      showError("Please complete the anti-spam check first.");
-      return;
-    }
+    const section = form.closest(".nl-section") || document;
+    const input = form.querySelector('input[type="email"]') as HTMLInputElement | null;
+    const btn = form.querySelector(".nl-btn") as HTMLButtonElement | null;
+    const btnText = form.querySelector(".nl-btn-text") as HTMLSpanElement | null;
+    const widget = section.querySelector(".nl-turnstile") as HTMLElement | null;
+    const message = section.querySelector(".nl-message") as HTMLElement | null;
+    const confirmPanel = section.querySelector(".nl-confirm") as HTMLElement | null;
+    const idleText = btnText?.textContent || "Join the Crew";
 
-    const originalText = btnText.textContent;
-    btnText.textContent = "Subscribing...";
-    btn.disabled = true;
-
-    fetch('/api/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: input.value,
-        turnstileToken: nlToken(),
-        bb_nl_extra: (form.querySelector('input[name="bb_nl_extra"]') as HTMLInputElement | null)?.value || "",
-        bb_nl_ts_load: nlLoadedAt,
-        bb_nl_ts_submit: Date.now(),
-      })
-    })
-    .then(async (res) => {
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) {
-        // The same reply whoever the address belongs to (see subscribe.mts).
-        form.style.display = "none";
-        if (nlWidget) nlWidget.style.display = "none";
-        if (nlConfirm) nlConfirm.style.display = "block";
-      } else {
-        // The function's own reason for a 4xx (a bad address, too many tries);
-        // for a server-side failure the generic line.
-        const reason = res.status < 500 && typeof data?.error === "string" ? data.error.replace(/\.?$/, ".") : "";
-        throw Object.assign(new Error(reason || "Something went wrong. Please try again."), { fromServer: true });
+    const token = () =>
+      (widget?.querySelector('input[name="cf-turnstile-response"]') as HTMLInputElement | null)?.value?.trim() || "";
+    // A Turnstile token is single use: reset after any failed attempt.
+    const resetTurnstile = () => {
+      const ts = (window as any).turnstile;
+      if (widget && ts && typeof ts.reset === "function") {
+        try { ts.reset(widget); } catch { /* not rendered yet */ }
       }
-    })
-    .catch((err) => {
-      btnText.textContent = originalText;
-      btn.disabled = false;
-      resetTurnstile();
-      // A network failure has the browser's own wording; show ours instead.
-      showError(err && (err as any).fromServer ? (err as Error).message : "Couldn't reach us just now. Please try again.");
+    };
+    const showError = (text: string) => {
+      if (confirmPanel) confirmPanel.style.display = "none";
+      if (message) { message.textContent = text; message.style.display = "block"; }
+    };
+    const showSuccess = () => {
+      if (message) { message.textContent = ""; message.style.display = "none"; }
+      form.style.display = "none";
+      if (widget) widget.style.display = "none";
+      if (confirmPanel) confirmPanel.style.display = "block";
+    };
+
+    let inFlight = false;
+    let done = false;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      // One at a time, and none after a success.
+      if (inFlight || done) return;
+      const email = input?.value?.trim() || "";
+      if (!email) return;
+      if (widget && !token()) {
+        showError("Please complete the anti-spam check first.");
+        return;
+      }
+
+      inFlight = true;
+      if (message) message.style.display = "none";
+      if (btn) btn.disabled = true;
+      if (btnText) btnText.textContent = "Subscribing...";
+
+      try {
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            turnstileToken: token(),
+            bb_nl_extra: (form.querySelector('input[name="bb_nl_extra"]') as HTMLInputElement | null)?.value || "",
+            bb_nl_ts_load: nlLoadedAt,
+            bb_nl_ts_submit: Date.now(),
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          // The same reply whoever the address belongs to (see subscribe.mts).
+          done = true;
+          showSuccess();
+        } else {
+          // The function's own reason for a 4xx (a bad address, too many tries);
+          // for a server-side failure the generic line.
+          const reason = res.status < 500 && typeof data?.error === "string" ? data.error.replace(/\.?$/, ".") : "";
+          showError(reason || "Something went wrong. Please try again.");
+          resetTurnstile();
+        }
+      } catch {
+        // A network failure has the browser's own wording; show ours instead.
+        showError("Couldn't reach us just now. Please try again.");
+        resetTurnstile();
+      } finally {
+        inFlight = false;
+        if (!done) {
+          if (btn) btn.disabled = false;
+          if (btnText) btnText.textContent = idleText;
+        }
+      }
     });
+
+    // Listening now; the button was rendered disabled until this point.
+    if (btn) btn.disabled = false;
   }
 
-  (window as any).handleNlSubscribe = handleNlSubscribe;
-
-  // The handler exists now; the buttons were rendered disabled until this point.
-  document.querySelectorAll<HTMLButtonElement>('.nl-form .nl-btn').forEach((b) => { b.disabled = false; });
+  document.querySelectorAll<HTMLFormElement>(".nl-form").forEach(bindNewsletterForm);
 </script>

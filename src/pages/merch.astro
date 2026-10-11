@@ -251,11 +251,19 @@ const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt')
     statusEl.textContent = text;
     statusEl.className = kind ? `form-status form-status--${kind}` : "form-status";
   };
-  form?.addEventListener("submit", async (e) => {
+  // One listener, bound once, and one request at a time: a second submit while
+  // one is in flight is ignored, so a single Turnstile token is never posted
+  // twice (the second would fail and show an error over the success line).
+  let waitlistInFlight = false;
+  if (form && !form.dataset.nlBound) {
+  form.dataset.nlBound = "1";
+  form.addEventListener("submit", async (e) => {
     e.preventDefault(); if (!form || !statusEl || !btn) return;
+    if (waitlistInFlight) return;
     const email = (form.querySelector<HTMLInputElement>("#waitlist-email")?.value || "").trim();
     if (!email) { setStatus("error", "Please enter your email address."); return; }
     if (waitlistWidget && !waitlistToken()) { setStatus("error", "Please complete the anti-spam check first."); return; }
+    waitlistInFlight = true;
     btn.disabled = true; btn.textContent = "Signing you up…"; setStatus("", "");
     let ok = false;
     try {
@@ -283,12 +291,14 @@ const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt')
       }
     } catch { setStatus("error", "Couldn't reach us just now. Please try again."); }
     finally {
+      waitlistInFlight = false;
       btn.disabled = false; btn.textContent = "Keep Me Posted";
       // A Turnstile token is single use: fresh widget for the next attempt.
       const ts = (window as any).turnstile;
       if (!ok && waitlistWidget && ts && typeof ts.reset === "function") { try { ts.reset(waitlistWidget); } catch { /* not rendered */ } }
     }
   });
+  }
   // Listening now; the button was rendered disabled until this point.
   if (btn) btn.disabled = false;
 </script>
