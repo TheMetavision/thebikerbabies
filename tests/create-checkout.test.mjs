@@ -131,12 +131,12 @@ test('inactive product is rejected; active items still resolve', () => {
 
 /* ── handler (Stripe and Sanity stubbed) ───────────────────────────────── */
 
-async function post(items, products = PRODUCTS) {
+async function post(items, products = PRODUCTS, country = 'GB') {
   sessionParams = null;
   const realFetch = globalThis.fetch;
   globalThis.fetch = async () => ({ ok: true, json: async () => ({ result: products }) });
   try {
-    const res = await handler({ httpMethod: 'POST', body: JSON.stringify({ items }) });
+    const res = await handler({ httpMethod: 'POST', body: JSON.stringify({ items, country }) });
     return { status: res.statusCode, body: JSON.parse(res.body || '{}') };
   } finally {
     globalThis.fetch = realFetch;
@@ -180,9 +180,9 @@ test('handler: wall-art quantities outside 1-99 are refused; valid ones keep the
   assert.equal(sessionParams.line_items[0].quantity, 1);
 });
 
-test('handler: stamps metadata.brand and the legacy source on the session', async () => {
+test('handler: stamps metadata.brand, the legacy source and the delivery country on the session', async () => {
   assert.equal((await post([tee('M', 25)])).status, 200);
-  assert.deepEqual(sessionParams.metadata, { brand: 'bikerbabies', source: 'bikerbabies-web' });
+  assert.deepEqual(sessionParams.metadata, { brand: 'bikerbabies', source: 'bikerbabies-web', delivery_country: 'GB' });
 });
 
 test('handler: inactive, unknown and bad-quantity lines are refused with 422', async () => {

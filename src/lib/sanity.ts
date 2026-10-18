@@ -8,8 +8,11 @@ export const client = createClient({
   apiVersion: '2024-01-01', useCdn: false,
   token: import.meta.env.SANITY_API_TOKEN,
   // Keeps drafts out of the static build even with a token present
-  // (same fix as the Fuglys/Labrats double-listing bug).
-  perspective: 'published',
+  // (same fix as the Fuglys/Labrats double-listing bug). A deploy preview may set
+  // SANITY_PERSPECTIVE=previewDrafts (deploy-preview / branch-deploy contexts only)
+  // so a catalogue change can be checked before it is published; drafts then come
+  // back under their published _id.
+  perspective: import.meta.env.SANITY_PERSPECTIVE === 'previewDrafts' ? 'previewDrafts' : 'published',
 });
 
 const builder = imageUrlBuilder(client);
