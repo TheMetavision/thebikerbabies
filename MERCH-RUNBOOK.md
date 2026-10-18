@@ -33,7 +33,7 @@ drinkware or pins, so actual losses were £0.
 **Orders.** One Printful order: `F2MB3CUI` (21 Jul, an internal test, Sticker Set 5), placed correctly in this store
 (Printful #168075099) and logged here as fulfilled.
 
-**Decisions (Alan, 18 Oct 2026):** tumbler moves to #585 (EU-stocked) at £32.95, white and black; can glass dropped;
+**Decisions (Alan, 18 Oct 2026):** tumbler moves to #585 (EU-stocked) at £32.95, white (black at first; dropped 18 Oct for low contrast with the dark art); can glass dropped;
 11oz mug #19 (UK/EU) added at £12.95 with the design on both sides; pin badge sets dropped; delivery tied to destination.
 
 ### A1. EB21KP20 (19 Jul): a Biker Babies order that was silently dropped
@@ -113,7 +113,7 @@ Config: `printful-sync/brands/bikerbabies.config.mjs`.
 
 | Garment | Blank | Price | Notes |
 |---|---|---|---|
-| `tumbler` | #585 Stainless Steel Tumbler 20 oz, White + Black (EU) | £32.95 | `externalKey: tumbler585` (new products sit beside #909's until those go). Printed on both sides, as Dotty's: the design twice, at ¼ and ¾ of the 2776×2374 wrap, each in a 1250×1450 box (`make-mug-wraps.mjs --kind=tumbler` → `designs.tumblerPrintFileUrl`); images: Left, "Printed on both sides", Right |
+| `tumbler` | #585 Stainless Steel Tumbler 20 oz, White (EU). Black was created and then removed (18 Oct, Alan): the 35 Black sync variants deleted with `remove-colour.mjs bikerbabies tumbler Black --apply`, product ids unchanged | £32.95 | `externalKey: tumbler585` (new products sit beside #909's until those go). Printed on both sides, as Dotty's: the design twice, at ¼ and ¾ of the 2776×2374 wrap, each in a 1250×1450 box (`make-mug-wraps.mjs --kind=tumbler` → `designs.tumblerPrintFileUrl`); images: Left, "Printed on both sides", Right |
 | `mug` | #19 White Glossy Mug 11 oz (UK + EU) | £12.95 | design twice, at ¼ and ¾ of the 2700×1050 wrap (`make-mug-wraps.mjs` → `designs.mugPrintFileUrl`); images: Front, "Printed on both sides", Handle on Left |
 | `glass` | #690 | — | removed from the config |
 
