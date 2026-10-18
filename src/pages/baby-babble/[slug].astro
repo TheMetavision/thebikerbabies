@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import NewsletterSection from "../../components/NewsletterSection.astro";
 import { getAllBlogPosts, getBlogPostBySlug, urlFor } from "../../lib/sanity";
+import { articleSchema, breadcrumbSchema } from "../../lib/schema";
 
 export async function getStaticPaths() {
   const posts = await getAllBlogPosts();
@@ -86,11 +87,27 @@ const accent = categoryAccents[tagLabel] || "#ff6b00";
 const heroImageUrl = post.featuredImage
   ? urlFor(post.featuredImage).width(1600).fit("max").auto("format").url()
   : null;
+
+// Publish date falls back to the document's creation date; "Updated" shows only for edits made 7+ days after publishing.
+const publishedAt: string = post.publishedAt || post._createdAt;
+const modifiedAt: string = post._updatedAt || publishedAt;
+const showUpdated = !!post._updatedAt &&
+  new Date(post._updatedAt).getTime() - new Date(publishedAt).getTime() > 7 * 24 * 60 * 60 * 1000;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const jsonLd = [
+  articleSchema({ title: post.title, excerpt: post.excerpt || post.title, publishedAt, modifiedAt, image: heroImageUrl || undefined, url: pageUrl }),
+  breadcrumbSchema([
+    { name: "Home", url: new URL("/", Astro.site).href },
+    { name: "Baby Babble", url: new URL("/baby-babble", Astro.site).href },
+    { name: post.title, url: pageUrl },
+  ]),
+];
 ---
 
 <Layout
   title={post.seoTitle || (`${post.title} — Baby Babble`.length <= 60 ? `${post.title} — Baby Babble` : post.title)}
   description={post.seoDescription || post.excerpt || ""}
+  jsonLd={jsonLd}
 >
   <article class="article-wrap">
     <header class="article-header" style={`--accent: ${accent};`}>
@@ -105,8 +122,9 @@ const heroImageUrl = post.featuredImage
         <div class="article-accent-bar" style={`background: ${accent};`}></div>
         {post.excerpt && <p class="article-excerpt">{post.excerpt}</p>}
         <div class="article-meta">
-          {post.publishedAt && (
-            <span class="article-date">{formatDate(post.publishedAt)}</span>
+          <span class="article-date"><time datetime={publishedAt}>{formatDate(publishedAt)}</time></span>
+          {showUpdated && (
+            <span class="article-date">Updated <time datetime={post._updatedAt}>{formatDate(post._updatedAt)}</time></span>
           )}
         </div>
       </div>
