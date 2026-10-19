@@ -165,3 +165,58 @@ Steps done (18–19 Oct 2026, printful-sync):
 Test-mode orders reach Printful as **drafts** (never confirmed) and the Sanity log as `test: true`. Delete them after each test:
 `cd C:\Users\chris\Projects\printful-sync`, `node --env-file=.env delete-test-orders.mjs bikerbabies` (lists them), then
 `... --apply` (deletes the Printful drafts and the test log records).
+
+---
+
+## Part C: Road History (new design, 19 Oct 2026)
+
+Source: Printful File Library #989503178 (`Untitled-design.png`, 2400×2400, real alpha), the art on the old test product
+#433474993 "Wyatt vs Pothole Tee". Kept as `Documents\The Biker Babies\Designs\Road History\Road History - main design (original).png`.
+Wyatt (The Historian) vs Professor Pothole, checked against the Sanity character canon.
+
+**Print master** (`Final Print Files\Road History.png`, also `printful-sync\print-files\bikerbabies\`), Alan's decisions:
+- The AI-redrawn logo replaced by the official PNG (`public/images/the-biker-babies-logo.png`, same file as the brand-voice
+  logo), fitted to the redraw: 572 px centred at (1200, 2044), alpha trimmed ~1 px, soft contact shadow.
+- The book's spine gibberish removed (gold strokes masked, filled from the surrounding leather); bands kept.
+- The floating V, X and M kept (Roman numerals, with the clock face on the road). No x4plus (already as sharp as the masters).
+
+**Range** (printful-sync, scoped to `road-history`; the other designs untouched):
+1. Hosted on the BB Sanity CDN and appended to `designs.bikerbabies.json` at `sortOrder` 35 (a one-off upload, not
+   `upload-bikerbabies-designs.mjs`, which re-sorts every design by file name).
+2. Wraps: `make-mug-wraps.mjs bikerbabies --kind=mug --only=road-history`, then `--kind=tumbler`.
+3. Printful: `sync-products.mjs bikerbabies printful --only=road-history`: the same 11 products as every design
+   (tumbler #585 White £32.95, mug #19 £12.95; tee, hoodie, tank, long sleeve, socks, kids tee/hoodie/long sleeve, baby grow
+   at the usual prices). The tee has 96 variants, not 86: Printful now offers 4XL/5XL in Azalea, Cardinal, Carolina Blue,
+   Dark Chocolate and Sand, on the usual size ladder. Store 396 → 407 products.
+4. Mockups: `sync-products.mjs bikerbabies mockups --only=road-history --strict` (every garment real mockups; tumbler
+   Left / both sides / Right, mug Front / both sides / Handle on Left).
+5. Sanity **draft** `drafts.product-road-history` (`sync-products.mjs ... sanity --only=...`), then copy, `active: true`,
+   `sortOrder: 35`. `verify-drafts.mjs`: every variant id in the live store.
+
+**Display names** (Alan): "Mostwanted" → "Most Wanted", "Out Thunk" → "Out-Thunk": drafts of `product-mostwanted` and
+`product-out-thunk` (name only), `designs.bikerbabies.json`, and the 22 Printful product names (no variant changes).
+
+### Launch order, after Alan approves the preview
+
+1. `publish-drafts.mjs bikerbabies --dry`, then without `--dry` (3 drafts: the new design and the two names).
+2. Rebuild production (Netlify: trigger deploy of `main`), then check live: /merch lists Road History, its product page
+   shows £32.95 and £12.95, "Most Wanted" and "Out-Thunk" names.
+3. Delete the old test product **#433474993** (by id, after `pins-report.mjs bikerbabies` shows no unfinished orders), then
+   `store-check.mjs bikerbabies` (406 products) and `check-live-ids.mjs bikerbabies` (variant ids on the active products all live).
+
+**Renamed before launch** (Alan, 19 Oct): multi-character designs use the slogan only, so "Wyatt Road History" became
+**"Road History"** (slug `road-history`, SEO title "Road History | The Biker Babies"). Because Printful external ids come
+from the slug, the 11 unpublished `bikerbabies-wyatt-road-history-*` products were deleted by id (no orders) and recreated
+as `bikerbabies-road-history-*` (same print file and wraps, strict mockups again), the old draft deleted and a new
+`drafts.product-road-history` seeded. Print master renamed `Road History.png`.
+
+### Road History launch record (19 Oct 2026, Alan's approval)
+
+1. **Drafts published** (`publish-drafts.mjs bikerbabies`, dry run first): `product-road-history`, `product-mostwanted`
+   ("Most Wanted"), `product-out-thunk` ("Out-Thunk"), after `verify-drafts.mjs` (only the two intended name changes).
+2. **Production rebuilt** (Netlify build of `main` `133a451`, triggered through the API) and checked live:
+   /products/road-history/ 200 with £32.95 and £12.95, the copy and all 81 mockups; /products/wyatt-road-history/ 404;
+   /merch shows Road History, Most Wanted and Out-Thunk (no "Mostwanted" / "Out Thunk").
+3. **Test product #433474993 deleted** by id (checked: external id `6a098e061459e1`, "Wyatt vs Pothole Tee", 65 variants;
+   no unfinished orders). `store-check.mjs`: 406 products, 0 duplicate external ids, 36 of each garment.
+   `check-live-ids.mjs`: 41 active products, 15,248 variant ids, all live = the store's 15,248 variants.
