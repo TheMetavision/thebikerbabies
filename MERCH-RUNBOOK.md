@@ -209,3 +209,14 @@ Wyatt (The Historian) vs Professor Pothole, checked against the Sanity character
 from the slug, the 11 unpublished `bikerbabies-wyatt-road-history-*` products were deleted by id (no orders) and recreated
 as `bikerbabies-road-history-*` (same print file and wraps, strict mockups again), the old draft deleted and a new
 `drafts.product-road-history` seeded. Print master renamed `Road History.png`.
+
+### Road History launch record (19 Oct 2026, Alan's approval)
+
+1. **Drafts published** (`publish-drafts.mjs bikerbabies`, dry run first): `product-road-history`, `product-mostwanted`
+   ("Most Wanted"), `product-out-thunk` ("Out-Thunk"), after `verify-drafts.mjs` (only the two intended name changes).
+2. **Production rebuilt** (Netlify build of `main` `133a451`, triggered through the API) and checked live:
+   /products/road-history/ 200 with £32.95 and £12.95, the copy and all 81 mockups; /products/wyatt-road-history/ 404;
+   /merch shows Road History, Most Wanted and Out-Thunk (no "Mostwanted" / "Out Thunk").
+3. **Test product #433474993 deleted** by id (checked: external id `6a098e061459e1`, "Wyatt vs Pothole Tee", 65 variants;
+   no unfinished orders). `store-check.mjs`: 406 products, 0 duplicate external ids, 36 of each garment.
+   `check-live-ids.mjs`: 41 active products, 15,248 variant ids, all live = the store's 15,248 variants.
