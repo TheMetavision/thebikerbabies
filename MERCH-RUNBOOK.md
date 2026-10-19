@@ -117,7 +117,28 @@ Config: `printful-sync/brands/bikerbabies.config.mjs`.
 | `mug` | #19 White Glossy Mug 11 oz (UK + EU) | £12.95 | design twice, at ¼ and ¾ of the 2700×1050 wrap (`make-mug-wraps.mjs` → `designs.mugPrintFileUrl`); images: Front, "Printed on both sides", Handle on Left |
 | `glass` | #690 | — | removed from the config |
 
-<!-- PART-B-DATA -->
+Steps done (18–19 Oct 2026, printful-sync):
+
+1. Mockup check before creating anything (`mockup-check.mjs`, Mockup Generator, no products): the two-sided tumbler (Left and
+   Right) and the mug (Front and Handle on Left) on amara-built-different. Images: `printful-sync/mockup-checks/bikerbabies/`.
+2. Wraps for all 35 designs uploaded to the Sanity CDN: `make-mug-wraps.mjs bikerbabies --kind=mug` and `--kind=tumbler`.
+3. Printful products created in batches of 6 (`run-batches.ps1 -Brand bikerbabies -Stage printful -Flags "--types=tumbler,mug"`,
+   waiting whenever printful-sync was busy): one #585 tumbler and one mug per design, 70 products.
+   `store-check.mjs bikerbabies tumbler585,mug`: every design has one of each, no duplicate external ids.
+   The manifest was missing arjun-think-fast: read back from Printful with `adopt` (creates nothing).
+4. Pin sets: drafts with `active: false` (`draft-inactive.mjs`) for the 4 pin sets (`product-badge-set-1` … `-4`; Printful 437509825, 437509910, 437509916, 437509930). No unfinished Printful orders.
+5. Tumbler made **White only** (Alan, 18 Oct: low contrast on black): `remove-colour.mjs bikerbabies tumbler Black --apply`
+   deleted the 35 Black sync variants (products kept); config and manifest updated.
+6. Mockups for the new garments only, in small resumable runs (`next-mockups.ps1 -Brand bikerbabies -Count 3`, memory checked
+   between runs): every tumbler has Left, "Printed on both sides" and Right; every mug Front, "Printed on both sides" and
+   Handle on Left (Mockup Generator, re-hosted on the Sanity CDN).
+7. Sanity **drafts** (`run-batches.ps1 -Brand bikerbabies -Stage sync -Flags "--types=tumbler,mug --drop-types=glass"`): on all 35 designs
+   the tumbler is replaced by #585 (£32.95, White), the mug added (£12.95), the can glass removed; every other garment, all
+   copy and images exactly as published. `verify-drafts.mjs bikerbabies tumbler,mug glass`: no problems, every variant id in the
+   live store. Production still shows the published (old) catalogue; the deploy preview reads the drafts.
+8. Size guide: tumbler 20 oz / 600 ml, 8.4″ (21.4 cm); mug 11 oz, 3.8″ (9.6 cm), from Printful's catalogue for #585 and #19.
+9. Preview: https://deploy-preview-2--thebikerbabies.netlify.app. The checkout function refuses no country (400), an unknown one (400), a Printful item to Brazil
+   or a tee to Ukraine (422), all before Stripe.
 
 ### Launch order, after Alan approves the preview (in this order, nothing earlier)
 
