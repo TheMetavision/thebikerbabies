@@ -160,6 +160,24 @@ Steps done (18–19 Oct 2026, printful-sync):
 7. Production env: `PRINTFUL_AUTO_CONFIRM=true` (production context only, set 18 Oct) makes live orders confirmed; without
    it they are Printful drafts to confirm by hand. Previews never confirm (test-mode payments are always drafts).
 
+### Launch record (19 Oct 2026, Alan's approval; after Cats On Crack)
+
+1. **Merged** PR #2 (`133a451`); Netlify production deploy of it ready.
+2. **Studio schema deployed** from a clean worktree of `main` (so the uncommitted local `sanity/schemas/character.js` change was not deployed): `npx sanity schema deploy` and
+   `npx sanity deploy` → https://thebikerbabies.sanity.studio/. The deployed `order` type has the `other-brand` status and the `test` flag
+   (checked through the Sanity MCP).
+3. **Drafts published** (`publish-drafts.mjs bikerbabies`): 39 (35 designs, 4 inactive pin sets), after `verify-drafts.mjs` showed no problems.
+   Published: 35 with the #585 tumbler (£32.95, White) and the mug (£12.95), 0 with a can glass, 0 active pin sets.
+4. **Production rebuilt** (Netlify build of `main`) and checked live, all passing: merch shows Mugs and no Can Glasses or
+   Badges tab; /product/amara-built-different/ has £32.95 and £12.95 and no £22.50 or can glass; badge set pages 404, stickers live; size
+   guide shows 8.4″ (21.4 cm) and 3.8″ (9.6 cm); checkout refuses no country (400), an unknown country (400), Brazil (422).
+   No live Stripe Checkout page was opened.
+5. **Old products deleted** (`delete-old-products.mjs bikerbabies`, dry run then `--apply`; exact external ids, each checked
+   to be on #909 / #690 / #660; no unfinished Printful orders): 35 #909 tumblers, 35 #690 can glasses, 4 pin sets (437509825, 437509910, 437509916, 437509930). Store 470 → 396 products. `store-check.mjs`:
+   0 #909 tumblers, 0 can glasses; 35 tumbler585, 35 mug. `check-live-ids.mjs bikerbabies`: all 14,815 variant ids on
+   the 40 active products are live.
+6. The `product-badge-set-*` docs stay in Sanity, inactive.
+
 ### After every preview test payment
 
 Test-mode orders reach Printful as **drafts** (never confirmed) and the Sanity log as `test: true`. Delete them after each test:
