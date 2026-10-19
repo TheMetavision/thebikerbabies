@@ -174,7 +174,7 @@ Source: Printful File Library #989503178 (`Untitled-design.png`, 2400×2400, rea
 #433474993 "Wyatt vs Pothole Tee". Kept as `Documents\The Biker Babies\Designs\Road History\Road History - main design (original).png`.
 Wyatt (The Historian) vs Professor Pothole, checked against the Sanity character canon.
 
-**Print master** (`Final Print Files\Wyatt - Road History.png`, also `printful-sync\print-files\bikerbabies\`), Alan's decisions:
+**Print master** (`Final Print Files\Road History.png`, also `printful-sync\print-files\bikerbabies\`), Alan's decisions:
 - The AI-redrawn logo replaced by the official PNG (`public/images/the-biker-babies-logo.png`, same file as the brand-voice
   logo), fitted to the redraw: 572 px centred at (1200, 2044), alpha trimmed ~1 px, soft contact shadow.
 - The book's spine gibberish removed (gold strokes masked, filled from the surrounding leather); bands kept.
