@@ -181,6 +181,14 @@ export default function CartDrawer() {
           <div style={{ padding:'24px', borderTop:'1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ marginBottom:'14px' }}>
               <label htmlFor="bikerbabies-delivery-country" style={{ display:'block', fontFamily:HEADING_FONT, fontWeight:700, fontSize:'11px', letterSpacing:'1.5px', textTransform:'uppercase' as const, color:'rgba(255,255,255,0.55)', margin:'0 0 6px' }}>Delivering to</label>
+              {/* The open list is drawn natively (white on Chrome/Edge for Windows) and the
+                  options inherit the white text, so colour them explicitly. */}
+              <style>{`
+                #bikerbabies-delivery-country { color-scheme: dark; }
+                #bikerbabies-delivery-country optgroup { background: ${BG}; color: ${ACCENT}; font-weight: 700; font-style: normal; }
+                #bikerbabies-delivery-country option { background: ${BG}; color: ${TEXT}; font-weight: 400; }
+                #bikerbabies-delivery-country option:checked { background: ${ACCENT}; color: #0a0a14; font-weight: 700; }
+              `}</style>
               <select id="bikerbabies-delivery-country" value={country} onChange={(e) => chooseCountry(e.target.value)}
                 style={{ width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.06)', color:TEXT, border:`1px solid ${ACCENT}`, borderRadius:'4px', fontFamily:BODY_FONT, fontSize:'14px' }}>
                 {regions.map((r: any) => (
