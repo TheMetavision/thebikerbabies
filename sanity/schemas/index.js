@@ -27,6 +27,7 @@ import worldLocation from './worldLocation';
 import merchCategory from './merchCategory';
 import contactSubmission from './contactSubmission';
 import order from './order';
+import returnRequest from './returnRequest';
 export const schemaTypes = [
   siteSettings,
   worldLocation,
@@ -44,4 +45,5 @@ export const schemaTypes = [
   legalPage,
   contactSubmission,
   order,
+  returnRequest,
 ];
