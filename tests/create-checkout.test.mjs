@@ -182,7 +182,7 @@ test('handler: wall-art quantities outside 1-99 are refused; valid ones keep the
 
 test('handler: stamps metadata.brand, the legacy source and the delivery country on the session', async () => {
   assert.equal((await post([tee('M', 25)])).status, 200);
-  assert.deepEqual(sessionParams.metadata, { brand: 'bikerbabies', source: 'bikerbabies-web', delivery_country: 'GB' });
+  assert.deepEqual(sessionParams.metadata, { brand: 'bikerbabies', source: 'bikerbabies-web', delivery_country: 'GB', marketing_opt_out: 'false' });
 });
 
 test('handler: inactive, unknown and bad-quantity lines are refused with 422', async () => {
@@ -192,4 +192,26 @@ test('handler: inactive, unknown and bad-quantity lines are refused with 422', a
   assert.equal((await post([{ ...tee('M', 25), id: 'product-nope-tshirt' }])).status, 422);
   assert.equal((await post([tee('M', 25, { quantity: 500 })])).status, 422);
   assert.equal(sessionParams, null); // no Stripe session was created
+});
+
+/* ── Marketing opt-out (cart drawer box) ──────────────────────────────── */
+
+test('handler: stamps metadata.marketing_opt_out — "true" only when the box was ticked', async () => {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ result: PRODUCTS }) });
+  const optOut = async (extra) => {
+    sessionParams = null;
+    await handler({ httpMethod: 'POST', body: JSON.stringify({ items: [tee('M', 25)], country: 'GB', ...extra }) });
+    return sessionParams.metadata.marketing_opt_out;
+  };
+  try {
+    assert.equal(await optOut({ marketingOptOut: true }), 'true');
+    assert.equal(await optOut({ marketingOptOut: false }), 'false');
+    assert.equal(await optOut({}), 'false');
+    // Only a literal true counts.
+    assert.equal(await optOut({ marketingOptOut: 'true' }), 'false');
+    assert.equal(await optOut({ marketingOptOut: 1 }), 'false');
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });
