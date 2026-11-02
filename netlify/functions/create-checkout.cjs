@@ -227,6 +227,9 @@ function buildPodLineItems(products, items) {
             printful_variant_id: match.syncVariantId,
             bikerbabies_size: String(item.size || ''),
             bikerbabies_colour: String(item.colour || ''),
+            // The Printful product type, kept on the order line for the
+            // merchandise return band (stripe-webhook -> parcel-plan.mjs).
+            bikerbabies_type: String(match.variant.productType || item.productType || ''),
           },
         },
       },
