@@ -70,7 +70,7 @@ const brand = () => ({
   name: process.env.BRAND_NAME || 'The Biker Babies',
   accent: process.env.BRAND_ACCENT || process.env.EMAIL_ACCENT || '#ff6b00',
   headerBg: process.env.EMAIL_HEADER_BG || '#0a0a0a',
-  logoUrl: process.env.LOGO_URL || '',
+  logoUrl: setting('LOGO_URL'), // site-config's logo unless LOGO_URL is set
   from: setting('EMAIL_FROM'),
   replyTo: setting('EMAIL_REPLY_TO'),
 });
@@ -100,7 +100,7 @@ const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '')) ? String(u) : '');
 const shortName = (name) => String(name).replace(/^the\s+/i, '');
 
 // "It's shipped" email in The Biker Babies order-confirmation palette (stripe-webhook.cjs).
-function buildShippedEmailHtml(order, shipment, b = brand()) {
+export function buildShippedEmailHtml(order, shipment, b = brand()) {
   const ref = esc(order.orderRef || '');
   const carrier = esc(shipment.carrier || 'the carrier');
   const num = esc(shipment.tracking_number || '');
