@@ -30,6 +30,43 @@
     # Report-only for now: violations appear in the browser console; nothing is blocked.
     Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.sanity.io; font-src 'self'; connect-src 'self' https://cdn.sanity.io https://*.apicdn.sanity.io; media-src 'self' https://cdn.sanity.io; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 
+# Zoomville Rush (public/games/zoomville-rush/): a static full-screen game page.
+# The same five rules as Dogcatcher Dash on catsoncrack.co.uk (the CSP is copied
+# from there unchanged). Its GLTFLoader fetches textures from blob: URLs, so
+# connect-src adds blob:; its meshopt decoder compiles WebAssembly, so
+# script-src adds 'wasm-unsafe-eval' (WebAssembly only, not eval()). The page
+# also calls the leaderboard (/api/zr-*, same origin, allowed by connect-src
+# 'self') and uses crypto.subtle (needs no CSP change).
+[[headers]]
+  for = "/games/zoomville-rush/*"
+  [headers.values]
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.sanity.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; font-src 'self'; connect-src 'self' blob: https://cdn.sanity.io https://*.api.sanity.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; media-src 'self' https://cdn.sanity.io; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
+# Assets keep their filenames between releases (no content hash), so every
+# game file is revalidated on each visit (max-age=0, must-revalidate: the
+# browser sends its ETag and gets a 304 if nothing changed), and an updated
+# model, texture, track or font is picked up at once.
+[[headers]]
+  for = "/games/zoomville-rush/models/*"
+  [headers.values]
+    Content-Type = "model/gltf-binary"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/games/zoomville-rush/tex/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/games/zoomville-rush/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/games/zoomville-rush/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Route /api/* requests to Netlify Functions.
 # Required for the contact form (src/pages/contact.astro POSTs to
 # /api/contact which gets rewritten to /.netlify/functions/contact).
