@@ -428,7 +428,7 @@
 <script src="vendor/meshopt_decoder.js"></script>
 
 <script>
-window.__TX={"zr_ground_playground": "/games/zoomville-rush/tex/zr_ground_playground.webp", "zr_ground_dustbowl": "/games/zoomville-rush/tex/zr_ground_dustbowl.webp", "zr_ground_skyway": "/games/zoomville-rush/tex/zr_ground_skyway.webp", "zr_wood": "/games/zoomville-rush/tex/zr_wood.webp", "zr_pano_playground": "/games/zoomville-rush/tex/zr_pano_playground.webp", "zr_pano_dustbowl": "/games/zoomville-rush/tex/zr_pano_dustbowl.webp", "zr_pano_skyway": "/games/zoomville-rush/tex/zr_pano_skyway.webp", "zr_sign0": "/games/zoomville-rush/tex/zr_sign0.webp", "zr_sign1": "/games/zoomville-rush/tex/zr_sign1.webp", "zr_sign2": "/games/zoomville-rush/tex/zr_sign2.webp", "zr_sign3": "/games/zoomville-rush/tex/zr_sign3.webp", "zr_sign4": "/games/zoomville-rush/tex/zr_sign4.webp", "zr_sign5": "/games/zoomville-rush/tex/zr_sign5.webp"};
+window.__TX={"zr_card": "/games/zoomville-rush/tex/zr_card.jpg", "zr_ground_playground": "/games/zoomville-rush/tex/zr_ground_playground.webp", "zr_ground_dustbowl": "/games/zoomville-rush/tex/zr_ground_dustbowl.webp", "zr_ground_skyway": "/games/zoomville-rush/tex/zr_ground_skyway.webp", "zr_wood": "/games/zoomville-rush/tex/zr_wood.webp", "zr_pano_playground": "/games/zoomville-rush/tex/zr_pano_playground.webp", "zr_pano_dustbowl": "/games/zoomville-rush/tex/zr_pano_dustbowl.webp", "zr_pano_skyway": "/games/zoomville-rush/tex/zr_pano_skyway.webp", "zr_sign0": "/games/zoomville-rush/tex/zr_sign0.webp", "zr_sign1": "/games/zoomville-rush/tex/zr_sign1.webp", "zr_sign2": "/games/zoomville-rush/tex/zr_sign2.webp", "zr_sign3": "/games/zoomville-rush/tex/zr_sign3.webp", "zr_sign4": "/games/zoomville-rush/tex/zr_sign4.webp", "zr_sign5": "/games/zoomville-rush/tex/zr_sign5.webp"};
 /* Shared stand-in builders used by every brand kit.
    All characters face down the track (-z). Each returns { root, animate(dt, a) }. */
 window.RG = (() => {
@@ -730,21 +730,21 @@ const KIT = window.KIT = {
   },
   board: { name: 'Bubble Shield', short: 'Bubble', css: '#8fe3ff', hex: 0x8fe3ff, dur: 30, key: 'boardT', lift: 0, anim: (b, t) => { b.children[0].scale.setScalar(1 + Math.sin(t * 5) * 0.03); b.rotation.y = t * 0.6; } },
   stages: [
-    { id: 'playground', name: 'The Playground', blurb: 'Where the open road begins', goal: 1000, cardGround: '#5a7a34',
+    { id: 'playground', card: 'zr_card', name: 'The Playground', blurb: 'Where the open road begins', goal: 1000, cardGround: '#5a7a34',
       chaser: 'flattyre', chaserName: 'The Flat Tyre Gang', warn: 'The Flat Tyre Gang are right behind you!', caught: ['The Flat Tyre Gang caught up!', 'Two bumps in a row let them catch you. Have another go!'],
       crash: ['Bumped into the hay bales', 'Hay bales need a lane change, or Bouncy Springs to hop right over.'],
       sections: [
         { name: 'The Playground', light: [3, 2.4, 1.4], fog: 0xcfe4ea, sky: [0x3a8ad8, 0xcfeaf4, 0x6a8a48], hemi: [0xdff0ff, 0x6a7a40, 1.05], sun: 0xfff2d8, sunI: 1.5, sunDisc: 0xfff6e0, sunDir: [-0.4, 0.7, -1], ui: '#ff6b00' },
         { name: 'The Open Road', light: [3, 2.2, 1.0], fog: 0xe8dcc0, sky: [0x4a86c8, 0xf0dcb0, 0x7a8a48], hemi: [0xfff0d8, 0x6a6a38, 1.0], sun: 0xffe8c0, sunI: 1.45, sunDisc: 0xfff0d0, sunDir: [0.3, 0.45, -1], ui: '#ffd700' },
         { name: 'Zoomville Trails', light: [3, 1.8, 0.8], fog: 0xf0c8a0, sky: [0x4a70b8, 0xffcc90, 0x7a7040], hemi: [0xffe0c0, 0x5a5a30, 0.95], sun: 0xffc890, sunI: 1.35, sunDisc: 0xffd8a0, sunDir: [0.2, 0.18, -1], ui: '#ff6b00' } ] },
-    { id: 'dustbowl', name: 'The Dust Bowl', blurb: 'Where the mischief lives', goal: 1250, cardGround: '#a8784a',
+    { id: 'dustbowl', card: 'zr_card', name: 'The Dust Bowl', blurb: 'Where the mischief lives', goal: 1250, cardGround: '#a8784a',
       chaser: 'pothole', chaserName: 'Professor Pothole', unlockNote: 'Clear The Dust Bowl to unlock Kai',
       crash: ['Bumped into the tyre wall', 'Tyre walls need a lane change, or Bouncy Springs to hop right over.'],
       sections: [
         { name: 'The Dust Bowl', light: [3, 2.0, 1.0], fog: 0xe8c8a0, sky: [0x5a8ac8, 0xf0d0a8, 0xa87a50], hemi: [0xfff0d8, 0x8a6a40, 1.0], sun: 0xffe0b0, sunI: 1.45, sunDisc: 0xfff0d0, sunDir: [-0.3, 0.6, -1], ui: '#ff6b00' },
         { name: 'Mischief Mile', light: [3, 1.7, 0.8], fog: 0xe8b890, sky: [0x5a7ab8, 0xf8c088, 0x9a6a40], hemi: [0xffe0c0, 0x7a5a38, 0.95], sun: 0xffd0a0, sunI: 1.4, sunDisc: 0xffe0b0, sunDir: [0.3, 0.3, -1], ui: '#ffd700' },
         { name: 'The Big Dip', light: [3, 1.5, 0.7], fog: 0xd8a890, sky: [0x6a6aa8, 0xf8b088, 0x8a5a40], hemi: [0xffd0b8, 0x6a4a38, 0.9], sun: 0xffb888, sunI: 1.3, sunDisc: 0xffc090, sunDir: [0.1, 0.12, -1], ui: '#ff6b00' } ] },
-    { id: 'skyway', name: 'The Skyway', blurb: 'The trails the birds use', goal: 1500, cardGround: '#6a8a5a',
+    { id: 'skyway', card: 'zr_card', name: 'The Skyway', blurb: 'The trails the birds use', goal: 1500, cardGround: '#6a8a5a',
       chaser: 'crankshaft', chaserName: 'Count Crankshaft',
       crash: ['Bumped into a big rock', 'Rocks need a lane change, or Bouncy Springs to hop right over.'],
       sections: [
