@@ -28,5 +28,6 @@ export default {
     referenceGallery('character'),
   ],
   orderings: [{ title: 'Display Order', name: 'sortOrderAsc', by: [{ field: 'sortOrder', direction: 'asc' }] }],
-  preview: { select: { title: 'name', subtitle: 'characterTitle', media: 'portrait' } },
+  // Thumbnail: the live documents hold their picture in `image` (portrait is empty).
+  preview: { select: { title: 'name', subtitle: 'role', media: 'image' } },
 };
