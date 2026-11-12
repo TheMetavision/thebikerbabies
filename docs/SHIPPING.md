@@ -152,6 +152,17 @@ Do this **before** turning shipping on. Without it, every return request (and ev
 
 Nothing else on that webhook changes.
 
+### 3c. Add `game` to the same filter (sanity-galleries, Nov 2026)
+
+`game` documents (private game records and art, Studio only) are never read by the website, so editing them or adding game art shouldn't start a build. This repo has no code-side ignore list (unlike Cats On Crack's `content-build.mjs`): "Netlify rebuild" calls the build hook directly, so its filter is the only place this lives. Image uploads themselves are `sanity.imageAsset`, which the filter already skips; it's the `game` document edits that need adding.
+
+| | Filter |
+|---|---|
+| Before | `!(_type match "sanity.*") && !(_type match "system.*") && !(_type in ["contactSubmission","order","lineItem","category","merchCategory","faq","worldLocation","episode","returnRequest"])` |
+| After | `!(_type match "sanity.*") && !(_type match "system.*") && !(_type in ["contactSubmission","order","lineItem","category","merchCategory","faq","worldLocation","episode","returnRequest","game"])` |
+
+Character `referenceGallery` edits still rebuild, because `character` is a site type. That costs one build per publish and changes nothing on the site.
+
 ### 4. Studio: schema + hosted Studio (two deploys)
 
 ```powershell
