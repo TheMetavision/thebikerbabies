@@ -26,6 +26,7 @@ export default defineConfig({
             S.documentTypeListItem('episode').title('Episodes & Videos'),
             S.documentTypeListItem('book').title('Books'),
             S.documentTypeListItem('blogPost').title('Blog Posts'),
+            S.documentTypeListItem('game').title('Games'),
             S.divider(),
             S.documentTypeListItem('product').title('Products'),
             S.documentTypeListItem('wallArt').title('Wall Art'),

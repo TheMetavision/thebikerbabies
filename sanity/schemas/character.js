@@ -1,5 +1,8 @@
+import { referenceGallery, referencePrivateFieldset } from './galleryImage';
+
 export default {
   name: 'character', title: 'Character', type: 'document',
+  fieldsets: [referencePrivateFieldset],
   fields: [
     { name: 'name', title: 'Name', type: 'string', validation: (Rule) => Rule.required() },
     { name: 'slug', title: 'Slug', type: 'slug', options: { source: 'name', maxLength: 96 }, validation: (Rule) => Rule.required() },
@@ -13,6 +16,8 @@ export default {
     { name: 'sortOrder', title: 'Display Order', type: 'number' },
     { name: 'seoTitle', title: 'SEO Title', type: 'string' },
     { name: 'seoDescription', title: 'SEO Description', type: 'text', rows: 2 },
+    // Private: Studio and Social Content Studio only, never queried by the website.
+    referenceGallery('character'),
   ],
   orderings: [{ title: 'Display Order', name: 'sortOrderAsc', by: [{ field: 'sortOrder', direction: 'asc' }] }],
   preview: { select: { title: 'name', subtitle: 'characterTitle', media: 'portrait' } },

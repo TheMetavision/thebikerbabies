@@ -28,6 +28,11 @@ import merchCategory from './merchCategory';
 import contactSubmission from './contactSubmission';
 import order from './order';
 import returnRequest from './returnRequest';
+// 2026-11-12: added galleryImage (object) and game (document) for the private
+// reference galleries (character/worldLocation.referenceGallery, game.gameArt).
+// Studio-only: the website never queries them.
+import galleryImage from './galleryImage';
+import game from './game';
 export const schemaTypes = [
   siteSettings,
   worldLocation,
@@ -46,4 +51,6 @@ export const schemaTypes = [
   contactSubmission,
   order,
   returnRequest,
+  galleryImage,
+  game,
 ];

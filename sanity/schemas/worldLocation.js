@@ -2,10 +2,13 @@
 // Original source not in local repo; this schema mirrors the field shape
 // of the 7 worldLocation documents in the live Biker Babies dataset.
 
+import { referenceGallery, referencePrivateFieldset } from './galleryImage';
+
 export default {
   name: 'worldLocation',
   title: 'World Location',
   type: 'document',
+  fieldsets: [referencePrivateFieldset],
   fields: [
     {
       name: 'title',
@@ -109,6 +112,9 @@ export default {
       of: [{ type: 'string' }],
       description: 'Product ideas tied to this location.',
     },
+
+    // ── Private reference gallery (never queried by the website) ─────
+    referenceGallery('location'),
   ],
 
   preview: {
