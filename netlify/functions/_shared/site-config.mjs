@@ -113,6 +113,12 @@ export const SITE_CONFIG = Object.freeze({
   MAILERLITE_CUSTOMERS_GROUP: 'BB - Customers',
   MAILERLITE_CUSTOMERS_GROUP_ID: '200045611492312401',
   MAILERLITE_FIELD_PREFIX: 'bb',
+
+  // ── Zoomville Rush prize (netlify/lib/zr-prize.mjs). The prize is created in
+  // Printful as a DRAFT; the team email links here to confirm it. If the
+  // value contains {id} it is replaced with the Printful order id (set a
+  // per-order link once its exact format has been checked in the dashboard).
+  PRINTFUL_ORDERS_URL: 'https://www.printful.com/dashboard/default/orders',
 });
 
 /**

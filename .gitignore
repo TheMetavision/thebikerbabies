@@ -19,7 +19,7 @@ import-*.mjs
 verify.mjs
 
 # Work in progress \u2014 not ready for production
-games/
+/games/
 
 # Local-only agent / migration artifacts
 CLAUDE.md
@@ -28,4 +28,4 @@ import-*.mjs
 verify.mjs
 
 # Work in progress - not ready for production
-games/
+/games/
