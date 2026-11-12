@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Zoomville Rush | The Biker Babies</title>
-<meta name="description" content="Outride The Flat Tyre Gang, Professor Pothole and Count Crankshaft in Zoomville Rush, a free Biker Babies endless runner. Three stages, two riders and a monthly leaderboard with a Biker Babies T-shirt for the furthest run.">
+<meta name="description" content="Outrun The Flat Tyre Gang, Professor Pothole and Count Crankshaft in Zoomville Rush, a free Biker Babies endless runner. Three stages, two runners and a monthly leaderboard with a Biker Babies T-shirt for the furthest run.">
 <link rel="canonical" href="https://thebikerbabies.com/games/zoomville-rush/">
 <meta property="og:title" content="Zoomville Rush | The Biker Babies">
 <meta property="og:description" content="A free Biker Babies endless runner. The furthest run each month wins a Biker Babies T-shirt.">
@@ -688,9 +688,10 @@ window.RG = (() => {
 })();
 
 /* THE BIKER BABIES: ZOOMVILLE RUSH
-   HARD BRAND LAW: motorbikes only (engines, exhausts, throttles), full-face helmets always on when riding.
+   Zoomville Rush is the ON-FOOT runner: Maddison, Kai and the villains run on foot, no helmets, no engine sounds.
+   Motorbikes (engines, exhausts, throttles, helmets on when riding) belong to the separate future Biker Babies racing game.
    Young audience: joyful, villains comical never scary. Environments earthy and natural;
-   brand orange/black only on bikes, helmets, signage. */
+   brand orange/black on outfits, props and signage. */
 (() => {
 const R = window.RG;
 let G = {}, MT = {}, TEX = {};
@@ -708,16 +709,16 @@ const KIT = window.KIT = {
   look: { bloom: 0.38, bloomR: 0.5, bloomT: 0.85, exposure: 0.98, vignette: 0.62, fog: [40, 170], grain: 0.02, runnerLight: 0.35, flash: 0.3, normalParticles: true,
     grade: { lift: [0.012, 0.012, 0.0], gain: [1.03, 1.02, 0.96], gamma: 1.0, sat: 1.14 } },
   weather: (st) => ({ kind: 'motes', color: st.id === 'dustbowl' ? 0xe8c890 : 0xfff6c8, count: st.id === 'skyway' ? 120 : 170, size: 0.05, drift: st.id === 'skyway' ? 1.4 : 0.5, opacity: 0.8 }),
-  engineHum: true,
+  engineHum: false,   // on-foot runner: no motorbike engine sound
   dustColor: 0xc8a878, slideSpark: 0xd8b888, collectColor: 0xffd700, hitColor: 0xffa040, smashColor: 0xd8b070, hitTint: 0xffb060,
   copy: {
-    lede: 'The Flat Tyre Gang are out making mischief on the Zoomville trails. Twist the throttle, jump the hay carts, grab the Zoom Bolts and stay ahead!',
-    start: "Let's ride", keep: 'Keep riding', again: 'Ride again', entering: 'Riding into', verbRun: 'Ride', slideVerb: 'Duck',
+    lede: 'The Flat Tyre Gang are out making mischief on the Zoomville trails. Pick up the pace, jump the hay carts, grab the Zoom Bolts and stay ahead!',
+    start: "Let's run", keep: 'Keep running', again: 'Run again', entering: 'Running into', verbRun: 'Run', slideVerb: 'Duck',
     collectMany: 'Zoom Bolts', collectCap: 'Bolts', vehicles: 'hay carts', board: 'Bubble Shield', boardMany: 'Bubble Shields',
-    rank: 'Rider Rank', runnerLabel: 'Rider', ouch: 'Whoops!', shookOff: 'Left them behind!', rocketOut: 'Sky Jump all done',
+    rank: 'Runner Rank', runnerLabel: 'Runner', ouch: 'Whoops!', shookOff: 'Left them behind!', rocketOut: 'Sky Jump all done',
     boardHit: 'Pop! The bubble saved you', vehicleSmashed: 'Zoomed through', smashed: 'Zoom',
     caught: n => [`${n} caught up!`, 'Two bumps in a row let them catch you. Have another go!'],
-    cartDeath: ['Bumped into a hay cart', 'Ride up a ramp to get on top, or switch lanes early. Tractors are moving!'],
+    cartDeath: ['Bumped into a hay cart', 'Run up a ramp to get on top, or switch lanes early. Tractors are moving!'],
   },
   hud: '<svg class="hico" viewBox="0 0 12 18" aria-hidden="true"><path d="M7 0 1 10h4l-2 8 8-11H7l2-7z" fill="currentColor"/></svg>',
   powers: {
@@ -1023,7 +1024,7 @@ const KIT = window.KIT = {
     crash() { tone(380, 120, 0.5, 'sine', 0.2); tone(250, 180, 0.3, 'triangle', 0.1, 0.15); noise(0.25, 0.2, 500); },
     alarm() { tone(523, 523, 0.12, 'square', 0.04); tone(392, 392, 0.12, 'square', 0.04, 0.15); },
     horn() { tone(330, 330, 0.25, 'square', 0.05); tone(330, 330, 0.25, 'square', 0.05, 0.32); },
-    jump() { tone(220, 520, 0.18, 'sawtooth', 0.04); noise(0.12, 0.1, 1200); },
+    jump() { tone(300, 720, 0.15, 'triangle', 0.09); tone(450, 1000, 0.1, 'sine', 0.04, 0.04); },   // springy boing, no engine rev
   }),
 };
 const SWAY = [];
