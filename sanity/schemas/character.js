@@ -16,6 +16,14 @@ export default {
     { name: 'sortOrder', title: 'Display Order', type: 'number' },
     { name: 'seoTitle', title: 'SEO Title', type: 'string' },
     { name: 'seoDescription', title: 'SEO Description', type: 'text', rows: 2 },
+    // Fields the live character documents already hold (added to the schema
+    // 2026-11-12 so Studio can edit them; no data changed). The website reads
+    // image, role and displayOrder on /meet-the-biker-babies.
+    { name: 'image', title: 'Character Image', type: 'image', options: { hotspot: true }, description: 'The picture shown on Meet the Gang. (The site reads this, not Character Portrait.)' },
+    { name: 'role', title: 'Role', type: 'string', description: 'Shown under the name on Meet the Gang, e.g. "The Leader". Villains use their own name.' },
+    { name: 'displayOrder', title: 'Display Order (Meet the Gang)', type: 'number', description: 'Meet the Gang sorts by this first, then by Display Order above.' },
+    { name: 'tag', title: 'Tag', type: 'string', options: { list: [{ title: 'Hero', value: 'hero' }, { title: 'Villain', value: 'villain' }] }, description: 'Legacy: not read by the website (it uses Character Type).' },
+    { name: 'coreSix', title: 'Core Six', type: 'boolean', description: 'Legacy: not read by the website.' },
     // Private: Studio and Social Content Studio only, never queried by the website.
     referenceGallery('character'),
   ],
