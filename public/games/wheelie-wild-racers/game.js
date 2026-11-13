@@ -64,19 +64,19 @@ const TRACKS = [
   { id: 'playground', name: 'Playground Circuit', blurb: 'Tight turns round the practice oval, past the see-saws and the clock tower. Where every Biker Baby learned to ride.',
     rival: 'flattyre', unlockRacer: 'hiro', width: 14, tex: 'pg', wallH: 1.15, card: 'track_playground',
     points: [[0, 0], [0, -80], [-15, -112], [-50, -118], [-72, -92], [-62, -62], [-92, -42], [-114, -62], [-142, -52], [-148, -10], [-122, 16], [-82, 10], [-56, 36], [-30, 42], [-10, 26]],
-    theme: { sky: 'zr_pano_playground', skyTop: 0x2a91ea, fog: 0xb9d6e6, fogNear: 90, fogFar: 520, sun: 0xfff4e0, sunI: 3.3, sunDir: [0.45, 0.62, -0.5], hemiSky: 0xcfe8ff, hemiGround: 0x5f8a3e, hemiI: 1.2, exposure: 1.02, groundTint: 0xffffff },
+    theme: { sky: 'pg_sky', skyWrap: 0.234, skyTop: 0x1582e5, fog: 0xb9d6e6, fogNear: 90, fogFar: 520, sun: 0xfff4e0, sunI: 3.3, sunDir: [0.45, 0.62, -0.5], hemiSky: 0xcfe8ff, hemiGround: 0x5f8a3e, hemiI: 1.2, exposure: 1.02, groundTint: 0xffffff },
     props: { near: ['climb', 'cones', 'cones', 'tyres', 'climb', 'hut'], far: ['pine'], landmark: 'hut' },
     crates: [0.2, 0.47, 0.72], signs: ['zr_sign1', 'zr_sign0', 'zr_sign5'] },
   { id: 'dustbowl', name: 'Dust Bowl Scramble', blurb: 'Swooping dirt banks and big jumps in the old quarry. Hold on to your helmet.',
     rival: 'pothole', unlockRacer: 'ethan', width: 16, tex: 'db', wallH: 1.35, card: 'track_dustbowl',
     points: [[0, 0], [0, -120], [20, -170], [70, -186], [120, -162], [136, -112], [110, -72], [130, -30], [172, -12], [186, 40], [150, 82], [80, 92], [40, 62], [10, 40]],
-    theme: { sky: 'zr_pano_dustbowl', skyTop: 0x91a0d8, fog: 0xdcc08a, fogNear: 90, fogFar: 540, sun: 0xffd9a0, sunI: 3.1, sunDir: [-0.55, 0.38, -0.75], hemiSky: 0xffe0b0, hemiGround: 0x8a6438, hemiI: 1.08, exposure: 1.0, groundTint: 0xf2dcc0 },
+    theme: { sky: 'db_sky', skyWrap: 0.235, skyTop: 0x839de3, fog: 0xdcc08a, fogNear: 90, fogFar: 540, sun: 0xffd9a0, sunI: 3.1, sunDir: [-0.55, 0.38, -0.75], hemiSky: 0xffe0b0, hemiGround: 0x8a6438, hemiI: 1.08, exposure: 1.0, groundTint: 0xf2dcc0 },
     props: { near: ['hay', 'hay', 'tyres', 'cones', 'hay', 'tyres'], far: ['hay', 'pine'], landmark: 'hut' },
     crates: [0.16, 0.42, 0.66, 0.86], signs: ['zr_sign3', 'zr_sign0', 'zr_sign5', 'zr_sign3'] },
   { id: 'skyway', name: 'The Skyway Run', blurb: 'Flat out along the forest ridge, over the footbridge and past the waterfall, with the whole bay below.',
     rival: 'crankshaft', unlockRacer: 'toad', width: 18, tex: 'sw', wallH: 1.25, card: 'track_skyway',
     points: [[0, 0], [0, -160], [30, -232], [110, -262], [200, -242], [252, -172], [242, -82], [202, -22], [212, 60], [170, 122], [80, 132], [20, 92]],
-    theme: { sky: 'zr_pano_skyway', skyTop: 0x6c82d0, fog: 0xd8a87a, fogNear: 110, fogFar: 620, sun: 0xffc890, sunI: 3.0, sunDir: [0.3, 0.32, 0.8], hemiSky: 0xffc8b0, hemiGround: 0x4a5a2e, hemiI: 1.1, exposure: 1.0, groundTint: 0xffffff },
+    theme: { sky: 'sw_sky', skyWrap: 0.234, skyTop: 0x6c81c9, fog: 0xd8a87a, fogNear: 110, fogFar: 620, sun: 0xffc890, sunI: 3.0, sunDir: [0.3, 0.32, 0.8], hemiSky: 0xffc8b0, hemiGround: 0x4a5a2e, hemiI: 1.1, exposure: 1.0, groundTint: 0xffffff },
     props: { near: ['pine', 'pine', 'tyres', 'hut', 'pine', 'cones'], far: ['pine'], landmark: 'hut' },
     crates: [0.14, 0.38, 0.62, 0.84], signs: ['zr_sign4', 'zr_sign0', 'zr_sign5', 'zr_sign4'] },
 ];
@@ -230,16 +230,33 @@ function buildTrack(def) {
   track.sunDir = new THREE.Vector3(...th.sunDir).normalize();
   renderer.toneMappingExposure = th.exposure;
 
-  // ---- sky: panorama on a cylinder (mirrored so it wraps without a seam) ----
-  const skyT = tex(th.sky); skyT.wrapS = THREE.MirroredRepeatWrapping; skyT.repeat.set(3, 1);
-  const sky = new THREE.Mesh(new THREE.CylinderGeometry(900, 900, 520, 64, 1, true),
-    new THREE.MeshBasicMaterial({ map: skyT, side: THREE.BackSide, fog: false, depthWrite: false }));
-  sky.position.y = 150; sky.renderOrder = -1; g.add(sky); track.sky = sky;
+  // ---- sky ----
+  // New-style backdrops (th.skyWrap): a distance-only panorama whose ends join seamlessly, repeated 3 times round the
+  // circle (no mirroring, so no reflected scenery), sized from the image so it keeps its proportions, with the horizon
+  // at ground level and a haze band below it that matches the fog. Older art falls back to the mirrored panorama.
+  const SKY_R = 900, SKY_REP = 3;
+  const skyT = tex(th.sky);
+  let sky;
+  if (th.skyWrap) {
+    skyT.wrapS = THREE.RepeatWrapping; skyT.repeat.set(SKY_REP, 1);
+    sky = new THREE.Mesh(new THREE.CylinderGeometry(SKY_R, SKY_R, 1, 96, 1, true),
+      new THREE.MeshBasicMaterial({ map: skyT, side: THREE.BackSide, fog: false, depthWrite: false }));
+    const fit = () => { const im = skyT.image; if (!im || !im.width) return setTimeout(fit, 150);
+      const h = (2 * Math.PI * SKY_R / SKY_REP) * im.height / im.width;
+      sky.scale.y = h; sky.position.y = h / 2 - th.skyWrap * h; };
+    sky.scale.y = 1200; sky.position.y = 300; fit();
+  } else {
+    skyT.wrapS = THREE.MirroredRepeatWrapping; skyT.repeat.set(3, 1);
+    sky = new THREE.Mesh(new THREE.CylinderGeometry(SKY_R, SKY_R, 520, 64, 1, true),
+      new THREE.MeshBasicMaterial({ map: skyT, side: THREE.BackSide, fog: false, depthWrite: false }));
+    sky.position.y = 150;
+  }
+  const skyRig = new THREE.Group(); g.add(skyRig); sky.renderOrder = -1; skyRig.add(sky); track.sky = skyRig;
   const cap = new THREE.Mesh(new THREE.CircleGeometry(900, 48), new THREE.MeshBasicMaterial({ color: th.skyTop || th.fog, side: THREE.DoubleSide, fog: false, depthWrite: false }));
-  cap.rotation.x = Math.PI / 2; cap.position.y = 900; cap.renderOrder = -1; sky.add(cap);
+  cap.rotation.x = Math.PI / 2; cap.position.y = 1600; cap.renderOrder = -2; skyRig.add(cap);
   // above the panorama: a plain band in the sky's top colour, so the edge of the picture never shows
   const band = new THREE.Mesh(new THREE.CylinderGeometry(900, 900, 640, 48, 1, true), new THREE.MeshBasicMaterial({ color: th.skyTop || th.fog, side: THREE.BackSide, fog: false, depthWrite: false }));
-  band.position.y = 260 + 320 - 1; band.renderOrder = -1; sky.add(band);
+  band.position.y = th.skyWrap ? 1280 : 260 + 320 - 1 + 150; band.renderOrder = -2; skyRig.add(band);
 
   // ---- ground: big desert plane in the dirt texture, tinted ----
   const gT = tex(def.tex + '_ground', { repeat: [90, 90] }), gN = tex(def.tex + '_groundN', { repeat: [90, 90], srgb: false });
@@ -1084,7 +1101,7 @@ function updateCamera(dt, t) {
   // shadows follow the camera target
   if (track) {
     const c = cam.look; sun.position.copy(c).addScaledVector(track.sunDir, 120); sun.target.position.copy(c);
-    if (track.sky) track.sky.position.set(camera.position.x, 150, camera.position.z);
+    if (track.sky) track.sky.position.set(camera.position.x, 0, camera.position.z);
   }
 }
 
