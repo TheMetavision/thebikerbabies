@@ -62,19 +62,19 @@ const R = Object.fromEntries(RACERS.map(r => [r.id, r]));
    theme: sky panorama, fog/horizon colour, sun, ambient. props: scattered from the shared junkyard kit. */
 const TRACKS = [
   { id: 'playground', name: 'Playground Circuit', blurb: 'Tight turns round the practice oval, past the see-saws and the clock tower. Where every Biker Baby learned to ride.',
-    rival: 'flattyre', unlockRacer: 'hiro', width: 14, tex: 'pg', wallH: 1.15, card: 'zr_card_playground',
+    rival: 'flattyre', unlockRacer: 'hiro', width: 14, tex: 'pg', wallH: 1.15, card: 'track_playground',
     points: [[0, 0], [0, -80], [-15, -112], [-50, -118], [-72, -92], [-62, -62], [-92, -42], [-114, -62], [-142, -52], [-148, -10], [-122, 16], [-82, 10], [-56, 36], [-30, 42], [-10, 26]],
     theme: { sky: 'zr_pano_playground', skyTop: 0x2a91ea, fog: 0xb9d6e6, fogNear: 90, fogFar: 520, sun: 0xfff4e0, sunI: 3.3, sunDir: [0.45, 0.62, -0.5], hemiSky: 0xcfe8ff, hemiGround: 0x5f8a3e, hemiI: 1.2, exposure: 1.02, groundTint: 0xffffff },
     props: { near: ['climb', 'cones', 'cones', 'tyres', 'climb', 'hut'], far: ['pine'], landmark: 'hut' },
     crates: [0.2, 0.47, 0.72], signs: ['zr_sign1', 'zr_sign0', 'zr_sign5'] },
   { id: 'dustbowl', name: 'Dust Bowl Scramble', blurb: 'Swooping dirt banks and big jumps in the old quarry. Hold on to your helmet.',
-    rival: 'pothole', unlockRacer: 'ethan', width: 16, tex: 'db', wallH: 1.35, card: 'zr_card_dustbowl',
+    rival: 'pothole', unlockRacer: 'ethan', width: 16, tex: 'db', wallH: 1.35, card: 'track_dustbowl',
     points: [[0, 0], [0, -120], [20, -170], [70, -186], [120, -162], [136, -112], [110, -72], [130, -30], [172, -12], [186, 40], [150, 82], [80, 92], [40, 62], [10, 40]],
     theme: { sky: 'zr_pano_dustbowl', skyTop: 0x91a0d8, fog: 0xdcc08a, fogNear: 90, fogFar: 540, sun: 0xffd9a0, sunI: 3.1, sunDir: [-0.55, 0.38, -0.75], hemiSky: 0xffe0b0, hemiGround: 0x8a6438, hemiI: 1.08, exposure: 1.0, groundTint: 0xf2dcc0 },
     props: { near: ['hay', 'hay', 'tyres', 'cones', 'hay', 'tyres'], far: ['hay', 'pine'], landmark: 'hut' },
     crates: [0.16, 0.42, 0.66, 0.86], signs: ['zr_sign3', 'zr_sign0', 'zr_sign5', 'zr_sign3'] },
   { id: 'skyway', name: 'The Skyway Run', blurb: 'Flat out along the forest ridge, over the footbridge and past the waterfall, with the whole bay below.',
-    rival: 'crankshaft', unlockRacer: 'toad', width: 18, tex: 'sw', wallH: 1.25, card: 'zr_card_skyway',
+    rival: 'crankshaft', unlockRacer: 'toad', width: 18, tex: 'sw', wallH: 1.25, card: 'track_skyway',
     points: [[0, 0], [0, -160], [30, -232], [110, -262], [200, -242], [252, -172], [242, -82], [202, -22], [212, 60], [170, 122], [80, 132], [20, 92]],
     theme: { sky: 'zr_pano_skyway', skyTop: 0x6c82d0, fog: 0xd8a87a, fogNear: 110, fogFar: 620, sun: 0xffc890, sunI: 3.0, sunDir: [0.3, 0.32, 0.8], hemiSky: 0xffc8b0, hemiGround: 0x4a5a2e, hemiI: 1.1, exposure: 1.0, groundTint: 0xffffff },
     props: { near: ['pine', 'pine', 'tyres', 'hut', 'pine', 'cones'], far: ['pine'], landmark: 'hut' },
@@ -611,7 +611,7 @@ function stepKart(k, dt) {
   k.root.position.set(k.pos.x, k.y, k.pos.z); k.root.rotation.y = k.heading;
   // bikes lean INTO corners (karts used to tip outward a touch); drifting leans further. Turbo Toad stays upright on his pogo stick.
   const leanK = k.r.pogo ? 0.08 : 0.42;
-  const roll = clamp(k.input.steer * Math.abs(k.speed) / MAX_SPEED * leanK, -leanK, leanK) + (k.drift ? k.drift * (k.r.pogo ? 0.04 : 0.12) : 0);
+  const roll = -clamp(k.input.steer * Math.abs(k.speed) / MAX_SPEED * leanK, -leanK, leanK) - (k.drift ? k.drift * (k.r.pogo ? 0.04 : 0.12) : 0);   // lean into the turn: steer left, lean left
   k.tilt.rotation.z = lerp(k.tilt.rotation.z, roll, 0.12);
   // Turbo Toad bounces on his pogo stick: quicker hops the faster he goes
   if (k.r.pogo) { k.pogoPh = (k.pogoPh || 0) + dt * (5 + Math.abs(k.speed) * 0.32); k.body.position.y = Math.abs(Math.sin(k.pogoPh)) * (0.18 + Math.min(1, Math.abs(k.speed) / MAX_SPEED) * 0.3); }
@@ -1439,6 +1439,7 @@ function stepVisualIdle(k, dt) {
 }
 
 // debug / test hooks (Playwright)
+{ const rx = document.getElementById('rotateX'); if (rx) rx.addEventListener('click', e => { e.stopPropagation(); document.body.classList.add('rot-dismissed'); }); }
 window.__jr = { race, karts, get player() { return player; }, get track() { return track; }, startIntro, startCountdown, goSelect, goTitle, TRACKS, R, useItem, hitKart, showResults };
 
 goTitle();
