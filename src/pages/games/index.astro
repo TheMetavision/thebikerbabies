@@ -119,7 +119,8 @@ const games = [
   }
 
   .game-card {
-    display: block;
+    display: flex;
+    flex-direction: column;   /* body fills the card, so the Play buttons line up across a row */
     color: inherit;
     text-decoration: none;
     background: var(--color-bg-card);
@@ -176,6 +177,10 @@ const games = [
 
   .game-body {
     padding: 22px 24px 26px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .game-title {
@@ -185,6 +190,7 @@ const games = [
   }
 
   .game-desc {
+    flex: 1;
     color: #d0d0d0;
     line-height: 1.6;
     margin: 0 0 18px;
