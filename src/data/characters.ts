@@ -11,7 +11,7 @@ export const heroes: Character[] = [
     name: 'Amara "The Innovator"',
     title: "The Innovator",
     description:
-      "A tech-savvy rider who combines traditional biking with modern gadgets. Her smart helmet design helps the team stay connected during adventures, and her innovative bike modifications often save the day.",
+      "A tech-savvy rider who combines traditional riding with modern gadgets. Her smart helmet design helps the team stay connected during adventures, and her innovative bike modifications often save the day.",
     image: "https://cdn.sanity.io/images/v518t53u/production/a4ff3fcea5a5dac49bb5c98f173ca302ca44f4fe-896x1344.jpg",
   },
   {
@@ -116,7 +116,7 @@ export const heroes: Character[] = [
     name: 'Nia "The Scientist"',
     title: "The Scientist",
     description:
-      "Curious and analytical, Nia studies the physics of biking to help the team improve their techniques. Her experiments often lead to interesting discoveries.",
+      "Curious and analytical, Nia studies the physics of riding to help the team improve their techniques. Her experiments often lead to interesting discoveries.",
     image: "https://cdn.sanity.io/images/v518t53u/production/329280d9f03935c7b87bdc3f1121228d7e847454-896x1344.jpg",
   },
   {
@@ -147,7 +147,7 @@ export const villains: Character[] = [
     name: "Grumpy Gearhead",
     title: "Grumpy Gearhead",
     description:
-      "A cranky former bike shop owner who creates mechanical obstacles for the team. Deep down, he's impressed by their skills but too proud to admit it.",
+      "A cranky former motorbike-garage owner who creates mechanical obstacles for the team. Deep down, he's impressed by their skills but too proud to admit it.",
     image: "https://cdn.sanity.io/images/v518t53u/production/76b54685c4b40514575f3a4ac1f58d6c0e30c39c-896x1344.jpg",
   },
   {
@@ -168,7 +168,7 @@ export const villains: Character[] = [
     name: "Turbo Toad",
     title: "Turbo Toad",
     description:
-      "A speed-obsessed amphibian who rides a souped-up pogo stick. Constantly tries to prove that hopping is better than biking.",
+      "A speed-obsessed amphibian on a souped-up pogo stick. Once a rival, Turbo Toad earned his place as an honorary Biker Baby after teaming up with the crew one too many times.",
     image: "https://cdn.sanity.io/images/v518t53u/production/e8cc59182ea9c1329224959e8cf6886de042c92a-896x1344.jpg",
   },
   {
@@ -189,7 +189,7 @@ export const villains: Character[] = [
     name: "The Flat Tyre Gang",
     title: "The Flat Tyre Gang",
     description:
-      "A mischievous group of porcupines who drop spikes on bike paths. They think it's hilarious, but The Biker Babies always have to watch out for their pranks.",
+      "A mischievous group of porcupines who drop spikes on the trails. They think it's hilarious, but The Biker Babies always have to watch out for their pranks.",
     image: "https://cdn.sanity.io/images/v518t53u/production/433a507735684c8da0e5b89c5f68444f357b09ea-896x1344.jpg",
   },
   {
