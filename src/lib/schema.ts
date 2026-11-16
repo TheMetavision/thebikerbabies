@@ -10,7 +10,7 @@ export function organizationSchema() {
     address: { '@type': 'PostalAddress', streetAddress: '167-169 Great Portland Street, 5th Floor', addressLocality: 'London', postalCode: 'W1W 5PF', addressCountry: 'GB' },
     vatID: 'GB503753017',
     identifier: { '@type': 'PropertyValue', propertyID: 'Companies House', value: '16282479' },
-    sameAs: ['https://www.youtube.com/@TheBikerBabies', 'https://www.instagram.com/thebikerbabies', 'https://www.facebook.com/thebikerbabies', 'https://www.tiktok.com/@thebikerbabies', 'https://x.com/TheBikerBabies'] };
+    sameAs: ['https://www.youtube.com/@TheBikerBabies', 'https://www.instagram.com/thebikerbabies', 'https://www.facebook.com/thebikerbabies', 'https://x.com/TheBikerBabies'] };
 }
 export function websiteSchema() {
   return { '@context': 'https://schema.org', '@type': 'WebSite', name: 'The Biker Babies', url: canonicalUrl('/'),
