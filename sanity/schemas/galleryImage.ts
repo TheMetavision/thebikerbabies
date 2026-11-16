@@ -20,7 +20,7 @@ export default defineType({
       title: 'Caption',
       type: 'string',
       description: 'What the image shows, e.g. "Blaze on her motorbike, sunset at Pit Lane".',
-      validation: (Rule) => Rule.required().max(120),
+      validation: (Rule) => Rule.required().max(500),
     }),
     defineField({
       name: 'kind',
