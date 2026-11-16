@@ -5,4 +5,5 @@ export default defineCliConfig({
     dataset: 'production',
   },
   studioHost: 'thebikerbabies',
+  deployment: { appId: 't18e6xjmmk6veu36cb3qr3sq' },
 });
