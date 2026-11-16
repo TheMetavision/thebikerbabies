@@ -720,6 +720,9 @@ const KIT = window.KIT = {
     skyway: ['/games/zoomville-rush/audio/skyway.mp4', '/games/zoomville-rush/audio/skyway.webm'],               // Skyway Rock Run
   },
   world: { ceil: 7 },
+  // Higgsfield prop models (models/prop-*.glb): the trackside kit shared with Wheelie Wild Racers plus a broadleaf oak.
+  // Each falls back to the code-built version until it has loaded (or if it fails).
+  props: { oak: {}, pine: {}, hay: {}, tyres: {}, cones: {}, climb: {}, hut: {} },
   look: { bloom: 0.38, bloomR: 0.5, bloomT: 0.85, exposure: 0.98, vignette: 0.62, fog: [40, 170], grain: 0.02, runnerLight: 0.35, flash: 0.3, normalParticles: true,
     grade: { lift: [0.012, 0.012, 0.0], gain: [1.03, 1.02, 0.96], gamma: 1.0, sat: 1.14 } },
   weather: (st) => ({ kind: 'motes', color: st.id === 'dustbowl' ? 0xe8c890 : 0xfff6c8, count: st.id === 'skyway' ? 120 : 170, size: 0.05, drift: st.id === 'skyway' ? 1.4 : 0.5, opacity: 0.8 }),
@@ -791,6 +794,7 @@ const KIT = window.KIT = {
   },
 
   init(X) {
+    KIT._X = X;
     const { canvasTex, speckle } = X;
     TEX.dirt = canvasTex(256, 256, (g, w, h) => {
       g.fillStyle = '#8a6a48'; g.fillRect(0, 0, w, h); speckle(g, w, h, 6000, [110, 82, 56], 50, 0.4, 2);
@@ -838,6 +842,35 @@ const KIT = window.KIT = {
     MT.tractor = new THREE.MeshStandardMaterial({ color: 0x3a6a2a, roughness: 0.45, metalness: 0.3 });
     MT.trailer = new THREE.MeshStandardMaterial({ color: 0x6a4a2e, roughness: 0.8 });
     MT.bolt = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x8a6000, emissiveIntensity: 1, metalness: 0.6, roughness: 0.25 });
+    // ---- 3D scenery upgrade: bark with relief, tree-ring log ends, smooth vertex-coloured boulders and bushes ----
+    TEX.barkHi = canvasTex(256, 512, (g, w, h) => { g.fillStyle = '#6a4a2e'; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 46; i++) { let x = Math.random() * w; const lw = 3 + Math.random() * 7, dark = Math.random() < 0.6;
+        g.strokeStyle = dark ? `rgba(30,18,10,${0.35 + Math.random() * 0.35})` : `rgba(150,112,74,${0.25 + Math.random() * 0.3})`; g.lineWidth = lw; g.beginPath(); g.moveTo(x, 0);
+        for (let y = 0; y <= h; y += 32) { x += (Math.random() - 0.5) * 9; g.lineTo(x, y); } g.stroke(); }
+      for (let i = 0; i < 24; i++) { g.fillStyle = 'rgba(25,15,8,0.5)'; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 4 + Math.random() * 6, 7 + Math.random() * 10, 0, 0, 7); g.fill(); } }, 1, 2);
+    TEX.rings = canvasTex(128, 128, (g, w, h) => { g.fillStyle = '#d2a868'; g.fillRect(0, 0, w, h);
+      for (let r = 4; r < 64; r += 3 + Math.random() * 3) { g.strokeStyle = `rgba(140,92,48,${0.35 + Math.random() * 0.3})`; g.lineWidth = 1 + Math.random() * 1.4; g.beginPath(); g.arc(64 + (Math.random() - 0.5) * 2, 64 + (Math.random() - 0.5) * 2, r, 0, 7); g.stroke(); }
+      g.strokeStyle = '#5a3a20'; g.lineWidth = 7; g.beginPath(); g.arc(64, 64, 61, 0, 7); g.stroke();
+      g.strokeStyle = 'rgba(90,58,30,0.7)'; g.lineWidth = 2; g.beginPath(); g.moveTo(64, 64); g.lineTo(100, 30); g.stroke(); });
+    TEX.stone = canvasTex(256, 256, (g, w, h) => { g.fillStyle = '#808080'; g.fillRect(0, 0, w, h); speckle(g, w, h, 9000, [128, 128, 128], 70, 0.5, 2);
+      for (let i = 0; i < 26; i++) { g.strokeStyle = 'rgba(40,40,40,0.45)'; g.lineWidth = 1 + Math.random() * 2; g.beginPath(); let x = Math.random() * w, y = Math.random() * h; g.moveTo(x, y);
+        for (let k = 0; k < 4; k++) { x += (Math.random() - 0.5) * 50; y += (Math.random() - 0.5) * 50; g.lineTo(x, y); } g.stroke(); } }, 2, 2);
+    MT.barkHi = new THREE.MeshStandardMaterial({ map: TEX.barkHi, bumpMap: TEX.barkHi, bumpScale: 1.2, roughness: 0.95 });
+    MT.rings = new THREE.MeshStandardMaterial({ map: TEX.rings, roughness: 0.85 });
+    MT.rockV = new THREE.MeshStandardMaterial({ vertexColors: true, map: TEX.stone, bumpMap: TEX.stone, bumpScale: 1.5, roughness: 0.95 });
+    MT.leafV = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85 });
+    MT.pole = new THREE.MeshStandardMaterial({ color: 0x8a6440, map: TEX.barkHi, roughness: 0.8 });
+    G.rocks = [0.7, 2.3, 4.1, 5.9].map(sd => lumpGeo(sd, 0.22, 0x8a847a, 0x6f8a3c, 0.85, 0.55));
+    G.drystone = [1.3, 3.7].map(sd => lumpGeo(sd, 0.22, 0xa88a68, 0x9a8460, 0.85, 2));
+    G.bushes = [1.1, 3.3, 5.5].map(sd => lumpGeo(sd, 0.16, 0x2e5a22, 0x7aa83a, 0.8, 0.1));
+    G.dryBush = [2.2, 4.4].map(sd => lumpGeo(sd, 0.18, 0x5a5a2a, 0x9a9a4a, 0.75, 0.1));
+    G.berm = new THREE.CylinderGeometry(2.2, 2.2, X.SEG_L + 0.04, 24, 1, true);
+    G.bushesLo = [1.1, 3.3, 5.5].map(sd => lumpGeo(sd, 0.16, 0x2e5a22, 0x7aa83a, 0.8, 0.1, 12, 8));
+    G.trunk = new THREE.CylinderGeometry(0.14, 0.24, 2.0, 7);
+    G.pineCone = new THREE.ConeGeometry(1.15, 1.5, 9);
+    G.unitBox = new THREE.BoxGeometry(1, 1, 1);
+    const tint = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9 });
+    Object.assign(LODTINT, { hay: tint(0xc8a248), tyres: tint(0x3a2a2a), cones: tint(0xe86a2a), climb: tint(0x3aa8b8), hut: tint(0x9a6a40) });
     G.track = new THREE.BoxGeometry(X.TRACK_W, 0.2, X.SEG_L);
     G.ground = new THREE.BoxGeometry(34, 0.2, X.SEG_L);
     G.tyre = new THREE.TorusGeometry(0.34, 0.14, 8, 18);
@@ -880,14 +913,30 @@ const KIT = window.KIT = {
       if (c.userData.track) c.material = st.id === 'dustbowl' ? MT.dust : (st.id === 'skyway' && MT.trail ? MT.trail : MT.dirt);
       if (c.userData.ground) { c.material = st.id === 'dustbowl' ? MT.dust : MT.grass; c.position.y = st.id === 'skyway' ? -7 : -0.13; c.visible = st.id !== 'skyway'; }
     });
-    const tree = (x, z, sc) => { const g = new THREE.Group(); const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 2.2, 8), MT.bark); tr.position.y = 1.1; g.add(tr);
-      for (let k = 0; k < 3; k++) { const c = new THREE.Mesh(new THREE.IcosahedronGeometry(1.0 + rnd() * 0.5, 0), MT.leaf[rnd() * 4 | 0]); c.position.set((rnd() - 0.5) * 0.9, 2.5 + k * 0.5, (rnd() - 0.5) * 0.9); g.add(c); }
-      g.position.set(x, 0, z); g.scale.setScalar(sc || 1); g.userData.sway = rnd() * 6; SWAY.push(g); return g; };
-    const pine = (x, z, sc, y) => { const g = new THREE.Group(); const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.16, 1.2, 6), MT.bark); tr.position.y = 0.6; g.add(tr);
-      for (let k = 0; k < 3; k++) { const c = new THREE.Mesh(new THREE.ConeGeometry(1.1 - k * 0.28, 1.4, 7), MT.pine); c.position.y = 1.5 + k * 0.8; g.add(c); } g.position.set(x, y || 0, z); g.scale.setScalar(sc || 1); g.userData.sway = rnd() * 6; SWAY.push(g); return g; };
+    // Higgsfield models are detailed, so each one sits in a THREE.LOD: the full model within LOD_NEAR metres, a light code-built stand-in beyond
+    const lod = (full, cheap) => { if (!full) return cheap; const l = new THREE.LOD(); l.addLevel(full, 0); l.addLevel(cheap, LOD_NEAR); return l; };
+    const cheapTree = sc => { const g = new THREE.Group(); const tr = new THREE.Mesh(G.trunk, MT.barkHi); tr.position.y = 1.0; g.add(tr);
+      [[0, 2.7, 0, 1.25], [-0.75, 2.35, 0.2, 0.95], [0.75, 2.4, -0.2, 1.0], [0.1, 3.25, 0.3, 0.9]].forEach(([x, y, z, r], k) => { const c = new THREE.Mesh(G.bushesLo[k % 3], MT.leafV); c.scale.set(r, r * 0.85, r); c.position.set(x, y, z); g.add(c); });
+      g.scale.setScalar(sc * 1.05); return g; };
+    const tree = (x, z, sc, far) => { sc = sc || 1;
+      const po = !far && X.prop('oak', [0, 4.6 * sc, 0], 'height'); if (po) po.rotation.y = rnd() * 6.28;
+      const g = new THREE.Group(); g.add(lod(po, cheapTree(sc))); g.position.set(x, 0, z); g.userData.sway = rnd() * 6; SWAY.push(g); return g; };
+    const cheapPine = sc => { const g = new THREE.Group(); const tr = new THREE.Mesh(G.trunk, MT.barkHi); tr.scale.set(0.6, 0.6, 0.6); tr.position.y = 0.6; g.add(tr);
+      for (let k = 0; k < 4; k++) { const c = new THREE.Mesh(G.pineCone, MT.pine); c.scale.setScalar(1 - k * 0.22); c.position.y = 1.4 + k * 0.85; g.add(c); } g.scale.setScalar(sc); return g; };
+    const pine = (x, z, sc, y, far) => { sc = sc || 1;
+      const pp = !far && X.prop('pine', [0, 4.8 * sc, 0], 'height'); if (pp) pp.rotation.y = rnd() * 6.28;
+      const g = new THREE.Group(); g.add(lod(pp, cheapPine(sc))); g.position.set(x, y || 0, z); g.userData.sway = rnd() * 6; SWAY.push(g); return g; };
+    const bush = (x, z, sc, dry) => { const g = new THREE.Group(), set = dry ? G.dryBush : G.bushes, n = 2 + (rnd() * 2 | 0);
+      for (let k = 0; k < n; k++) { const b = new THREE.Mesh(set[rnd() * set.length | 0], MT.leafV); const r = (0.45 + rnd() * 0.35) * (sc || 1); b.scale.set(r, r * 0.85, r); b.position.set((rnd() - 0.5) * r * 1.6, r * 0.55, (rnd() - 0.5) * r * 1.4); g.add(b); }
+      g.position.set(x, 0, z); return g; };
+    const rock = (x, z, r, y) => { const m = new THREE.Mesh(G.rocks[rnd() * 4 | 0], MT.rockV); m.scale.set(r * (0.9 + rnd() * 0.4), r * (0.7 + rnd() * 0.3), r * (0.9 + rnd() * 0.3)); m.rotation.y = rnd() * 6.28; m.position.set(x, (y || 0) + r * 0.35, z); return m; };
+    const propAt = (name, h, x, z, ry) => { const o = X.prop(name, [0, h, 0], 'height'); if (!o) return null;
+      const box = new THREE.Box3().setFromObject(o), sz = box.getSize(new THREE.Vector3());   // distant stand-in: a tinted box of the same footprint
+      const far = new THREE.Mesh(G.unitBox, LODTINT[name] || MT.wood); far.scale.copy(sz); far.position.y = sz.y / 2;
+      const l = lod(o, far); l.position.set(x, 0, z); l.rotation.y = ry; return l; };
     const fence = sd => { const g = new THREE.Group(); const p = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.0, 0.12), MT.wood); p.position.set(0, 0.5, -X.SEG_L / 2); g.add(p);
       [0.4, 0.8].forEach(y => { const r = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.1, X.SEG_L), MT.wood); r.position.set(0, y, 0); g.add(r); }); g.position.x = sd * (edge + 0.9); return g; };
-    const bale = (x, z) => { const b = new THREE.Mesh(G.bale, MT.hay); b.rotation.z = Math.PI / 2; b.rotation.y = rnd() * 3; b.position.set(x, 0.55, z); return b; };
+    const bale = (x, z) => { const ph = propAt('hay', 1.15, x, z, Math.PI / 2 + (rnd() - 0.5) * 0.5); if (ph) return ph; const b = new THREE.Mesh(G.bale, MT.hay); b.rotation.z = Math.PI / 2; b.rotation.y = rnd() * 3; b.position.set(x, 0.55, z); return b; };
     const sign = (x, sd) => { if (MT.signArt) {   // painted signs (posts included): Zoomville, the stage name, or the jump warning
         const k = [0, { playground: 1, dustbowl: 3, skyway: 4 }[st.id] || 1, 2][rnd() * 3 | 0], w = k === 2 ? 1.3 : 2.2, h = w * KIT._signAsp[k];
         const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), MT.signArt[k]); m.position.set(x, h / 2, 0); m.rotation.y = -Math.sign(x) * 0.35; return m; }
@@ -896,26 +945,37 @@ const KIT = window.KIT = {
     if (st.id === 'playground') {
       [-1, 1].forEach(sd => { if (i % 1 === 0) add(fence(sd));
         const r = rnd();
-        if (r < 0.35) add(tree(sd * (edge + 3 + rnd() * 3), (rnd() - 0.5) * 2, 0.9 + rnd() * 0.5));
-        else if (r < 0.5) add(bale(sd * (edge + 2.2 + rnd() * 2), (rnd() - 0.5) * 2));
-        if (rnd() < 0.5) add(tree(sd * (edge + 8 + rnd() * 10), (rnd() - 0.5) * 2, 1.2 + rnd() * 0.6));
+        if (r < 0.32) add(tree(sd * (edge + 3 + rnd() * 3), (rnd() - 0.5) * 2, 0.85 + rnd() * 0.4));
+        else if (r < 0.46) add(bale(sd * (edge + 2.4 + rnd() * 2), (rnd() - 0.5) * 2));
+        else if (r < 0.72) add(bush(sd * (edge + 1.6 + rnd() * 1.2), (rnd() - 0.5) * 2, 0.9));
+        if (rnd() < 0.5) add(tree(sd * (edge + 8 + rnd() * 10), (rnd() - 0.5) * 2, 1.1 + rnd() * 0.5, true));
+        else if (rnd() < 0.3) add(pine(sd * (edge + 9 + rnd() * 10), (rnd() - 0.5) * 2, 1.0 + rnd() * 0.4, 0, true));
       });
+      if (i % 11 === 6) { const c = propAt('climb', 2.6, side() * (edge + 5.5), 0, (rnd() - 0.5) * 0.8); if (c) add(c); }
+      if (i % 17 === 12) { const sd = side(), h = propAt('hut', 3.0, sd * (edge + 6.5), 0, -sd * Math.PI / 2); if (h) add(h); }
       if (i % 9 === 4) add(sign(side() * (edge + 1.8), 1));
     } else if (st.id === 'dustbowl') {
       [-1, 1].forEach(sd => {
-        const bank = add(new THREE.Mesh(new THREE.BoxGeometry(4, 1.6, X.SEG_L + 0.05), MT.dust)); bank.position.set(sd * (edge + 3.2), 0.3, 0); bank.rotation.z = sd * -0.35;
-        if (i % 2 === 0) for (let k = 0; k < 4; k++) { const t = add(new THREE.Mesh(G.tyre, MT.tyre)); t.rotation.y = Math.PI / 2; t.position.set(sd * (edge + 0.75), 0.18 + (k % 2) * 0.28, -1.5 + k); if (k % 2 && rnd() < 0.5) t.material = MT.white; }
-        if (rnd() < 0.25) { const sh = add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.35 + rnd() * 0.3, 0), MT.leaf[3])); sh.position.set(sd * (edge + 6 + rnd() * 5), 0.25, (rnd() - 0.5) * 2); sh.material = new THREE.MeshStandardMaterial({ color: 0x7a7a3a, flatShading: true }); }
+        const bank = add(new THREE.Mesh(G.berm, MT.dust)); bank.rotation.x = Math.PI / 2; bank.scale.set(1, 1, 0.38); bank.position.set(sd * (edge + 3.3), -0.25, 0);
+        const ty = i % 3 === 0 && propAt('tyres', 1.1, sd * (edge + 0.95), 0, sd * Math.PI / 2);
+        if (ty) add(ty);
+        else if (i % 2 === 0 && !PROPS_READY()) for (let k = 0; k < 4; k++) { const t = add(new THREE.Mesh(G.tyre, MT.tyre)); t.rotation.y = Math.PI / 2; t.position.set(sd * (edge + 0.75), 0.18 + (k % 2) * 0.28, -1.5 + k); if (k % 2 && rnd() < 0.5) t.material = MT.white; }
+        else if (i % 3 === 1 && rnd() < 0.5) { const hb = bale(sd * (edge + 1.3), (rnd() - 0.5) * 1.5); add(hb); }
+        else if (i % 3 === 2 && rnd() < 0.35) { const cn = propAt('cones', 0.7, sd * (edge + 1.0), 0, sd * Math.PI / 2); if (cn) add(cn); }
+        if (rnd() < 0.35) add(bush(sd * (edge + 6 + rnd() * 6), (rnd() - 0.5) * 2, 0.8, true));
+        if (rnd() < 0.15) add(rock(sd * (edge + 5 + rnd() * 6), (rnd() - 0.5) * 2, 0.5 + rnd() * 0.5));
       });
+      if (i % 19 === 7) { const sd = side(), h = propAt('hut', 3.0, sd * (edge + 6.5), 0, -sd * Math.PI / 2); if (h) add(h); }
       if (i % 10 === 3) add(sign(side() * (edge + 1.6), 1));
       if (i % 6 === 0) { const fl = add(new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.35), MT.banners[0])); fl.position.set(side() * (edge + 1.2), 2.2, 0); const fp = add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.6, 6), MT.wood)); fp.position.set(fl.position.x - 0.25, 1.3, 0); }
     } else {
       // the Skyway: a grassy ridge with a drop either side and clouds below
       [-1, 1].forEach(sd => {
         const lip = add(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.2, X.SEG_L + 0.05), MT.grass)); lip.position.set(sd * (edge + 1.0), -0.62, 0); lip.rotation.z = sd * 0.25;
-        const cliff = add(new THREE.Mesh(new THREE.BoxGeometry(3, 9, X.SEG_L + 0.05), MT.rock)); cliff.position.set(sd * (edge + 2.6), -5.4, 0);
+        const cliff = add(new THREE.Mesh(new THREE.BoxGeometry(3, 9, X.SEG_L + 0.05), MT.rockV.clone())); cliff.material.vertexColors = false; cliff.material.color.set(0x8a8478); cliff.position.set(sd * (edge + 2.6), -5.4, 0);
         if (rnd() < 0.35) add(pine(sd * (edge + 1.2), (rnd() - 0.5) * 2, 0.7 + rnd() * 0.4, -0.25));
-        if (rnd() < 0.3) { const r = add(new THREE.Mesh(new THREE.DodecahedronGeometry(0.3 + rnd() * 0.4, 0), MT.rock)); r.position.set(sd * (edge + 0.6), 0.15, (rnd() - 0.5) * 3); }
+        if (rnd() < 0.3) add(rock(sd * (edge + 0.7), (rnd() - 0.5) * 3, 0.3 + rnd() * 0.35));
+        else if (rnd() < 0.3) add(bush(sd * (edge + 0.9), (rnd() - 0.5) * 2, 0.6));
         if (rnd() < 0.55) { const c = add(new THREE.Group()); for (let k = 0; k < 4; k++) { const p = new THREE.Mesh(new THREE.SphereGeometry(1.4 + rnd() * 1.5, 10, 8), MT.cloud); p.scale.y = 0.45; p.position.set(k * 1.6, rnd() * 0.5, (rnd() - 0.5) * 2); c.add(p); }
           c.position.set(sd * (edge + 7 + rnd() * 14), -4 - rnd() * 4, (rnd() - 0.5) * 2); }
       });
@@ -926,13 +986,18 @@ const KIT = window.KIT = {
   obstacles: {
     block(X, st) {
       const g = new THREE.Group();
-      if (st.id === 'dustbowl') {
+      const pk = st.id === 'dustbowl' ? 'tyres' : (st.id === 'skyway' ? null : 'hay');
+      const pm = pk && (pk === 'hay' ? X.prop('hay', [1.5, 1.12, 1.1]) : X.prop('tyres', [1.5, 1.22, 1.0], 'uniform'));
+      if (pm) { g.add(pm);
+        if (pk === 'tyres') { const top = X.prop('tyres', [1.05, 0.56, 0.7], 'uniform'); top.position.set((rnd() - 0.5) * 0.2, pm.children[0].scale.y * X.PROPS.tyres.size.y - 0.02, 0); top.rotation.y = (rnd() - 0.5) * 0.3; g.add(top); }
+        if (pk === 'hay') { const top = X.prop('hay', [1.2, 0.68, 0.95]); top.position.set((rnd() - 0.5) * 0.15, 1.1, 0); top.rotation.y = (rnd() - 0.5) * 0.2; g.add(top); } }
+      else if (st.id === 'dustbowl') {
         for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) { const t = new THREE.Mesh(G.tyre, (r + c) % 2 ? MT.white : MT.tyre); t.rotation.x = Math.PI / 2; t.position.set(c ? 0.38 : -0.38, 0.14 + r * 0.29, 0); g.add(t); }
         const t2 = new THREE.Mesh(G.tyre, MT.orange); t2.rotation.x = Math.PI / 2; t2.position.set(0, 1.3, 0); t2.scale.setScalar(0.85); g.add(t2);
         const t3 = new THREE.Mesh(G.tyre, MT.tyre); t3.rotation.x = Math.PI / 2; t3.position.set(0, 1.6, 0); t3.scale.setScalar(0.8); g.add(t3);
       } else if (st.id === 'skyway') {
-        const r = new THREE.Mesh(new THREE.DodecahedronGeometry(0.95, 1), MT.rock); r.scale.set(0.8, 0.95, 0.6); r.position.y = 0.85; r.rotation.set(rnd(), rnd(), 0); g.add(r);
-        const moss = new THREE.Mesh(new THREE.DodecahedronGeometry(0.5, 0), MT.leaf[1]); moss.scale.set(1, 0.3, 0.9); moss.position.set(0.1, 1.55, 0); g.add(moss);
+        const r = new THREE.Mesh(G.rocks[rnd() * 4 | 0], MT.rockV); r.scale.set(0.78, 1.05, 0.58); r.position.y = 0.88; r.rotation.y = rnd() * 6.28; g.add(r);
+        const r2 = new THREE.Mesh(G.rocks[rnd() * 4 | 0], MT.rockV); r2.scale.set(0.32, 0.26, 0.3); r2.position.set(0.55, 0.2, 0.3); g.add(r2);
       } else {
         [[-0.38, 0.38], [0.38, 0.38], [0, 1.16]].forEach(([x, y]) => { const b = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.76, 1.0), MT.hay); b.position.set(x, y, 0); b.rotation.y = (rnd() - 0.5) * 0.1; g.add(b);
           [-0.22, 0.22].forEach(z => { const tw = new THREE.Mesh(new THREE.TorusGeometry(0.39, 0.012, 4, 4), new THREE.MeshStandardMaterial({ color: 0xc8501a, roughness: 0.8 })); tw.rotation.z = Math.PI / 4; tw.scale.set(1.35, 1.38, 1); tw.position.set(x, y, z); g.add(tw); }); });
@@ -942,13 +1007,15 @@ const KIT = window.KIT = {
     high(X, full, st) {
       const w = full ? X.FULL_W : X.LANE_W, g = new THREE.Group();
       if (st.id === 'skyway') {
-        const log = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, w + 0.6, 10), MT.bark); log.rotation.z = Math.PI / 2; log.position.y = 0.95; g.add(log);
-        [-1, 1].forEach(s => { const r = new THREE.Mesh(new THREE.DodecahedronGeometry(0.4, 0), MT.rock); r.position.set(s * (w / 2 + 0.1), 0.4, 0); g.add(r); });
-        for (let k = 0; k < Math.round(w / 0.8); k++) { const c = new THREE.Mesh(new THREE.IcosahedronGeometry(0.45, 0), MT.leaf[k % 4]); c.position.set(-w / 2 + 0.4 + k * 0.8, 1.45 + Math.random() * 0.3, 0); c.scale.set(1, 0.85, 0.6); g.add(c); }
+        const log = logMesh(w + 0.6, 0.22); log.position.y = 0.95; g.add(log);
+        [-1, 1].forEach(s => { const r = new THREE.Mesh(G.rocks[(s + 1) | 0], MT.rockV); r.scale.set(0.45, 0.55, 0.4); r.position.set(s * (w / 2 + 0.1), 0.42, 0); g.add(r); });
+        for (let k = 0; k < Math.round(w / 0.7); k++) { const c = new THREE.Mesh(G.bushes[k % 3], MT.leafV); c.position.set(-w / 2 + 0.35 + k * 0.7, 1.45 + Math.random() * 0.25, 0); c.scale.set(0.5, 0.42, 0.34); g.add(c); }
       } else {
-        [-1, 1].forEach(s => { const p = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.3, 0.14), MT.wood); p.position.set(s * w / 2, 1.15, 0); g.add(p); });
+        [-1, 1].forEach(s => { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.09, 2.36, 10), MT.pole); p.position.set(s * w / 2, 1.18, 0); g.add(p);
+          const cap = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8, 0, 6.29, 0, 1.6), MT.pole); cap.position.set(s * w / 2, 2.36, 0); g.add(cap); });
+        if (st.id !== 'dustbowl') { const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, w + 0.24, 10), MT.pole); beam.rotation.z = Math.PI / 2; beam.position.y = 2.18; g.add(beam); }
         if (st.id === 'dustbowl') {
-          [0.85, 1.75].forEach(y => { const pole = new THREE.Mesh(new THREE.BoxGeometry(w, 0.16, 0.08), MT.stop); pole.position.y = y; g.add(pole); });
+          [0.85, 1.75].forEach(y => { const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, w, 14), MT.stop); pole.rotation.z = Math.PI / 2; pole.position.y = y; g.add(pole); });
           const sg = new THREE.Mesh(new THREE.CircleGeometry(0.28, 8), new THREE.MeshStandardMaterial({ color: 0xd82a2a, roughness: 0.5, side: THREE.DoubleSide })); sg.position.set(0, 1.3, 0.05); g.add(sg);
           const sw = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.1), new THREE.MeshBasicMaterial({ color: 0xffffff })); sw.position.set(0, 1.3, 0.06); g.add(sw);
         } else {
@@ -960,14 +1027,17 @@ const KIT = window.KIT = {
     },
     low(X, full, st) {
       const w = full ? X.FULL_W : X.LANE_W, g = new THREE.Group(), xs = [];
-      if (st.id === 'dustbowl') {
+      const cp = st.id === 'dustbowl' && X.PROPS.cones;
+      if (cp) {
+        const unit = cp.size.x * (0.62 / cp.size.y), n = Math.max(1, Math.round(w / unit));
+        for (let k = 0; k < n; k++) { const x = -w / 2 + (k + 0.5) * w / n; xs.push(x); const c = X.prop('cones', [w / n, 0.62, 0.5]); c.position.x = x; g.add(c); }
+      } else if (st.id === 'dustbowl') {
         const n = Math.max(2, Math.round(w / 0.55));
         for (let k = 0; k < n; k++) { const x = -w / 2 + (k + 0.5) * w / n; xs.push(x); const c = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.58, 14), MT.cone); c.position.set(x, 0.3, 0); g.add(c);
           const s = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 0.08, 14), MT.white); s.position.set(x, 0.33, 0); g.add(s);
           const base = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.42), MT.cone); base.position.set(x, 0.02, 0); g.add(base); }
       } else {
-        const log = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.3, w, 12), MT.bark); log.rotation.z = Math.PI / 2; log.position.y = 0.3; g.add(log);
-        [-1, 1].forEach(s => { const e = new THREE.Mesh(new THREE.CircleGeometry(0.27, 12), new THREE.MeshStandardMaterial({ color: 0xc8a070 })); e.rotation.y = s * Math.PI / 2; e.position.set(s * w / 2, 0.3, 0); g.add(e); });
+        const log = logMesh(w, 0.29); log.position.y = 0.3; g.add(log);
         xs.push(-w / 4, w / 4);
       }
       return { g, ymin: 0, ymax: 0.62, hd: 0.3, lethal: false, w, puff: { xs, y: 0.05, col: 0xc8a878, up: 1.2, grav: -1 } };
@@ -985,6 +1055,8 @@ const KIT = window.KIT = {
       const grille = new THREE.Mesh(new THREE.BoxGeometry(W - 0.3, 0.6, 0.05), MT.white); grille.position.set(0, 0.9, len / 2 + 0.01); g.add(grille);
       [-1, 1].forEach(sd => { const l = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), R.basic(0xfff4c8, 3.2)); l.position.set(sd * 0.48, 1.1, len / 2 + 0.05); g.add(l); lamps.push(l); });
       const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8), MT.tyre); stack.position.set(0.4, H + 0.25, len / 2 - 0.6); g.add(stack);
+      const bonnet = new THREE.Mesh(new THREE.CylinderGeometry(W / 2 - 0.05, W / 2 - 0.05, 1.6, 16, 1, false, -Math.PI / 2, Math.PI), MT.tractor); bonnet.rotation.x = Math.PI / 2; bonnet.position.set(0, H - 0.02, len / 2 - 0.85); bonnet.scale.set(1, 1, 0.35); g.add(bonnet);
+      [-1, 1].forEach(sd => { const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.06, 14), new THREE.MeshStandardMaterial({ color: 0xffc820, roughness: 0.4, metalness: 0.4 })); hub.rotation.z = Math.PI / 2; hub.position.set(sd * (W / 2 + 0.2), 0.48, len / 2 - 1.2); g.add(hub); });
     } else {
       const deck = new THREE.Mesh(new THREE.BoxGeometry(W, H - 0.35, len), MT.trailer); deck.position.y = 0.35 + (H - 0.35) / 2; g.add(deck);
       const hay = new THREE.Mesh(new THREE.BoxGeometry(W + 0.04, 0.1, len), MT.hay); hay.position.y = H - 0.03; g.add(hay);
@@ -1050,7 +1122,28 @@ const KIT = window.KIT = {
     jump() { tone(300, 720, 0.15, 'triangle', 0.09); tone(450, 1000, 0.1, 'sine', 0.04, 0.04); },   // springy boing, no engine rev
   }),
 };
-const SWAY = [];
+const SWAY = [], LODTINT = {}, LOD_NEAR = 46;
+const PROPS_READY = () => !!(window.KIT._X && window.KIT._X.PROPS && window.KIT._X.PROPS.tyres);
+// smooth lumpy sphere with vertex colours (rock / bush): base colour below, top colour on the upper faces
+function lumpGeo(seed, amp, base, top, squash, topFrom, ws, hs) {
+  const g = new THREE.SphereGeometry(1, ws || 20, hs || 14), p = g.attributes.position, v = new THREE.Vector3(), cols = [];
+  const cb = new THREE.Color(base), ct = new THREE.Color(top), c = new THREE.Color();
+  for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i);
+    const n = Math.sin(v.x * 3.1 + seed) * Math.cos(v.y * 2.7 + seed * 1.7) * 0.5 + Math.sin(v.z * 5.3 + seed * 2.3 + v.x * 2) * 0.3 + Math.sin((v.x + v.y + v.z) * 9 + seed) * 0.12;
+    const yN = v.y; v.multiplyScalar(1 + n * amp); v.y *= squash; p.setXYZ(i, v.x, v.y, v.z);
+    const t = THREE.MathUtils.smoothstep(yN, topFrom, Math.min(1, topFrom + 0.45)), j = 0.9 + 0.2 * (Math.abs(Math.sin(i * 12.9898 + seed) * 43758.5453) % 1);
+    c.copy(cb).lerp(ct, t); cols.push(c.r * j, c.g * j, c.b * j); }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3)); g.computeVertexNormals(); return g;
+}
+// a fallen log: ridged bark, tree-ring ends, a branch stub and a mossy patch
+function logMesh(len, r) {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.94, r, len, 20, 3), MT.barkHi); body.rotation.z = Math.PI / 2; g.add(body);
+  [-1, 1].forEach(s => { const e = new THREE.Mesh(new THREE.CircleGeometry(r * (s < 0 ? 0.92 : 0.98), 20), MT.rings); e.rotation.y = s * Math.PI / 2; e.position.x = s * (len / 2 + 0.003); g.add(e); });
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.22, r * 0.32, r * 1.1, 10), MT.barkHi); st.position.set(len * 0.2, r * 0.95, 0); st.rotation.z = -0.55; g.add(st);
+  const m = new THREE.Mesh(G.bushes[0], MT.leafV); m.scale.set(Math.min(0.5, len * 0.16), r * 0.32, r * 0.75); m.position.set(-len * 0.22, r * 0.82, 0); g.add(m);
+  return g;
+}
 function skyLife(X) {
   const L = KIT._sky = { clouds: [], flock: { g: new THREE.Group(), birds: [], on: false, next: 4 } };
   const tex = X.canvasTex(256, 128, (g, w, h) => { g.clearRect(0, 0, w, h);
