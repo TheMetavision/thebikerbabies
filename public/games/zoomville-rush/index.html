@@ -722,7 +722,7 @@ const KIT = window.KIT = {
   world: { ceil: 7 },
   // Higgsfield prop models (models/prop-*.glb): the trackside kit shared with Wheelie Wild Racers plus a broadleaf oak.
   // Each falls back to the code-built version until it has loaded (or if it fails).
-  props: { oak: {}, pine: {}, hay: {}, tyres: {}, cones: {}, climb: {}, hut: {} },
+  props: { oak: {}, pine: {}, hay: {}, tyres: {}, cones: {}, climb: {}, hut: {}, tractor: {}, trailer: {} },
   look: { bloom: 0.38, bloomR: 0.5, bloomT: 0.85, exposure: 0.98, vignette: 0.62, fog: [40, 170], grain: 0.02, runnerLight: 0.35, flash: 0.3, normalParticles: true,
     grade: { lift: [0.012, 0.012, 0.0], gain: [1.03, 1.02, 0.96], gamma: 1.0, sat: 1.14 } },
   weather: (st) => ({ kind: 'motes', color: st.id === 'dustbowl' ? 0xe8c890 : 0xfff6c8, count: st.id === 'skyway' ? 120 : 170, size: 0.05, drift: st.id === 'skyway' ? 1.4 : 0.5, opacity: 0.8 }),
@@ -1046,7 +1046,21 @@ const KIT = window.KIT = {
   buildVehicle(X, len, ramp, moving) {
     const g = new THREE.Group(), H = X.CART_H, W = X.CART_W;
     const lamps = [];
-    if (moving) {
+    if (X.PROPS.tractor && X.PROPS.trailer) {
+      // models run along x: tractor nose at -x, trailer drawbar at -x
+      const trailers = (from, to, ry) => { const L = to - from; if (L < 0.8) return; const n = Math.max(1, Math.round(L / 4)), seg = L / n;
+        for (let k = 0; k < n; k++) { const t = X.prop('trailer', [seg - 0.12, H, W]); t.rotation.y = ry; t.position.z = from + seg * (k + 0.5); g.add(t); } };
+      const fz = len / 2 + 0.05;
+      if (moving) {
+        const tl = len < 3.2 ? len : Math.min(2.3, len);
+        const tr = X.prop('tractor', [tl, H, W]); tr.rotation.y = Math.PI / 2; tr.position.z = len / 2 - tl / 2; g.add(tr);   // nose toward the runner
+        trailers(-len / 2, len / 2 - tl - 0.1, Math.PI / 2);
+        [-1, 1].forEach(sd => { const l = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), R.basic(0xfff4c8, 3.2)); l.position.set(sd * 0.45, 0.95, fz); g.add(l); lamps.push(l); });
+      } else {
+        trailers(-len / 2, len / 2, -Math.PI / 2);   // drawbars point away, tailboards face the runner
+        [-1, 1].forEach(sd => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.04), R.basic(0xff6b00, 2.5)); l.position.set(sd * 0.55, 0.7, fz); g.add(l); lamps.push(l); });
+      }
+    } else if (moving) {
       // a tractor pulling a short trailer, heading your way
       const body = new THREE.Mesh(new THREE.BoxGeometry(W, H - 0.4, len), MT.tractor); body.position.y = 0.4 + (H - 0.4) / 2; g.add(body);
       const top = new THREE.Mesh(new THREE.BoxGeometry(W + 0.02, 0.06, len), MT.trailer); top.position.y = H; g.add(top);
