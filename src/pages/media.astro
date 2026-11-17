@@ -574,13 +574,16 @@ const books = await sanity.fetch(`
       gap: 2rem;
     }
 
+    /* The trailer is a vertical Short: keep it 9:16, centred, at a phone-friendly width */
     .trailer-video {
-      max-width: 100%;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
     }
 
     .trailer-wrap :global(.trailer-embed) {
-      max-width: 100%;
-      aspect-ratio: 16 / 9;
+      max-width: 300px;
+      aspect-ratio: 9 / 16;
     }
   }
 
