@@ -35,6 +35,16 @@ const episodes = [
   },
 ];
 
+// Key art for the cards above: the episode doc in Sanity with the same title.
+const episodeArt: Record<string, string> = Object.fromEntries(
+  (
+    await sanity.fetch(
+      `*[_type == "episode" && title in $titles && defined(thumbnail.asset)]{ title, "url": thumbnail.asset->url }`,
+      { titles: episodes.map((e) => e.title) }
+    )
+  ).map((d: { title: string; url: string }) => [d.title, d.url])
+);
+
 const books = await sanity.fetch(`
   *[_type == "book"] | order(seriesOrder asc) {
     _id,
@@ -106,6 +116,18 @@ const books = await sanity.fetch(`
         {
           episodes.map((ep) => (
             <article class="episode-card">
+              {episodeArt[ep.title] && (
+                <img
+                  class="episode-art"
+                  src={sanityImg(episodeArt[ep.title], 480, { h: 270 })}
+                  srcset={`${sanityImg(episodeArt[ep.title], 480, { h: 270 })} 480w, ${sanityImg(episodeArt[ep.title], 960, { h: 540 })} 960w`}
+                  sizes="(min-width: 900px) 320px, 100vw"
+                  alt={`${ep.title} key art`}
+                  width="480"
+                  height="270"
+                  loading="lazy"
+                />
+              )}
               <div class="episode-badge">Coming Soon</div>
               <h3 class="episode-title">{ep.title}</h3>
               <p class="episode-desc">{ep.description}</p>
@@ -360,6 +382,16 @@ const books = await sanity.fetch(`
   .episode-card:hover {
     border-color: rgba(255, 107, 0, 0.35);
     transform: translateY(-4px);
+  }
+
+  .episode-art {
+    display: block;
+    width: calc(100% + 3.5rem);
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    margin: -1.75rem -1.75rem 1.25rem;
+    border-radius: 10px 10px 0 0;
   }
 
   .episode-badge {
