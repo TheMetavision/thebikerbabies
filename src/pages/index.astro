@@ -126,7 +126,7 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
         </div>
       </div>
       <div class="series-video">
-        <ClickToLoadVideo videoId="r-n_ewf5lps" title="The Biker Babies – Animated Series Trailer" fit="contain" class="series-video-wrap" />
+        <ClickToLoadVideo videoId="r-n_ewf5lps" title="The Biker Babies – Animated Series Trailer" fit="cover" class="series-video-wrap" />
       </div>
     </div>
   </section>
@@ -429,9 +429,11 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* Copy column + a narrow column sized for the 9:16 (vertical) trailer */
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
     gap: 5rem;
     align-items: center;
+    justify-content: center;
     position: relative;
     z-index: 1;
   }
@@ -525,14 +527,18 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
 
   .series-video {
     position: relative;
+    width: 100%;
+    max-width: 340px;
+    justify-self: center;
+    text-align: center;
     --ctl-note: rgba(0, 0, 0, 0.75);
   }
 
   .series-video :global(.series-video-wrap) {
     position: relative;
-    padding-bottom: 56.25%;
+    padding-bottom: 177.78%; /* 9:16 vertical trailer */
     height: 0;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow:
       0 24px 60px rgba(0, 0, 0, 0.7),
@@ -613,6 +619,7 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
 
     .series-video {
       order: 2;
+      max-width: 300px;
     }
 
     .series-body {
