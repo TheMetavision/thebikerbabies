@@ -1,4 +1,7 @@
 ---
+import SceneHero from '../components/SceneHero.astro';
+import { socialImg } from '../lib/sanityImage';
+const HERO_IMG = '/images/heroes/merch.webp';
 import { sanityImg, sanitySrcset, sanityDims, localImg, localSrcset, productImg, productSrcset, productDims } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import { getAllProducts } from "../lib/sanity";
@@ -75,17 +78,16 @@ const categories = categoryOrder.map((cat, catIdx) => ({
 const defaultCat = categories[0]?.key || (wallArt.length ? 'wallart' : 'tshirt');
 ---
 
-<Layout title="Merch – The Biker Babies" description="Official Biker Babies merch – tees, hoodies, kids sizes, baby grows, wall art and more. Gear up and ride!">
-  <section class="merch-hero">
+<Layout title="Merch – The Biker Babies" description="Official Biker Babies merch – tees, hoodies, kids sizes, baby grows, wall art and more. Gear up and ride!"
+  ogImage={socialImg(HERO_IMG)}>
+  <section class="merch-hero has-scene">
+    <SceneHero src={HERO_IMG} alt="Yara in the Most Wanted tee and Mateo in the Spikes Off hoodie outside the Garage" position="70% 35%" />
     <div class="merch-hero-content">
       <div class="hero-text">
         <h1 class="merch-hero-title">Official Merch</h1>
         <span class="h1-accent-bar" aria-hidden="true"></span>
         <p class="merch-hero-sub">Gear Up &amp; Ride in Style</p>
         <p class="merch-hero-body">Character tees, hoodies and bottles for every fan of the crew — plus sticker sets, pin badges, wall art, kids sizes and baby grows for the youngest riders in the clubhouse.</p>
-      </div>
-      <div class="hero-image-wrap">
-        <img src={localImg('/images/merch-hero.webp', 800)} srcset={localSrcset('/images/merch-hero.webp', 600, 1625)} sizes="(min-width: 900px) 600px, 100vw" width="1625" height="968" fetchpriority="high" alt="The Biker Babies merch" class="hero-img" loading="eager" />
       </div>
     </div>
   </section>

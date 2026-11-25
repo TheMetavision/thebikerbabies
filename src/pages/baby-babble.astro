@@ -1,4 +1,7 @@
 ---
+import SceneHero from '../components/SceneHero.astro';
+import { socialImg } from '../lib/sanityImage';
+const HERO_IMG = '/images/heroes/babble.webp';
 import { localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
@@ -78,8 +81,10 @@ const posts = (sanityPosts || []).map((p: any) => {
 <Layout
   title="Baby Babble – The Biker Babies Blog"
   description="Stories, speed and squad goals – the official Biker Babies blog with behind-the-scenes stories, character spotlights, and tips for young riders."
+  ogImage={socialImg(HERO_IMG)}
 >
-  <section class="blog-hero">
+  <section class="blog-hero has-scene">
+    <SceneHero src={HERO_IMG} alt="Wyatt reads a storybook on the Lookout Hill bench to Cinnamon and Harper, with their motorbikes parked behind" position="65% 45%" />
     <div class="blog-hero-content">
       <div class="hero-text">
         <h1 class="blog-hero-title">Baby Babble</h1>
@@ -89,14 +94,6 @@ const posts = (sanityPosts || []).map((p: any) => {
           Your go-to source for <em>Biker Babies</em> news, character spotlights,
           behind-the-scenes stories, and tips for young riders everywhere.
         </p>
-      </div>
-      <div class="hero-image-wrap">
-        <img
-          src={localImg('/images/baby-babble.webp', 800)} srcset={localSrcset('/images/baby-babble.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="669"
-          alt="The Biker Babies story time – Mateo reads aloud to the crew in a sunny park clearing with motorbikes parked behind them"
-          class="hero-img"
-          loading="eager"
-        />
       </div>
     </div>
   </section>

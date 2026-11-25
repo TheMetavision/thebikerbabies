@@ -1,4 +1,7 @@
 ---
+import SceneHero from '../components/SceneHero.astro';
+import { socialImg } from '../lib/sanityImage';
+const HERO_IMG = '/images/heroes/gang.webp';
 import { localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import CharacterCard from "../components/CharacterCard.astro";
@@ -29,8 +32,10 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
 <Layout
   title="Meet the Gang — The Biker Babies"
   description="Get to know The Biker Babies—a fearless crew of young riders with unique skills and personalities!"
+  ogImage={socialImg(HERO_IMG)}
 >
-  <section class="gang-hero">
+  <section class="gang-hero has-scene">
+    <SceneHero src={HERO_IMG} alt="Kai, Hiro, Logan, Cassidy and Leilani line up with their motorbikes outside the Clubhouse on Zoomville bay at sunset" position="45% 40%" />
     <div class="gang-hero-content">
       <div class="hero-text">
         <h1 class="gang-hero-title">Meet the Gang</h1>
@@ -42,14 +47,6 @@ const villains = allCharacters.filter((c: any) => c.characterType === "villain")
             >Meet the gang and join the ride!</strong
           >
         </p>
-      </div>
-      <div class="hero-image-wrap">
-        <img
-          src={localImg('/images/meet-the-gang.webp', 800)} srcset={localSrcset('/images/meet-the-gang.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="669"
-          alt="Wanted posters of The Biker Babies villains pinned to a garage wall – Grumpy Gearhead, Professor Pothole, Captain Cone and The Flat Tyre Gang"
-          class="hero-img"
-          loading="eager"
-        />
       </div>
     </div>
   </section>

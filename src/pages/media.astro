@@ -1,4 +1,7 @@
 ---
+import SceneHero from '../components/SceneHero.astro';
+import { socialImg } from '../lib/sanityImage';
+const HERO_IMG = '/images/heroes/media.webp';
 import { sanityImg, sanitySrcset, sanityDims, localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
@@ -61,8 +64,10 @@ const books = await sanity.fetch(`
 <Layout
   title="Media – The Biker Babies"
   description="Watch The Biker Babies animated episodes, explore the book series, and discover all the action-packed content!"
+  ogImage={socialImg(HERO_IMG)}
 >
-  <section class="media-hero">
+  <section class="media-hero has-scene">
+    <SceneHero src={HERO_IMG} alt="Ethan presents to camera in Pit Lane while Santiago films and Kofi holds the boom microphone" position="62% 40%" />
     <div class="media-hero-content">
       <div class="hero-text">
         <h1 class="media-hero-title">Rev Up the Action!</h1>
@@ -73,14 +78,6 @@ const books = await sanity.fetch(`
           character videos, and behind-the-scenes content. From high-speed adventures to fun-filled
           challenges, explore all things Biker Babies right here!
         </p>
-      </div>
-      <div class="hero-image-wrap">
-        <img
-          src={localImg('/images/behind-the-scenes.webp', 800)} srcset={localSrcset('/images/behind-the-scenes.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="670"
-          alt="Behind the scenes of a Biker Babies episode in production – the crew at work bringing the characters to life"
-          class="hero-img"
-          loading="eager"
-        />
       </div>
     </div>
   </section>
