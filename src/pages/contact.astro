@@ -1,4 +1,7 @@
 ---
+import SceneHero from '../components/SceneHero.astro';
+import { socialImg } from '../lib/sanityImage';
+const HERO_IMG = '/images/heroes/contact.webp';
 import { localImg, localSrcset } from '../lib/sanityImage';
 import Layout from "../layouts/Layout.astro";
 import NewsletterSection from "../components/NewsletterSection.astro";
@@ -7,8 +10,10 @@ import NewsletterSection from "../components/NewsletterSection.astro";
 <Layout
   title="Get In Touch – The Biker Babies"
   description="Have a question, partnership enquiry, or just want to say hello? Get in touch with The Biker Babies team!"
+  ogImage={socialImg(HERO_IMG)}
 >
-  <section class="contact-hero">
+  <section class="contact-hero has-scene">
+    <SceneHero src={HERO_IMG} alt="Arjun pulls a bundle of letters from the Clubhouse mailbox while Turbo Toad sits on top holding an envelope" position="70% 40%" />
     <div class="contact-hero-content">
       <div class="hero-text">
         <h1 class="contact-hero-title">Get In Touch</h1>
@@ -18,14 +23,6 @@ import NewsletterSection from "../components/NewsletterSection.astro";
           Have a question, a partnership idea, or just want to say hello? Drop us a message and a
           member of <em>The Biker Babies</em> team will get back to you as soon as possible.
         </p>
-      </div>
-      <div class="hero-image-wrap">
-        <img
-          src={localImg('/images/get-in-touch.webp', 800)} srcset={localSrcset('/images/get-in-touch.webp', 600, 1200)} sizes="(min-width: 900px) 600px, 100vw" width="1200" height="669"
-          alt="The Biker Babies mission control – the crew handling incoming messages in their over-the-top command centre"
-          class="hero-img"
-          loading="eager"
-        />
       </div>
     </div>
   </section>

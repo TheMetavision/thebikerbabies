@@ -1,4 +1,7 @@
 ---
+import SceneHero from '../../components/SceneHero.astro';
+import { socialImg } from '../../lib/sanityImage';
+const HERO_IMG = '/images/heroes/games.webp';
 import Layout from '../../layouts/Layout.astro';
 
 // The games hub, as on catsoncrack.co.uk/games/ (same card and Play button), in Biker Babies
@@ -24,8 +27,10 @@ const games = [
 ];
 ---
 
-<Layout title="Games | The Biker Babies" description="Free Biker Babies games: outrun the Flat Tyre Gang in Zoomville Rush and race motorbikes in Wheelie Wild Racers. Play in your browser, no sign-up.">
-  <section class="page-hero">
+<Layout title="Games | The Biker Babies" description="Free Biker Babies games: outrun the Flat Tyre Gang in Zoomville Rush and race motorbikes in Wheelie Wild Racers. Play in your browser, no sign-up."
+  ogImage={socialImg(HERO_IMG)}>
+  <section class="page-hero has-scene">
+    <SceneHero src={HERO_IMG} alt="Nia and Zeya race their motorbikes round the Dust Bowl while the Flat Tyre Gang and Professor Pothole plot behind a tyre stack" position="62% 45%" />
     <div class="container">
       <div class="section-eyebrow">Games</div>
       <h1 class="page-title">Ride in Zoomville</h1>
@@ -84,6 +89,9 @@ const games = [
     text-transform: uppercase;
   }
 
+  .page-hero.has-scene { text-align: left; }
+  .page-hero.has-scene .container { padding: 0; max-width: 1200px; }
+  .page-hero.has-scene .heading-rule, .page-hero.has-scene .page-intro { margin-left: 0; margin-right: 0; }
   .heading-rule {
     width: 80px;
     height: 3px;
