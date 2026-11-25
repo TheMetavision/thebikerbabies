@@ -12,16 +12,14 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
 
 <Layout title="The Biker Babies – Adventure on Two Wheels!" jsonLd={tvSeriesSchema()}>
   <link slot="head" rel="preload" as="image" fetchpriority="high"
-        href={localImg('/images/hero-character.jpg', 1600)}
-        imagesrcset={localSrcset('/images/hero-character.jpg', 1920, 2752)}
+        href={localImg('/images/heroes/home.webp', 1600)}
+        imagesrcset={localSrcset('/images/heroes/home.webp', 1920, 2048)}
         imagesizes="100vw" />
   <section class="hero has-scene">
     <SceneHero
-      src="/images/hero-character.jpg"
-      width={2752}
-      height={1536}
-      alt="Two of the Biker Babies ride their motorbikes down a sunny country lane towards Zoomville"
-      position="68% 50%"
+      src="/images/heroes/home.webp"
+      alt="Maddison and Amara ride their motorbikes along the coast road into Zoomville, with the bay and clock tower behind them"
+      position="70% 40%"
     />
     <div class="hero-content">
       <h1 class="hero-title">Tiny bikers, epic tales!</h1>
