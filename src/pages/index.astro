@@ -2,6 +2,7 @@
 import { sanityImg, sanitySrcset, sanityDims, localImg, localSrcset, productImg, productSrcset, productDims } from '../lib/sanityImage';
 const BOOKS = 'https://cdn.sanity.io/images/v518t53u/production/430fec27ec8dee42de1201c78780a761159fd23e-2048x2048.png';
 import Layout from "../layouts/Layout.astro";
+import SceneHero from "../components/SceneHero.astro";
 import { tvSeriesSchema } from "../lib/schema";
 import NewsletterSection from "../components/NewsletterSection.astro";
 import CharacterCarousel from "../components/CharacterCarousel.astro";
@@ -14,60 +15,49 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
         href={localImg('/images/hero-character.jpg', 1600)}
         imagesrcset={localSrcset('/images/hero-character.jpg', 1920, 2752)}
         imagesizes="100vw" />
-  <section class="hero">
-    <div class="hero-image-wrap">
-      <div class="hero-parallax-wrap">
-        <img
-          src={localImg('/images/hero-character.jpg', 1600)}
-          srcset={localSrcset('/images/hero-character.jpg', 1920, 2752)} sizes="100vw" width="2752" height="1536"
-          fetchpriority="high"
-          alt="The Biker Babies landscape"
-          class="hero-landscape"
-        />
-      </div>
-      <img
-        src={localImg('/images/hero-character.jpg', 1600)}
-        srcset={localSrcset('/images/hero-character.jpg', 1920, 2752)} sizes="100vw" width="2752" height="1536"
-        alt="The Biker Babies"
-        class="hero-portrait"
-      />
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <h1 class="hero-title">Tiny bikers, epic tales!</h1>
-        <span class="h1-accent-bar" aria-hidden="true"></span>
-        <p class="hero-intro">
-          <strong>Welcome to <em>The Biker Babies</em> – Adventure on Two Wheels!</strong>
-        </p>
-        <p class="hero-body">
-          Join <em>The Biker Babies</em> on thrilling, fast-paced adventures in our <strong
-            >animated series</strong
-          >, where a fearless crew of young bikers takes on quirky rivals, tricky obstacles, and
-          exciting challenges! Watch their journey unfold on <strong>YouTube</strong>, where you'll
-          find <strong>character videos, behind-the-scenes fun, and action-packed episodes</strong>.
-        </p>
-        <p class="hero-body">
-          Love to read? Dive into <em>The Biker Babies</em>
-          <strong>book series</strong>, packed with epic stories, daring escapes, and unforgettable
-          friendships.
-        </p>
-        <p class="hero-body">
-          Bring the adventure home with our <strong>official merchandise</strong>—featuring <strong
-            >character-themed apparel, collectible stickers, unique artwork, accessories, and
-            more!</strong
-          >
-        </p>
-        <p class="hero-tagline">
-          Join the ride, gear up, and become part of <em>The Biker Babies</em> crew today!
-        </p>
-        <a
-          href="https://www.youtube.com/shorts/r-n_ewf5lps"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-primary"
+  <section class="hero has-scene">
+    <SceneHero
+      src="/images/hero-character.jpg"
+      width={2752}
+      height={1536}
+      alt="Two of the Biker Babies ride their motorbikes down a sunny country lane towards Zoomville"
+      position="68% 50%"
+    />
+    <div class="hero-content">
+      <h1 class="hero-title">Tiny bikers, epic tales!</h1>
+      <span class="h1-accent-bar" aria-hidden="true"></span>
+      <p class="hero-intro">
+        <strong>Welcome to <em>The Biker Babies</em> – Adventure on Two Wheels!</strong>
+      </p>
+      <p class="hero-body">
+        Join <em>The Biker Babies</em> on thrilling, fast-paced adventures in our <strong
+          >animated series</strong
+        >, where a fearless crew of young bikers takes on quirky rivals, tricky obstacles, and
+        exciting challenges! Watch their journey unfold on <strong>YouTube</strong>, where you'll
+        find <strong>character videos, behind-the-scenes fun, and action-packed episodes</strong>.
+      </p>
+      <p class="hero-body">
+        Love to read? Dive into <em>The Biker Babies</em>
+        <strong>book series</strong>, packed with epic stories, daring escapes, and unforgettable
+        friendships.
+      </p>
+      <p class="hero-body">
+        Bring the adventure home with our <strong>official merchandise</strong>—featuring <strong
+          >character-themed apparel, collectible stickers, unique artwork, accessories, and
+          more!</strong
         >
-          Watch our trailer
-        </a>
-      </div>
+      </p>
+      <p class="hero-tagline">
+        Join the ride, gear up, and become part of <em>The Biker Babies</em> crew today!
+      </p>
+      <a
+        href="https://www.youtube.com/shorts/r-n_ewf5lps"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-primary"
+      >
+        Watch our trailer
+      </a>
     </div>
   </section>
 
@@ -186,16 +176,9 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
   }
 
   .hero-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem 2rem 2rem 4vw;
-    max-width: 660px;
-    z-index: 1;
     line-height: 1.6;
   }
+  .hero.has-scene .hero-content > * { max-width: 540px; }
 
   .hero-title {
     font-size: clamp(2.4rem, 6vw, 5rem);
@@ -548,10 +531,6 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
 
   /* ── Responsive ─────────────────────────────────────────── */
   @media (max-width: 900px) {
-    .hero {
-      padding-top: 90px;
-      overflow: visible;
-    }
 
     .hero-parallax-wrap {
       display: none;
@@ -573,14 +552,6 @@ import ClickToLoadVideo from "../components/ClickToLoadVideo.astro";
       display: none;
     }
 
-    .hero-content {
-      position: relative;
-      inset: auto;
-      padding: 2rem 1.5rem;
-      max-width: 100%;
-      background: var(--color-bg, #080810);
-      z-index: 2;
-    }
 
     .btn-primary {
       align-self: center;
