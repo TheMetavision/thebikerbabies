@@ -12,6 +12,7 @@
 // 2026-10-05: added order (the Stripe/Printful webhook order log; stripe-webhook
 // already wrote these documents with no schema).
 import character from './character';
+import { brandCanon } from './canon';
 import episode from './episode';
 import book from './book';
 import blogPost from './blogPost';
@@ -34,6 +35,7 @@ import returnRequest from './returnRequest';
 import galleryImage from './galleryImage';
 import game from './game';
 export const schemaTypes = [
+  brandCanon,
   siteSettings,
   worldLocation,
   character,

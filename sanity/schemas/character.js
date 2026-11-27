@@ -1,4 +1,5 @@
 import { referenceGallery, referencePrivateFieldset } from './galleryImage';
+import { proportionsField } from './canon';
 
 export default {
   name: 'character', title: 'Character', type: 'document',
@@ -25,6 +26,7 @@ export default {
     { name: 'tag', title: 'Tag', type: 'string', options: { list: [{ title: 'Hero', value: 'hero' }, { title: 'Villain', value: 'villain' }] }, description: 'Legacy: not read by the website (it uses Character Type).' },
     { name: 'coreSix', title: 'Core Six', type: 'boolean', description: 'Legacy: not read by the website.' },
     // Private: Studio and Social Content Studio only, never queried by the website.
+    proportionsField,
     referenceGallery('character'),
   ],
   orderings: [{ title: 'Display Order', name: 'sortOrderAsc', by: [{ field: 'sortOrder', direction: 'asc' }] }],
